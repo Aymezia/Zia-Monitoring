@@ -37,6 +37,7 @@ Zia Monitoring est un logiciel de monitoring système complet pour Windows 10/11
 
 ### Sante et historique
 - Graphiques LiveCharts2 : historique CPU 24h et tendance 7 jours
+- Historique **persisté en SQLite** (un échantillon / 15 s, rétention 8 jours) : les graphes survivent aux redémarrages
 - Alertes dynamiques en temps réel
 
 ### Recommandations intelligentes
@@ -47,6 +48,7 @@ Zia Monitoring est un logiciel de monitoring système complet pour Windows 10/11
 - Moteur de boost avec preview sécurisé avant exécution
 - Rollback automatique de toutes les actions
 - 4 profils prédéfinis : Gaming Max, Travail Silencieux, Streaming, Equilibre
+- Profils personnalisés avec **export/import JSON** (partage entre machines)
 - Nettoyage cache navigateurs (Chrome, Edge, Firefox) directement depuis l'app
 - Désactivation/restauration des animations Windows
 
@@ -62,9 +64,9 @@ Zia Monitoring est un logiciel de monitoring système complet pour Windows 10/11
 - Diagnostics spécifiques (Valorant, OBS, encodeurs GPU)
 
 ### Notifications et alertes
-- Toast Windows natif si CPU > 90%
-- Alerte disque plein (< 10 GB libre)
+- Toast Windows natif : CPU, surchauffe CPU/GPU, disque plein — **seuils configurables** dans les Paramètres
 - Résumé de santé quotidien
+- Notification au démarrage si une nouvelle version est publiée (GitHub Releases)
 
 ### Export et rapports
 - Export rapport HTML complet (machine, métriques, jeux, alertes)
@@ -99,8 +101,11 @@ Téléchargez `ZiaMonitoring-SetupBootstrap.exe` **et** `ZiaMonitoring-Setup.msi
 git clone https://github.com/Aymezia/Zia-Monitoring.git
 cd "Zia-Monitoring/ZiaMonitoring.App"
 
-# Build debug
-dotnet build
+# Build debug (solution complète : app + bootstrapper + tests)
+dotnet build ZiaMonitoring.sln
+
+# Tests unitaires
+dotnet test tests/ZiaMonitoring.Tests/ZiaMonitoring.Tests.csproj
 
 # Build portable (release)
 powershell -ExecutionPolicy Bypass -File .\installer\Build-Portable.ps1
@@ -108,6 +113,12 @@ powershell -ExecutionPolicy Bypass -File .\installer\Build-Portable.ps1
 # Build MSI
 powershell -ExecutionPolicy Bypass -File .\installer\Build-Msi.ps1
 ```
+
+La CI GitHub Actions (`.github/workflows/ci.yml`) build l'app et exécute les
+tests sur chaque push/PR vers `main`. La migration vers .NET 10 est préparée :
+voir [docs/MIGRATION-NET10.md](docs/MIGRATION-NET10.md). Les fonctionnalités
+différées (FPS via PresentMon, localisation, benchmarks, overlay
+personnalisable) sont détaillées dans [docs/ROADMAP.md](docs/ROADMAP.md).
 
 L'exécutable portable se trouve dans `publish\portable\ZiaMonitoring.App.exe`.
 
@@ -117,16 +128,20 @@ L'exécutable portable se trouve dans `publish\portable\ZiaMonitoring.App.exe`.
 
 ```
 ZiaMonitoring.App/
-├── App.xaml.cs                        # Bootstrap, services, gestion exceptions
-├── MainWindow.xaml(.cs)               # Shell navigation + timer monitoring
+├── ZiaMonitoring.sln                  # Solution (app + bootstrapper + tests)
+├── App.xaml.cs                        # Bootstrap, conteneur DI, gestion exceptions
+├── MainWindow.xaml(.cs)               # Shell navigation + boucle de monitoring en arrière-plan
 ├── Core/
 │   └── Models/MonitoringModels.cs     # Modèles domaine (snapshot, profile, settings...)
 ├── Infrastructure/
+│   ├── AppLog.cs                      # Logger partagé (rotation 2 Mo, déduplication)
 │   └── Collectors/                    # Collecteurs WMI/Win32 (CPU, GPU, réseau, disques...)
-├── Application/                       # Services métier (boost, sécurité, profils, notifications...)
+├── Application/                       # Services métier (boost, sécurité, profils, historique SQLite...)
 ├── ViewModels/
-│   └── AppStateViewModel.cs           # State partagé MVVM avec bindings
+│   └── AppStateViewModel.cs           # State partagé MVVM (CommunityToolkit.Mvvm)
 ├── Pages/                             # Pages WinUI 3 (Dashboard, Mapping, Health, Boost...)
+├── tests/ZiaMonitoring.Tests/         # Tests unitaires xUnit
+├── docs/                              # Guide migration .NET 10, roadmap
 └── installer/                         # Scripts PowerShell + WiX pour packaging
 ```
 
@@ -141,7 +156,9 @@ ZiaMonitoring.App/
 | Graphiques | LiveChartsCore 2 (SkiaSharp) |
 | Packaging | WiX Toolset v7 |
 | Collecte hardware | WMI / Win32 / PerformanceCounters |
-| Stockage paramètres | JSON (`%LOCALAPPDATA%\ZiaMonitoring`) |
+| Stockage paramètres | JSON (`%LOCALAPPDATA%\ZiaMonitoring`), clé API chiffrée DPAPI |
+| Historique métriques | SQLite (`metrics.db`) |
+| Tests / CI | xUnit + GitHub Actions |
 
 ---
 

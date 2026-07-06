@@ -13,6 +13,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid ColumnSpacing="12">
@@ -51,6 +52,39 @@
             </ListView>
 
             <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Règles de priorité par exécutable" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="La priorité est réappliquée automatiquement à chaque démarrage du processus (façon Process Lasso)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBox x:Name="RuleProcessNameBox" Width="220" PlaceholderText="Nom du processus (ex: discord)" />
+                        <ComboBox x:Name="RulePriorityCombo" Width="160" SelectedIndex="4">
+                            <ComboBoxItem Content="Idle" />
+                            <ComboBoxItem Content="BelowNormal" />
+                            <ComboBoxItem Content="Normal" />
+                            <ComboBoxItem Content="AboveNormal" />
+                            <ComboBoxItem Content="High" />
+                        </ComboBox>
+                        <Button Content="Ajouter la règle" Style="{StaticResource AccentButtonStyle}" Click="AddRule_Click" />
+                    </StackPanel>
+                    <ItemsControl x:Name="RulesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" />
+                                    <Button Grid.Column="1" Content="Supprimer" Tag="{Binding ProcessName}" Click="RemoveRule_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="RulesStatusLabel" Style="{StaticResource CaptionTextStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Cache navigateurs" Style="{StaticResource CardTitleTextStyle}" />
                     <Button x:Name="EstimateCacheButton" Content="Estimer la taille des caches" Click="EstimateCache_Click" />

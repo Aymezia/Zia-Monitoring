@@ -42,6 +42,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.GameBoosterService GameBooster => _services.GetRequiredService<Application.GameBoosterService>();
     public Application.PresentMonService PresentMon => _services.GetRequiredService<Application.PresentMonService>();
     public Application.DeepCleanService DeepClean => _services.GetRequiredService<Application.DeepCleanService>();
+    public Application.ProcessRuleService ProcessRules => _services.GetRequiredService<Application.ProcessRuleService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -85,6 +86,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.GameBoosterService>();
         services.AddSingleton<Application.PresentMonService>();
         services.AddSingleton<Application.DeepCleanService>();
+        services.AddSingleton<Application.ProcessRuleService>();
 
         return services.BuildServiceProvider();
     }

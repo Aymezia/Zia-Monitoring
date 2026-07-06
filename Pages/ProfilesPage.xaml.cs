@@ -12,6 +12,37 @@ public sealed partial class ProfilesPage : Page
         InitializeComponent();
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         ProfilesList.ItemsSource = _app.OptimizationProfileService.GetProfiles();
+        RefreshRules();
+    }
+
+    private void RefreshRules()
+    {
+        var rules = _app.ProcessRules.GetRules();
+        RulesList.ItemsSource = rules;
+        RulesStatusLabel.Text = rules.Count == 0 ? "Aucune règle définie." : $"{rules.Count} règle(s) active(s).";
+    }
+
+    private void AddRule_Click(object sender, RoutedEventArgs e)
+    {
+        var priority = (RulePriorityCombo.SelectedItem as ComboBoxItem)?.Content as string ?? "Normal";
+        if (_app.ProcessRules.AddOrUpdate(RuleProcessNameBox.Text, priority))
+        {
+            RuleProcessNameBox.Text = string.Empty;
+            RefreshRules();
+        }
+        else
+        {
+            RulesStatusLabel.Text = "Nom de processus invalide.";
+        }
+    }
+
+    private void RemoveRule_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string processName })
+        {
+            _app.ProcessRules.Remove(processName);
+            RefreshRules();
+        }
     }
 
     private async void ApplyProfile_Click(object sender, RoutedEventArgs e)

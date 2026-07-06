@@ -59,6 +59,7 @@ public sealed partial class MainWindow : Window
     private async Task MonitoringLoopAsync(CancellationToken ct)
     {
         var app = (App)Microsoft.UI.Xaml.Application.Current;
+        var lastHistoryPush = DateTime.MinValue;
 
         while (!ct.IsCancellationRequested)
         {
@@ -71,6 +72,19 @@ public sealed partial class MainWindow : Window
                 var activeGame = app.ActiveGameDetector.DetectActiveGame(
                     frame.Snapshot.ActiveTcpConnections,
                     frame.Snapshot.EstimatedFps);
+
+                app.MetricsHistory.Record(frame.Snapshot);
+
+                // Les graphes 24 h / 7 j sont réalimentés depuis SQLite toutes
+                // les minutes (et au premier cycle après démarrage).
+                IReadOnlyList<double>? hourlyCpu = null;
+                IReadOnlyList<double>? dailyCpu = null;
+                if (DateTime.UtcNow - lastHistoryPush >= TimeSpan.FromMinutes(1))
+                {
+                    lastHistoryPush = DateTime.UtcNow;
+                    hourlyCpu = app.MetricsHistory.GetCpuHourlyAverages24h();
+                    dailyCpu = app.MetricsHistory.GetCpuDailyAverages7d();
+                }
 
                 if (settings.AutoSilentModeOnGame)
                 {
@@ -92,6 +106,8 @@ public sealed partial class MainWindow : Window
                     {
                         app.State.Update(frame);
                         app.State.UpdateActiveGame(activeGame);
+                        if (hourlyCpu is not null && dailyCpu is not null)
+                            app.State.UpdatePersistedCpuHistory(hourlyCpu, dailyCpu);
                         UpdateTitleBar(frame, settings);
                         ConfigureSystray(settings, frame);
                         ConfigureOverlay(settings, activeGame);

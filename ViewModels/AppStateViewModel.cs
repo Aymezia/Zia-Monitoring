@@ -305,11 +305,7 @@ public sealed partial class AppStateViewModel : ObservableObject
         Replace(BoostActions, frame.Analysis.BoostActions);
         Replace(AssistedActions, frame.Analysis.AssistedActions);
         Replace(Alerts, frame.Analysis.Alerts);
-        Replace(CpuHistory24h, frame.Analysis.CpuHistory24h);
-        Replace(CpuHistory7d, frame.Analysis.CpuHistory7d);
 
-        ((LineSeries<double>)Cpu24Series[0]).Values = CpuHistory24h.ToArray();
-        ((LineSeries<double>)Cpu7Series[0]).Values = CpuHistory7d.ToArray();
         UpdateGauge(CpuGaugeSeries, CpuPercent);
         UpdateGauge(GpuGaugeSeries, GpuUsagePercent);
 
@@ -358,6 +354,21 @@ public sealed partial class AppStateViewModel : ObservableObject
         OnPropertyChanged(nameof(InstalledRamLabel));
         OnPropertyChanged(nameof(TotalDiskLabel));
         OnPropertyChanged(nameof(GamesCountLabel));
+    }
+
+    /// <summary>
+    /// Alimente les graphes 24 h / 7 j depuis l'historique persistant SQLite
+    /// (moyennes horaires et journalières réelles, pas une fenêtre glissante
+    /// de ticks).
+    /// </summary>
+    public void UpdatePersistedCpuHistory(IReadOnlyList<double> hourlyAverages24h, IReadOnlyList<double> dailyAverages7d)
+    {
+        Replace(CpuHistory24h, hourlyAverages24h);
+        Replace(CpuHistory7d, dailyAverages7d);
+
+        ((LineSeries<double>)Cpu24Series[0]).Values = CpuHistory24h.ToArray();
+        ((LineSeries<double>)Cpu7Series[0]).Values = CpuHistory7d.ToArray();
+
         OnPropertyChanged(nameof(Cpu24Series));
         OnPropertyChanged(nameof(Cpu7Series));
     }

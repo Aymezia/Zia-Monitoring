@@ -54,6 +54,20 @@ public sealed partial class MainWindow : Window
         // La collecte (WMI, LibreHardwareMonitor, pings) tourne hors du thread UI ;
         // seul le report des résultats repasse par le DispatcherQueue.
         _monitoringLoop = Task.Run(() => MonitoringLoopAsync(_monitoringCts.Token));
+
+        _ = Task.Run(NotifyIfUpdateAvailableAsync);
+    }
+
+    private static async Task NotifyIfUpdateAvailableAsync()
+    {
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+        var update = await app.UpdateChecker.CheckForUpdateAsync().ConfigureAwait(false);
+        if (update is not null)
+        {
+            ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                "Zia Monitoring - Mise a jour disponible",
+                $"La version {update.TagName} est disponible. Ouvrez A propos pour telecharger.");
+        }
     }
 
     private async Task MonitoringLoopAsync(CancellationToken ct)

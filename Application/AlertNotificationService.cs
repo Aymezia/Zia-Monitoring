@@ -76,7 +76,7 @@ public sealed class AlertNotificationService
         }
     }
 
-    private static void SendToast(string title, string message)
+    public static void SendToast(string title, string message)
     {
         try
         {

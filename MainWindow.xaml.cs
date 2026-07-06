@@ -127,6 +127,28 @@ public sealed partial class MainWindow : Window
                         AppLog.Warn($"Mode silencieux: {warning}");
                 }
 
+                if (settings.EnableGameBooster)
+                {
+                    if (activeGame is not null && !app.GameBooster.IsActive)
+                    {
+                        var actions = app.GameBooster.Activate(activeGame.Pid, activeGame.GameName);
+                        if (actions.Count > 0)
+                        {
+                            ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                                $"Game Booster activé — {activeGame.GameName}",
+                                string.Join(" · ", actions));
+                        }
+                    }
+                    else if (activeGame is null && app.GameBooster.IsActive)
+                    {
+                        app.GameBooster.Deactivate();
+                    }
+                }
+                else if (app.GameBooster.IsActive)
+                {
+                    app.GameBooster.Deactivate();
+                }
+
                 app.AlertNotificationService.CheckAndNotify(frame, settings);
 
                 _dispatcherQueue.TryEnqueue(() =>

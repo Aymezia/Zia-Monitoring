@@ -81,6 +81,7 @@
             <Border Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Jeux et optimisation" Style="{StaticResource CardTitleTextStyle}" />
+                    <ToggleSwitch x:Name="GameBoosterToggle" Header="Game Booster automatique (priorités + plan d'alimentation performances, restaurés en fin de partie)" Toggled="GameBooster_Toggled" />
                     <ToggleSwitch x:Name="SilentModeToggle" Header="Mode silencieux automatique quand un jeu est detecte" Toggled="SilentMode_Toggled" />
                     <ToggleSwitch x:Name="SchedulerToggle" Header="Nettoyage temp planifie (3h du matin)" Toggled="Scheduler_Toggled" />
                     <Button Content="Desactiver animations Windows (optimisation maximale)" Click="DisableAnimations_Click" Style="{StaticResource AccentButtonStyle}" />

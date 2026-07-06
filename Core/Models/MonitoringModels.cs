@@ -111,7 +111,8 @@ public sealed record AppSettings(
     double CpuTempAlertThresholdC = 85,
     double GpuTempAlertThresholdC = 82,
     double DiskFreeAlertGb = 10,
-    double WeeklyPlaytimeGoalHours = 0);
+    double WeeklyPlaytimeGoalHours = 0,
+    bool EnableGameBooster = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

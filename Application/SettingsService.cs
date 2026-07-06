@@ -118,7 +118,8 @@ public sealed class SettingsService
             CpuAlertThresholdPercent = Math.Clamp(settings.CpuAlertThresholdPercent, 50, 100),
             CpuTempAlertThresholdC = Math.Clamp(settings.CpuTempAlertThresholdC, 50, 105),
             GpuTempAlertThresholdC = Math.Clamp(settings.GpuTempAlertThresholdC, 50, 105),
-            DiskFreeAlertGb = Math.Clamp(settings.DiskFreeAlertGb, 1, 100)
+            DiskFreeAlertGb = Math.Clamp(settings.DiskFreeAlertGb, 1, 100),
+            WeeklyPlaytimeGoalHours = Math.Clamp(settings.WeeklyPlaytimeGoalHours, 0, 100)
         };
     }
 

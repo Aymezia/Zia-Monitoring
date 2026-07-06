@@ -52,6 +52,11 @@
                         <Slider x:Name="DiskAlertSlider" Minimum="1" Maximum="100" StepFrequency="1" Width="200" ValueChanged="DiskAlertSlider_ValueChanged" />
                         <TextBlock x:Name="DiskAlertValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Objectif temps de jeu hebdo (h):" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="PlaytimeGoalSlider" Minimum="0" Maximum="60" StepFrequency="1" Width="200" ValueChanged="PlaytimeGoalSlider_ValueChanged" />
+                        <TextBlock x:Name="PlaytimeGoalValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

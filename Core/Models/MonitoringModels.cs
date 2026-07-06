@@ -110,7 +110,8 @@ public sealed record AppSettings(
     double CpuAlertThresholdPercent = 90,
     double CpuTempAlertThresholdC = 85,
     double GpuTempAlertThresholdC = 82,
-    double DiskFreeAlertGb = 10);
+    double DiskFreeAlertGb = 10,
+    double WeeklyPlaytimeGoalHours = 0);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

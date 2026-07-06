@@ -14,6 +14,33 @@ public sealed partial class GamerSupportPage : Page
     {
         InitializeComponent();
         _app = (App)Microsoft.UI.Xaml.Application.Current;
+        LoadSessions();
+    }
+
+    private void RefreshSessions_Click(object sender, RoutedEventArgs e) => LoadSessions();
+
+    private void LoadSessions()
+    {
+        try
+        {
+            SessionsList.ItemsSource = _app.GameSessions.GetRecentSessions();
+
+            var weekly = _app.GameSessions.GetWeeklyPlaytime();
+            var byGame = _app.GameSessions.GetWeeklyPlaytimeByGame();
+            var goal = _app.SettingsService.Load().WeeklyPlaytimeGoalHours;
+
+            var summary = $"Cette semaine : {(int)weekly.TotalHours}h{weekly.Minutes:D2}";
+            if (goal > 0)
+                summary += $" / objectif {goal:F0} h";
+            if (byGame.Count > 0)
+                summary += "  —  " + string.Join(", ", byGame.Take(3).Select(g => $"{g.Game} {(int)g.Total.TotalHours}h{g.Total.Minutes:D2}"));
+
+            WeeklyPlaytimeLabel.Text = summary;
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Chargement des sessions de jeu impossible", ex);
+        }
     }
 
     private async void AutoCollect_Click(object sender, RoutedEventArgs e)

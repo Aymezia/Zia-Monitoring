@@ -38,6 +38,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.SecurityReportExportService SecurityReportExporter => _services.GetRequiredService<Application.SecurityReportExportService>();
     public Application.MetricsHistoryService MetricsHistory => _services.GetRequiredService<Application.MetricsHistoryService>();
     public Application.UpdateCheckService UpdateChecker => _services.GetRequiredService<Application.UpdateCheckService>();
+    public Application.GameSessionService GameSessions => _services.GetRequiredService<Application.GameSessionService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -77,6 +78,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.SecurityReportExportService>();
         services.AddSingleton<Application.MetricsHistoryService>();
         services.AddSingleton<Application.UpdateCheckService>();
+        services.AddSingleton<Application.GameSessionService>();
 
         return services.BuildServiceProvider();
     }

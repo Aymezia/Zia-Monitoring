@@ -5,8 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <Grid Padding="24" RowSpacing="12">
+        <Grid Padding="24,20,24,24" RowSpacing="12">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -14,9 +15,59 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Gamer / Streamer Support" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+            <StackPanel>
+                <TextBlock Text="Gamer / Streamer" Style="{StaticResource PageTitleTextStyle}" />
+                <TextBlock Text="Diagnostics par jeu, rapports de session et temps de jeu." Style="{StaticResource PageSubtitleTextStyle}" />
+            </StackPanel>
 
+            <!-- Sessions récentes + temps de jeu -->
             <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                <Grid RowSpacing="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Sessions récentes" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshSessionsButton" Content="Actualiser" Click="RefreshSessions_Click" />
+                    </Grid>
+                    <TextBlock Grid.Row="1" x:Name="WeeklyPlaytimeLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ListView Grid.Row="2" x:Name="SessionsList" MaxHeight="220" SelectionMode="None" IsItemClickEnabled="False">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="MinHeight" Value="38" />
+                                <Setter Property="Padding" Value="8,0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding DateLabel}" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding GameName}" Foreground="{StaticResource ZiaTextBrush}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding DurationLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="3" Text="{Binding FpsLabel}" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="4" Text="{Binding TempLabel}" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <ComboBox x:Name="ProductCombo" Width="180" SelectedIndex="0">
                         <ComboBoxItem Content="Valorant" />
@@ -29,14 +80,14 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Observations" Style="{StaticResource CardTitleTextStyle}" />
                     <ListView x:Name="ObservationsList" MaxHeight="180" />
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="Liens docs/web utiles" Style="{StaticResource CardTitleTextStyle}" />
                     <ItemsControl x:Name="SourcesList">
@@ -49,9 +100,9 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+            <Border Grid.Row="5" Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Solutions triees par probabilite" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Solutions triées par probabilité" Style="{StaticResource CardTitleTextStyle}" />
                     <ListView x:Name="SuggestionsList">
                         <ListView.ItemTemplate>
                             <DataTemplate>

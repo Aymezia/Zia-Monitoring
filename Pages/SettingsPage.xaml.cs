@@ -46,6 +46,8 @@ public sealed partial class SettingsPage : Page
             GpuTempAlertValueLabel.Text = $"{_settings.GpuTempAlertThresholdC:F0}°C";
             DiskAlertSlider.Value = _settings.DiskFreeAlertGb;
             DiskAlertValueLabel.Text = $"{_settings.DiskFreeAlertGb:F0} GB";
+            PlaytimeGoalSlider.Value = _settings.WeeklyPlaytimeGoalHours;
+            PlaytimeGoalValueLabel.Text = _settings.WeeklyPlaytimeGoalHours > 0 ? $"{_settings.WeeklyPlaytimeGoalHours:F0} h" : "Désactivé";
 
             _loading = false;
             _settings = _settings with { EnableAutoStart = AutoStartToggle.IsOn };
@@ -163,6 +165,14 @@ public sealed partial class SettingsPage : Page
         if (DiskAlertValueLabel != null)
             DiskAlertValueLabel.Text = $"{e.NewValue:F0} GB";
         _settings = _settings with { DiskFreeAlertGb = e.NewValue };
+        SaveSettings();
+    }
+
+    private void PlaytimeGoalSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (PlaytimeGoalValueLabel != null)
+            PlaytimeGoalValueLabel.Text = e.NewValue > 0 ? $"{e.NewValue:F0} h" : "Désactivé";
+        _settings = _settings with { WeeklyPlaytimeGoalHours = e.NewValue };
         SaveSettings();
     }
 

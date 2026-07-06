@@ -19,6 +19,7 @@
     <Compile Include="..\..\Application\RecommendationEngine.cs" Link="Linked\RecommendationEngine.cs" />
     <Compile Include="..\..\Application\SettingsService.cs" Link="Linked\SettingsService.cs" />
     <Compile Include="..\..\Application\ActiveGameDetector.cs" Link="Linked\ActiveGameDetector.cs" />
+    <Compile Include="..\..\Application\GameSessionService.cs" Link="Linked\GameSessionService.cs" />
     <Compile Include="..\..\Application\OptimizationProfileService.cs" Link="Linked\OptimizationProfileService.cs" />
     <Compile Include="..\..\Application\SilentModeService.cs" Link="Linked\SilentModeService.cs" />
     <Compile Include="..\..\Application\UpdateCheckService.cs" Link="Linked\UpdateCheckService.cs" />
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.9" />
     <PackageReference Include="xunit" Version="2.9.2" />

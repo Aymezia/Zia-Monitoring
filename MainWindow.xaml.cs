@@ -89,6 +89,21 @@ public sealed partial class MainWindow : Window
 
                 app.MetricsHistory.Record(frame.Snapshot);
 
+                var finishedSession = app.GameSessions.OnMonitoringTick(activeGame, frame.Snapshot);
+                if (finishedSession is not null)
+                {
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        $"Session {finishedSession.GameName} terminée",
+                        $"{finishedSession.DurationLabel} · {finishedSession.FpsLabel} · {finishedSession.TempLabel}");
+                }
+
+                if (app.GameSessions.ShouldNotifyWeeklyGoalExceeded(settings.WeeklyPlaytimeGoalHours))
+                {
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Objectif de temps de jeu atteint",
+                        $"Vous avez dépassé {settings.WeeklyPlaytimeGoalHours:F0} h de jeu cette semaine.");
+                }
+
                 // Les graphes 24 h / 7 j sont réalimentés depuis SQLite toutes
                 // les minutes (et au premier cycle après démarrage).
                 IReadOnlyList<double>? hourlyCpu = null;

@@ -19,6 +19,38 @@ public sealed partial class GamerSupportPage : Page
 
     private void RefreshSessions_Click(object sender, RoutedEventArgs e) => LoadSessions();
 
+    private async void InstallPresentMon_Click(object sender, RoutedEventArgs e)
+    {
+        InstallPresentMonButton.IsEnabled = false;
+        PresentMonStatusLabel.Text = "Téléchargement de PresentMon…";
+        try
+        {
+            var (success, message) = await _app.PresentMon.DownloadAsync();
+            PresentMonStatusLabel.Text = message;
+            UpdatePresentMonStatus();
+        }
+        finally
+        {
+            InstallPresentMonButton.IsEnabled = true;
+        }
+    }
+
+    private void UpdatePresentMonStatus()
+    {
+        if (_app.PresentMon.IsAvailable)
+        {
+            InstallPresentMonButton.Visibility = Visibility.Collapsed;
+            PresentMonStatusLabel.Text = _app.PresentMon.IsRunning
+                ? "FPS réels : capture PresentMon en cours"
+                : "FPS réels : PresentMon prêt (capture au prochain jeu)";
+        }
+        else
+        {
+            InstallPresentMonButton.Visibility = Visibility.Visible;
+            PresentMonStatusLabel.Text = "FPS estimés (compteurs GPU)";
+        }
+    }
+
     private void LoadSessions()
     {
         try
@@ -36,6 +68,7 @@ public sealed partial class GamerSupportPage : Page
                 summary += "  —  " + string.Join(", ", byGame.Take(3).Select(g => $"{g.Game} {(int)g.Total.TotalHours}h{g.Total.Minutes:D2}"));
 
             WeeklyPlaytimeLabel.Text = summary;
+            UpdatePresentMonStatus();
         }
         catch (Exception ex)
         {

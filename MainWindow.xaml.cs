@@ -88,6 +88,7 @@ public sealed partial class MainWindow : Window
                     frame.Snapshot.EstimatedFps);
 
                 app.MetricsHistory.Record(frame.Snapshot);
+                app.PresentMon.EnsureTracking(activeGame?.Pid);
 
                 var finishedSession = app.GameSessions.OnMonitoringTick(activeGame, frame.Snapshot);
                 if (finishedSession is not null)

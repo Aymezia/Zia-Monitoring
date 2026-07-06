@@ -19,8 +19,14 @@ public sealed class MonitoringService : IDisposable
     private readonly GameServerLatencyCollector _gameServerLatencyCollector = new();
     private readonly RecommendationEngine _engine = new();
     private readonly ThrottlingDetector _throttlingDetector = new();
+    private readonly PresentMonService _presentMon;
 
     private PcProfile? _profileCache;
+
+    public MonitoringService(PresentMonService presentMon)
+    {
+        _presentMon = presentMon;
+    }
 
     public MonitoringFrame CaptureFrame()
     {
@@ -32,7 +38,8 @@ public sealed class MonitoringService : IDisposable
         var perCore = _perCoreCollector.GetPerCoreUsage();
         var (diskRead, diskWrite) = _diskIoCollector.GetDiskIoMbps();
         var (vramUsed, vramTotal) = _fanVramCollector.GetVramUsage();
-        var estimatedFps = _estimatedFpsCollector.GetEstimatedFps();
+        // FPS réels (PresentMon) si une capture est active, sinon estimation GPU Engine.
+        var estimatedFps = _presentMon.CurrentFps ?? _estimatedFpsCollector.GetEstimatedFps();
         var activeConnections = _networkConnectionCollector.GetActiveTcpConnections();
         var networkProcesses = _networkConnectionCollector.GetTopNetworkProcesses(activeConnections);
         var gameLatencies = _gameServerLatencyCollector.GetGameServerLatencies();

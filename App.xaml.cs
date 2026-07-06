@@ -40,6 +40,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.UpdateCheckService UpdateChecker => _services.GetRequiredService<Application.UpdateCheckService>();
     public Application.GameSessionService GameSessions => _services.GetRequiredService<Application.GameSessionService>();
     public Application.GameBoosterService GameBooster => _services.GetRequiredService<Application.GameBoosterService>();
+    public Application.PresentMonService PresentMon => _services.GetRequiredService<Application.PresentMonService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -81,6 +82,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.UpdateCheckService>();
         services.AddSingleton<Application.GameSessionService>();
         services.AddSingleton<Application.GameBoosterService>();
+        services.AddSingleton<Application.PresentMonService>();
 
         return services.BuildServiceProvider();
     }

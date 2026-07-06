@@ -37,6 +37,10 @@
                         <Button Grid.Column="1" x:Name="RefreshSessionsButton" Content="Actualiser" Click="RefreshSessions_Click" />
                     </Grid>
                     <TextBlock Grid.Row="1" x:Name="WeeklyPlaytimeLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                        <TextBlock x:Name="PresentMonStatusLabel" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" />
+                        <Button x:Name="InstallPresentMonButton" Content="Installer PresentMon (FPS réels)" Click="InstallPresentMon_Click" />
+                    </StackPanel>
                     <ListView Grid.Row="2" x:Name="SessionsList" MaxHeight="220" SelectionMode="None" IsItemClickEnabled="False">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">

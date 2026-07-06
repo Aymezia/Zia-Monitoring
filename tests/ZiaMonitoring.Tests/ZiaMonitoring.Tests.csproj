@@ -20,6 +20,7 @@
     <Compile Include="..\..\Application\SettingsService.cs" Link="Linked\SettingsService.cs" />
     <Compile Include="..\..\Application\ActiveGameDetector.cs" Link="Linked\ActiveGameDetector.cs" />
     <Compile Include="..\..\Application\GameSessionService.cs" Link="Linked\GameSessionService.cs" />
+    <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />
     <Compile Include="..\..\Application\ThrottlingDetector.cs" Link="Linked\ThrottlingDetector.cs" />
     <Compile Include="..\..\Application\OptimizationProfileService.cs" Link="Linked\OptimizationProfileService.cs" />
     <Compile Include="..\..\Application\SilentModeService.cs" Link="Linked\SilentModeService.cs" />

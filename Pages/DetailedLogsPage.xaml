@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ZiaMonitoring_App.Pages.DetailedLogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Padding="24" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Logs detailles" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <ComboBox x:Name="ProductCombo" Width="180" SelectedIndex="0">
+                    <ComboBoxItem Content="Valorant" />
+                    <ComboBoxItem Content="OBS" />
+                </ComboBox>
+                <Button Content="Rafraichir logs" Style="{StaticResource AccentButtonStyle}" Click="RefreshLogs_Click" />
+                <TextBlock x:Name="MetaText" Foreground="{StaticResource ZiaMutedBrush}" VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+            <StackPanel>
+                <TextBlock Text="OBS log path" Style="{StaticResource CardTitleTextStyle}" />
+                <TextBlock x:Name="ObsPathText" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                <TextBlock x:Name="MappingText" Foreground="{StaticResource ZiaVioletBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="3" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Extraits OBS (brut)" Style="{StaticResource CardTitleTextStyle}" />
+                    <ListView x:Name="ObsFindingsList" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Event Viewer filtre (reseau/gpu)" Style="{StaticResource CardTitleTextStyle}" />
+                    <ListView x:Name="EventsList">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="{Binding Header}" Foreground="{StaticResource ZiaVioletBrush}" />
+                                    <TextBlock Text="{Binding Message}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

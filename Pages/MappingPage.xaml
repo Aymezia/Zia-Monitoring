@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ZiaMonitoring_App.Pages.MappingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Mapping PC" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                <Grid RowSpacing="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding MachineLabel}" Foreground="{StaticResource ZiaTextBrush}" />
+                    <TextBlock Grid.Row="1" Text="{Binding OsLabel}" Foreground="{StaticResource ZiaTextBrush}" />
+                    <TextBlock Grid.Row="2" Text="{Binding ArchitectureLabel}" Foreground="{StaticResource ZiaTextBrush}" />
+                    <TextBlock Grid.Row="3" Text="{Binding CpuLabel}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="4" Text="{Binding GpuLabel}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="5" Text="{Binding MotherboardLabel}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="6" Text="{Binding BiosLabel}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="7" Text="{Binding InstalledRamLabel}" Foreground="{StaticResource ZiaVioletBrush}" />
+                    <TextBlock Grid.Row="8" Text="{Binding TotalDiskLabel}" Foreground="{StaticResource ZiaVioletBrush}" />
+                    <TextBlock Grid.Row="9" Text="{Binding UptimeLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Stockage Detecte" Style="{StaticResource CardTitleTextStyle}" />
+                    <ListView ItemsSource="{Binding Disks}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Format}" Foreground="{StaticResource ZiaMutedBrush}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding FreeLabel}" Foreground="{StaticResource ZiaVioletBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Jeux installes" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="{Binding GamesCountLabel}" Foreground="{StaticResource ZiaMutedBrush}" Margin="0,0,0,6" />
+                    <ListView ItemsSource="{Binding InstalledGames}" MaxHeight="320">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Platform}" Foreground="{StaticResource ZiaVioletBrush}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Version}" Foreground="{StaticResource ZiaMutedBrush}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding PlayTimeLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                                    <Button Grid.Column="4" Content="Lancer" Tag="{Binding LaunchUri}" Click="LaunchGame_Click" Padding="8,4" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

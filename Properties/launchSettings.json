@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ZiaMonitoring.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ZiaMonitoring.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

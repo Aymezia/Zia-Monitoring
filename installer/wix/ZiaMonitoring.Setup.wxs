@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="Zia Monitoring"
+    Manufacturer="Zia Monitoring"
+    Version="1.0.0"
+    UpgradeCode="E0C42E13-45F7-4D4A-BD26-44DF74EF1AB8"
+    Scope="perUser"
+    Language="1036">
+
+    <MajorUpgrade DowngradeErrorMessage="Une version plus recente de Zia Monitoring est deja installee." />
+    <MediaTemplate />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ZIAFOLDER" Name="ZiaMonitoring">
+        <Directory Id="APPFOLDER" Name="app" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ZIA_MENU_DIR" Name="Zia Monitoring" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Feature Id="MainFeature" Title="Zia Monitoring" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="AppFiles" Directory="APPFOLDER">
+      <Files Include="..\..\publish\portable\**" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="StartMenuShortcutComponent" Directory="ZIA_MENU_DIR" Guid="A3359D11-E3F9-4A0A-9F64-2AD0A0AFD576">
+      <Shortcut
+        Id="StartMenuShortcut"
+        Name="Zia Monitoring"
+        Description="Lancer Zia Monitoring"
+        Target="[APPFOLDER]ZiaMonitoring.App.exe"
+        WorkingDirectory="APPFOLDER" />
+      <RemoveFolder Id="RemoveStartMenuFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\ZiaMonitoring" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="D9A8F6A1-D5A8-44EF-A3EA-6EC773AD5CBF">
+      <Shortcut
+        Id="DesktopShortcut"
+        Name="Zia Monitoring"
+        Description="Lancer Zia Monitoring"
+        Target="[APPFOLDER]ZiaMonitoring.App.exe"
+        WorkingDirectory="APPFOLDER" />
+      <RegistryValue Root="HKCU" Key="Software\ZiaMonitoring" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>

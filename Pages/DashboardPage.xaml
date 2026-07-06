@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ZiaMonitoring_App.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="Dashboard Temps Reel" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+                <TextBlock Text="Surveillance live CPU/RAM/disque/process avec score de sante." Foreground="{StaticResource ZiaMutedBrush}" />
+            </StackPanel>
+
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="CPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding CpuPercentLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="RAM" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding MemoryPercentLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                        <ProgressBar Value="{Binding MemoryPercent}" Maximum="100" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Temp CPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding CpuTempLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="GPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding GpuUsageLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                        <TextBlock Text="{Binding GpuTempLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                        <TextBlock Text="{Binding VramLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Reseau" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding NetworkLabel}" FontSize="13" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding PingLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                        <TextBlock Text="{Binding DiskIoLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="5" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Health" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding HealthScoreLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                        <TextBlock Text="{Binding RiskLevelLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                        <TextBlock Text="{Binding FanLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Top Processus (memoire)" Style="{StaticResource CardTitleTextStyle}" />
+                        <ListView ItemsSource="{Binding TopProcesses}" MaxHeight="320">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="110" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Pid}" Foreground="{StaticResource ZiaMutedBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" />
+                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right" Text="{Binding MemoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Alertes" Style="{StaticResource CardTitleTextStyle}" />
+                        <ItemsControl ItemsSource="{Binding Alerts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource ZiaPanelAltBrush}" CornerRadius="8" Padding="8" Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaRedBrush}" TextWrapping="Wrap" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding LastUpdateLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Jeu actif detecte" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="{Binding ActiveGameLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="14" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

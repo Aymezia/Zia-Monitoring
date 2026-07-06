@@ -87,5 +87,9 @@
     <EmbeddedResource Remove="installer\bootstrapper\**" />
     <None Remove="installer\bootstrapper\**" />
     <Content Remove="installer\bootstrapper\**" />
+    <Compile Remove="tests\**" />
+    <EmbeddedResource Remove="tests\**" />
+    <None Remove="tests\**" />
+    <Content Remove="tests\**" />
   </ItemGroup>
 </Project>

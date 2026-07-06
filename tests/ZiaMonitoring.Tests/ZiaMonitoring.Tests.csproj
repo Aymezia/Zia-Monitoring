@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ZiaMonitoring.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Les sources testées sont liées directement plutôt que référencées via le
+    projet WinUI : l'app est un exécutable WinExe avec le Windows App SDK, que
+    le host de test ne peut pas charger. Les classes liées sont pures
+    (aucune dépendance XAML) et leurs membres internes restent testables.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\Core\Models\MonitoringModels.cs" Link="Linked\MonitoringModels.cs" />
+    <Compile Include="..\..\Application\RecommendationEngine.cs" Link="Linked\RecommendationEngine.cs" />
+    <Compile Include="..\..\Application\SettingsService.cs" Link="Linked\SettingsService.cs" />
+    <Compile Include="..\..\Application\ActiveGameDetector.cs" Link="Linked\ActiveGameDetector.cs" />
+    <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
+    <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

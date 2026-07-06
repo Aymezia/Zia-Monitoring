@@ -28,9 +28,10 @@ public sealed class SettingsService
         MiniWidgetOpacity: 0.88,
         SteamGridDbApiKey: "");
 
-    public SettingsService()
+    /// <param name="settingsDirectory">Répertoire de stockage (tests) ; %LOCALAPPDATA%\ZiaMonitoring par défaut.</param>
+    public SettingsService(string? settingsDirectory = null)
     {
-        var dir = Path.Combine(
+        var dir = settingsDirectory ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "ZiaMonitoring");
         Directory.CreateDirectory(dir);

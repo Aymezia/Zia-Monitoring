@@ -91,7 +91,7 @@ public sealed class ActiveGameDetector
         }
     }
 
-    private static string? FindLikelyGameServer(IReadOnlyList<TcpConnectionInfo> connections, int pid)
+    internal static string? FindLikelyGameServer(IReadOnlyList<TcpConnectionInfo> connections, int pid)
     {
         foreach (var connection in connections)
         {
@@ -111,7 +111,7 @@ public sealed class ActiveGameDetector
         return null;
     }
 
-    private static bool IsPublicAddress(IPAddress address)
+    internal static bool IsPublicAddress(IPAddress address)
     {
         if (IPAddress.IsLoopback(address))
             return false;

@@ -159,6 +159,29 @@ public sealed partial class ProfilesPage : Page
         }
     }
 
+    private async void DeepClean_Click(object sender, RoutedEventArgs e)
+    {
+        DeepCleanButton.IsEnabled = false;
+        DeepCleanLabel.Text = "Nettoyage en cours…";
+        try
+        {
+            var results = await Task.Run(() => _app.DeepClean.Run());
+            var cleaned = results.Where(r => r.Error is null).ToList();
+            var lines = results.Where(r => r.DeletedFiles > 0 || r.Error is not null).Select(r => r.Label);
+            DeepCleanLabel.Text =
+                $"Total : {cleaned.Sum(r => r.DeletedFiles)} fichier(s), {cleaned.Sum(r => r.FreedMb):F0} Mo libérés\n"
+                + string.Join("\n", lines);
+        }
+        catch (Exception ex)
+        {
+            DeepCleanLabel.Text = $"Erreur : {ex.Message}";
+        }
+        finally
+        {
+            DeepCleanButton.IsEnabled = true;
+        }
+    }
+
     private async Task ShowDialog(string title, string content)
     {
         var d = new ContentDialog

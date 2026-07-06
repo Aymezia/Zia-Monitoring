@@ -57,6 +57,10 @@
                     <TextBlock x:Name="CacheSizeLabel" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
                     <Button x:Name="CleanCacheButton" Content="Nettoyer les caches (Chrome / Edge / Firefox)" Click="CleanCache_Click" Style="{StaticResource AccentButtonStyle}" />
                     <TextBlock x:Name="CacheCleanLabel" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                    <TextBlock Text="Nettoyage profond" Style="{StaticResource CardTitleTextStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Temp utilisateur et Windows + shader caches GPU (NVIDIA / AMD / Intel / DirectX). Planifiable chaque nuit dans les Paramètres." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Button x:Name="DeepCleanButton" Content="Lancer le nettoyage profond" Click="DeepClean_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <TextBlock x:Name="DeepCleanLabel" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

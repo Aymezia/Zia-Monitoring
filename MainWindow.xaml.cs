@@ -158,6 +158,17 @@ public sealed partial class MainWindow : Window
                         "Zia Monitoring - Throttling détecté", frame.ThrottlingToast);
                 }
 
+                // Nettoyage planifié quotidien (le jeu actif n'est jamais interrompu).
+                if (activeGame is null
+                    && app.DeepClean.IsScheduledRunDue(settings.EnableCleanupScheduler, settings.ScheduledCleanupTime))
+                {
+                    var cleanResults = app.DeepClean.Run();
+                    var cleaned = cleanResults.Where(r => r.Error is null).ToList();
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Nettoyage planifié terminé",
+                        $"{cleaned.Sum(r => r.DeletedFiles)} fichier(s) supprimé(s), {cleaned.Sum(r => r.FreedMb):F0} Mo libérés.");
+                }
+
                 _dispatcherQueue.TryEnqueue(() =>
                 {
                     try

@@ -72,8 +72,9 @@ public sealed class NetworkConnectionCollector
                 .ThenBy(c => c.ProcessName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Warn("Enumeration des connexions TCP impossible", ex);
             return Array.Empty<TcpConnectionInfo>();
         }
         finally

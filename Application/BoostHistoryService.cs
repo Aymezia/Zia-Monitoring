@@ -35,8 +35,9 @@ public sealed class BoostHistoryService
             var json = File.ReadAllText(_historyFile);
             return JsonSerializer.Deserialize<List<BoostHistoryEntry>>(json) ?? new List<BoostHistoryEntry>();
         }
-        catch
+        catch (Exception ex)
         {
+            Infrastructure.AppLog.Warn("Lecture de l'historique de boost impossible", ex);
             return new List<BoostHistoryEntry>();
         }
     }
@@ -48,6 +49,9 @@ public sealed class BoostHistoryService
             var json = JsonSerializer.Serialize(list, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_historyFile, json);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Error("Sauvegarde de l'historique de boost impossible", ex);
+        }
     }
 }

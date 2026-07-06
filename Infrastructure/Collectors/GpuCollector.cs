@@ -28,7 +28,10 @@ public sealed class GpuCollector
             }
             if (maxUsage > 0) usage = maxUsage;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Lecture de l'usage GPU via WMI impossible", ex);
+        }
 
         // GPU temperature: delegate to TemperatureCollector ACPI zones
         var gpuTemp = TemperatureCollector.GetGpuTemperatureC();

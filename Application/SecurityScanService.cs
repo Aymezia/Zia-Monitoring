@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using Microsoft.Win32;
 using ZiaMonitoring_App.Core.Models;
+using ZiaMonitoring_App.Infrastructure;
 
 namespace ZiaMonitoring_App.Application;
 
@@ -41,7 +42,11 @@ public sealed class SecurityScanService
                 @"SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", false);
             return key?.GetValue("EnableFirewall") is int v && v == 1;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: etat du pare-feu illisible", ex);
+            return false;
+        }
     }
 
     private static bool IsUacEnabled()
@@ -52,7 +57,11 @@ public sealed class SecurityScanService
                 @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", false);
             return key?.GetValue("EnableLUA") is int v && v == 1;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: etat UAC illisible", ex);
+            return false;
+        }
     }
 
     private static IReadOnlyList<string> ScanOpenPorts()
@@ -64,7 +73,10 @@ public sealed class SecurityScanService
             foreach (var ep in props.GetActiveTcpListeners().Take(30))
                 result.Add($"TCP :{ep.Port}");
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: enumeration des ports impossible", ex);
+        }
         return result;
     }
 
@@ -95,7 +107,10 @@ public sealed class SecurityScanService
             ScanKey(Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run"));
             ScanKey(Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run"));
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: lecture des entrees de demarrage impossible", ex);
+        }
 
         return result;
     }
@@ -130,7 +145,10 @@ public sealed class SecurityScanService
                 if (result.Count >= 20) break;
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: enumeration des pilotes WMI impossible", ex);
+        }
         return result;
     }
 
@@ -151,7 +169,10 @@ public sealed class SecurityScanService
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: lecture SMART WMI impossible", ex);
+        }
         return result;
     }
 
@@ -209,7 +230,10 @@ public sealed class SecurityScanService
                     signatures.Add(value);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Scan securite: fichier de signatures illisible", ex);
+        }
 
         return signatures;
     }

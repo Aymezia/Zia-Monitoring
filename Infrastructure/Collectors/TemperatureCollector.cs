@@ -31,7 +31,10 @@ public sealed class TemperatureCollector
             if (best.HasValue)
                 return Math.Round(best.Value, 1);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Zones thermiques ACPI indisponibles (CPU)", ex);
+        }
 
         // Fallback: Win32_Processor (rarely populated but try anyway)
         try
@@ -93,7 +96,10 @@ public sealed class TemperatureCollector
             if (gpuTemp.HasValue)
                 return Math.Round(gpuTemp.Value, 1);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Zones thermiques ACPI indisponibles (GPU)", ex);
+        }
 
         return null;
     }

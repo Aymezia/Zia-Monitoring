@@ -78,8 +78,9 @@ public sealed class EstimatedFpsCollector : IDisposable
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Warn("Initialisation des compteurs GPU Engine impossible", ex);
             DisposeCounters();
         }
     }

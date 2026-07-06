@@ -13,7 +13,6 @@ namespace ZiaMonitoring_App;
 public partial class App : Microsoft.UI.Xaml.Application
 {
     private Window? _window;
-    private readonly string _logFile;
 
     public AppStateViewModel State { get; } = new();
 
@@ -37,10 +36,6 @@ public partial class App : Microsoft.UI.Xaml.Application
     /// </summary>
     public App()
     {
-        var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZiaMonitoring", "logs");
-        Directory.CreateDirectory(logDir);
-        _logFile = Path.Combine(logDir, "startup.log");
-
         this.UnhandledException += App_UnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -73,30 +68,20 @@ public partial class App : Microsoft.UI.Xaml.Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        Log($"WinUI unhandled exception: {e.Exception}");
+        Infrastructure.AppLog.Error("Exception WinUI non geree", e.Exception);
         e.Handled = true;
     }
 
     private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
     {
-        Log($"AppDomain unhandled exception: {e.ExceptionObject}");
+        Infrastructure.AppLog.Error($"Exception AppDomain non geree: {e.ExceptionObject}");
     }
 
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        Log($"TaskScheduler unobserved exception: {e.Exception}");
+        Infrastructure.AppLog.Error("Exception de tache non observee", e.Exception);
         e.SetObserved();
     }
 
-    private void Log(string message)
-    {
-        try
-        {
-            File.AppendAllText(_logFile, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
-        }
-        catch
-        {
-            // Logging should never crash the app.
-        }
-    }
+    private static void Log(string message) => Infrastructure.AppLog.Info(message);
 }

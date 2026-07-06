@@ -68,7 +68,10 @@ public sealed class FanAndVramCollector
                 return (Math.Round(usedMb, 1), Math.Round(totalMb, 1));
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Lecture VRAM via WMI impossible", ex);
+        }
 
         return (0, 0);
     }

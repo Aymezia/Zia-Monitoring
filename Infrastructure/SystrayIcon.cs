@@ -71,7 +71,10 @@ public sealed class SystrayIcon : IDisposable
             Shell_NotifyIcon(NIM_ADD, ref _iconData);
             _added = true;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Ajout de l'icone systray impossible", ex);
+        }
     }
 
     public void UpdateTooltip(string text)

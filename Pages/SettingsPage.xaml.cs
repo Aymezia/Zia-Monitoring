@@ -43,9 +43,10 @@ public sealed partial class SettingsPage : Page
 
             RefreshHistory_Click(this, null!);
         }
-        catch
+        catch (Exception ex)
         {
             _loading = false;
+            Infrastructure.AppLog.Warn("Chargement de la page Parametres en echec", ex);
         }
     }
 

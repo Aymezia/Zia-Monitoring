@@ -362,9 +362,10 @@ public sealed class GamerTroubleshootingService
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // EventLog access may fail depending on policy.
+            Infrastructure.AppLog.Warn("Lecture du journal d'evenements impossible", ex);
         }
 
         return entries

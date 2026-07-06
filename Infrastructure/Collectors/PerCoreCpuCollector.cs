@@ -21,8 +21,9 @@ public sealed class PerCoreCpuCollector
                     {
                         _counters.Add(new PerformanceCounter("Processor", "% Processor Time", i.ToString()));
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        AppLog.Warn($"Compteur CPU du coeur {i} indisponible", ex);
                         _counters.Add(null);
                     }
                 }
@@ -42,8 +43,9 @@ public sealed class PerCoreCpuCollector
             }
             return results;
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Warn("Lecture CPU par coeur impossible", ex);
             return Array.Empty<PerCoreCpuUsage>();
         }
     }

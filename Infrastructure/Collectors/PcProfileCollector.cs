@@ -65,9 +65,10 @@ public sealed class PcProfileCollector
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // WMI can fail on restricted contexts.
+            AppLog.Warn("Lecture WMI du profil materiel incomplete", ex);
         }
 
         return "Unknown GPU";
@@ -89,9 +90,10 @@ public sealed class PcProfileCollector
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // WMI can fail on restricted contexts.
+            AppLog.Warn("Lecture WMI du profil materiel incomplete", ex);
         }
 
         return "Unknown Motherboard";
@@ -111,9 +113,10 @@ public sealed class PcProfileCollector
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // WMI can fail on restricted contexts.
+            AppLog.Warn("Lecture WMI du profil materiel incomplete", ex);
         }
 
         return "Unknown BIOS";
@@ -208,9 +211,10 @@ public sealed class PcProfileCollector
                     steamAppId);
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Registry can be partially unavailable.
+            AppLog.Warn("Inventaire des jeux: registre partiellement indisponible", ex);
         }
     }
 

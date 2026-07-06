@@ -55,8 +55,9 @@ public sealed class NetworkCollector
 
             return (Math.Max(0, upKbps), Math.Max(0, downKbps));
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Warn("Lecture des statistiques reseau impossible", ex);
             return (0, 0);
         }
     }

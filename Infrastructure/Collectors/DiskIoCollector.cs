@@ -24,8 +24,9 @@ public sealed class DiskIoCollector
 
             return (Math.Round(readMbps, 2), Math.Round(writeMbps, 2));
         }
-        catch
+        catch (Exception ex)
         {
+            AppLog.Warn("Lecture des compteurs disque impossible", ex);
             return (0, 0);
         }
     }

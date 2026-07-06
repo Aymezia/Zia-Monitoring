@@ -22,7 +22,10 @@ public static class SteamPlaytimeReader
             {
                 ParseLocalConfig(localConfig, result);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                AppLog.Warn("Lecture du temps de jeu Steam (localconfig.vdf) impossible", ex);
+            }
         }
 
         return result;

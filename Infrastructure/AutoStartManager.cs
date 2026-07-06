@@ -14,7 +14,11 @@ public static class AutoStartManager
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, false);
             return key?.GetValue(AppName) is not null;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Lecture de la cle de demarrage automatique impossible", ex);
+            return false;
+        }
     }
 
     public static void Enable()
@@ -26,7 +30,10 @@ public static class AutoStartManager
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
             key?.SetValue(AppName, $"\"{exePath}\"", RegistryValueKind.String);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Activation du demarrage automatique impossible", ex);
+        }
     }
 
     public static void Disable()
@@ -36,6 +43,9 @@ public static class AutoStartManager
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
             key?.DeleteValue(AppName, throwOnMissingValue: false);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Desactivation du demarrage automatique impossible", ex);
+        }
     }
 }

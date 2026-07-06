@@ -299,9 +299,10 @@ public sealed class BoostEngine
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Non-admin contexts can fail to query services.
+            Infrastructure.AppLog.Warn("Enumeration des services impossible (droits insuffisants ?)", ex);
         }
 
         return running;

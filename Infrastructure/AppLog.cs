@@ -10,7 +10,7 @@ namespace ZiaMonitoring_App.Infrastructure;
 public static class AppLog
 {
     private const long MaxLogSizeBytes = 2 * 1024 * 1024;
-    private static readonly TimeSpan DuplicateSuppressionWindow = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan DuplicateSuppressionWindow = TimeSpan.FromMinutes(30);
 
     private static readonly object Gate = new();
     private static readonly ConcurrentDictionary<string, DateTime> RecentMessages = new();

@@ -68,9 +68,10 @@ public sealed class ActiveGameDetector
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Process enumeration can race with exiting games.
+            Infrastructure.AppLog.Warn("Detection du jeu actif en echec", ex);
         }
 
         _activeGame = null;

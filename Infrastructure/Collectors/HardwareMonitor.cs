@@ -27,9 +27,10 @@ public sealed class HardwareMonitor : IDisposable
         {
             _computer.Open();
         }
-        catch
+        catch (Exception ex)
         {
             // Falls back to N/A gracefully if access denied.
+            AppLog.Warn("LibreHardwareMonitor indisponible: temperatures/ventilateurs en N/A", ex);
         }
     }
 
@@ -75,7 +76,10 @@ public sealed class HardwareMonitor : IDisposable
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Lecture des capteurs LibreHardwareMonitor en echec", ex);
+        }
 
         return new HardwareReadings(cpuTemp, gpuTemp, gpuUsage, fanRpm);
     }

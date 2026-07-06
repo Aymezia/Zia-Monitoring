@@ -20,7 +20,10 @@ public sealed partial class MappingPage : Page
                 var psi = new System.Diagnostics.ProcessStartInfo(uri) { UseShellExecute = true };
                 System.Diagnostics.Process.Start(psi);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Infrastructure.AppLog.Warn($"Lancement du jeu impossible: {uri}", ex);
+            }
         }
     }
 }

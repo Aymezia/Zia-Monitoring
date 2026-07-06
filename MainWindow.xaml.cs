@@ -151,6 +151,12 @@ public sealed partial class MainWindow : Window
 
                 app.AlertNotificationService.CheckAndNotify(frame, settings);
 
+                if (frame.ThrottlingToast is not null)
+                {
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Zia Monitoring - Throttling détecté", frame.ThrottlingToast);
+                }
+
                 _dispatcherQueue.TryEnqueue(() =>
                 {
                     try

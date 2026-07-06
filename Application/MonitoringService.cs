@@ -18,6 +18,7 @@ public sealed class MonitoringService : IDisposable
     private readonly NetworkConnectionCollector _networkConnectionCollector = new();
     private readonly GameServerLatencyCollector _gameServerLatencyCollector = new();
     private readonly RecommendationEngine _engine = new();
+    private readonly ThrottlingDetector _throttlingDetector = new();
 
     private PcProfile? _profileCache;
 
@@ -50,11 +51,19 @@ public sealed class MonitoringService : IDisposable
             estimatedFps,
             perCore, network,
             activeConnections, networkProcesses, gameLatencies,
-            processes);
+            processes,
+            hw.CpuClockMhz, hw.GpuClockMhz);
 
         var analysis = _engine.Build(snapshot, profile);
 
-        return new MonitoringFrame(snapshot, profile, analysis);
+        var throttlingToast = _throttlingDetector.Update(
+            hw.CpuTemperatureC, hw.CpuClockMhz, cpu,
+            hw.GpuTemperatureC, hw.GpuClockMhz, hw.GpuUsagePercent);
+
+        if (_throttlingDetector.ActiveAlert is { } throttlingAlert)
+            analysis = analysis with { Alerts = [.. analysis.Alerts, throttlingAlert] };
+
+        return new MonitoringFrame(snapshot, profile, analysis, throttlingToast);
     }
 
     public void RefreshProfile()

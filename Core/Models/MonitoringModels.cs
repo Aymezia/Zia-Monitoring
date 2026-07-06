@@ -53,7 +53,9 @@ public sealed record SystemSnapshot(
     IReadOnlyList<TcpConnectionInfo> ActiveTcpConnections,
     IReadOnlyList<ProcessNetworkUsage> TopNetworkProcesses,
     IReadOnlyList<GameServerLatency> GameServerLatencies,
-    IReadOnlyList<ProcessInfo> TopProcesses);
+    IReadOnlyList<ProcessInfo> TopProcesses,
+    double? CpuClockMhz = null,
+    double? GpuClockMhz = null);
 
 public sealed record DiskProfile(string Name, string Format, double TotalGb, double FreeGb)
 {
@@ -173,4 +175,8 @@ public sealed record AnalysisReport(
     IReadOnlyList<double> CpuHistory7d,
     IReadOnlyList<BoostActionItem> BoostActions);
 
-public sealed record MonitoringFrame(SystemSnapshot Snapshot, PcProfile Profile, AnalysisReport Analysis);
+public sealed record MonitoringFrame(
+    SystemSnapshot Snapshot,
+    PcProfile Profile,
+    AnalysisReport Analysis,
+    string? ThrottlingToast = null);

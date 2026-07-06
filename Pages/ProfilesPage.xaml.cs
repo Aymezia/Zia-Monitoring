@@ -23,7 +23,7 @@ public sealed partial class ProfilesPage : Page
         try
         {
             var (success, actions, warnings) = await Task.Run(
-                () => _app.OptimizationProfileService.Apply(profileName, _app.BoostEngine));
+                () => _app.OptimizationProfileService.Apply(profileName));
 
             var msg = "Actions appliquees:\n" + string.Join("\n", actions.Select(a => $"  - {a}"));
             if (warnings.Count > 0)
@@ -34,6 +34,81 @@ public sealed partial class ProfilesPage : Page
         finally
         {
             btn.IsEnabled = true;
+        }
+    }
+
+    private async void ExportProfiles_Click(object sender, RoutedEventArgs e)
+    {
+        ExportProfilesButton.IsEnabled = false;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                SuggestedFileName = $"zia-profils-{DateTime.Now:yyyy-MM-dd}"
+            };
+            picker.FileTypeChoices.Add("Profils Zia Monitoring (JSON)", [".json"]);
+            InitializePicker(picker);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file is null)
+                return;
+
+            await Task.Run(() => _app.OptimizationProfileService.ExportProfiles(file.Path));
+            ProfileIoStatusLabel.Text = $"Profils exportes vers {file.Path}";
+        }
+        catch (Exception ex)
+        {
+            ProfileIoStatusLabel.Text = $"Export impossible: {ex.Message}";
+            Infrastructure.AppLog.Warn("Export des profils en echec", ex);
+        }
+        finally
+        {
+            ExportProfilesButton.IsEnabled = true;
+        }
+    }
+
+    private async void ImportProfiles_Click(object sender, RoutedEventArgs e)
+    {
+        ImportProfilesButton.IsEnabled = false;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop
+            };
+            picker.FileTypeFilter.Add(".json");
+            InitializePicker(picker);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file is null)
+                return;
+
+            var (imported, skipped) = await Task.Run(() => _app.OptimizationProfileService.ImportProfiles(file.Path));
+            ProfilesList.ItemsSource = _app.OptimizationProfileService.GetProfiles();
+            ProfileIoStatusLabel.Text = skipped > 0
+                ? $"{imported} profil(s) importe(s), {skipped} ignore(s) (nom reserve ou invalide)."
+                : $"{imported} profil(s) importe(s).";
+        }
+        catch (Exception ex)
+        {
+            ProfileIoStatusLabel.Text = $"Import impossible: {ex.Message}";
+            Infrastructure.AppLog.Warn("Import des profils en echec", ex);
+        }
+        finally
+        {
+            ImportProfilesButton.IsEnabled = true;
+        }
+    }
+
+    private static void InitializePicker(object picker)
+    {
+        // En app WinUI 3 non packagée, les pickers doivent être rattachés au HWND.
+        var window = ((App)Microsoft.UI.Xaml.Application.Current).MainWindowInstance;
+        if (window is not null)
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
         }
     }
 

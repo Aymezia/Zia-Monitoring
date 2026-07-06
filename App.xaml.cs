@@ -16,6 +16,9 @@ public partial class App : Microsoft.UI.Xaml.Application
     private Window? _window;
     private readonly ServiceProvider _services;
 
+    /// <summary>Fenêtre principale (nécessaire aux FileOpen/SavePicker en app non packagée).</summary>
+    public Window? MainWindowInstance => _window;
+
     /// <summary>Conteneur d'injection de dépendances de l'application.</summary>
     public IServiceProvider Services => _services;
 

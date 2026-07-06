@@ -15,10 +15,20 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <StackPanel>
-                <TextBlock Text="Profils d'optimisation" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
-                <TextBlock Text="Appliquez un profil configure en un clic." Foreground="{StaticResource ZiaMutedBrush}" />
-            </StackPanel>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Profils d'optimisation" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+                    <TextBlock Text="Appliquez un profil configure en un clic." Foreground="{StaticResource ZiaMutedBrush}" />
+                    <TextBlock x:Name="ProfileIoStatusLabel" Foreground="{StaticResource ZiaVioletBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+                <Button Grid.Column="1" x:Name="ExportProfilesButton" Content="Exporter" Click="ExportProfiles_Click" VerticalAlignment="Center" />
+                <Button Grid.Column="2" x:Name="ImportProfilesButton" Content="Importer" Click="ImportProfiles_Click" VerticalAlignment="Center" />
+            </Grid>
 
             <ListView Grid.Row="1" x:Name="ProfilesList" MaxHeight="400">
                 <ListView.ItemTemplate>

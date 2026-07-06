@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ZiaMonitoring_App.Core.Models;
 
 namespace ZiaMonitoring_App.Application;
@@ -23,12 +24,27 @@ public sealed class OptimizationProfileService
             ["Restaurer animations Windows", "Redemarrer services standards"])
     ];
 
-    public IReadOnlyList<OptimizationProfile> GetProfiles() => BuiltInProfiles;
+    private readonly string _customProfilesFile;
+    private List<OptimizationProfile> _customProfiles = [];
+
+    public OptimizationProfileService(string? storageDirectory = null)
+    {
+        var dir = storageDirectory ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ZiaMonitoring");
+        Directory.CreateDirectory(dir);
+        _customProfilesFile = Path.Combine(dir, "custom-profiles.json");
+        LoadCustomProfiles();
+    }
+
+    /// <summary>Profils intégrés suivis des profils personnalisés (importés).</summary>
+    public IReadOnlyList<OptimizationProfile> GetProfiles() =>
+        BuiltInProfiles.Concat(_customProfiles).ToList();
 
     public (bool Success, IReadOnlyList<string> Actions, IReadOnlyList<string> Warnings)
-        Apply(string profileName, BoostEngine boostEngine)
+        Apply(string profileName)
     {
-        var profile = BuiltInProfiles.FirstOrDefault(
+        var profile = GetProfiles().FirstOrDefault(
             p => p.Name.Equals(profileName, StringComparison.OrdinalIgnoreCase));
 
         if (profile is null)
@@ -50,6 +66,81 @@ public sealed class OptimizationProfileService
         }
 
         return (true, applied, warnings);
+    }
+
+    /// <summary>Exporte tous les profils (intégrés + personnalisés) vers un fichier JSON.</summary>
+    public void ExportProfiles(string filePath)
+    {
+        var json = JsonSerializer.Serialize(GetProfiles(), new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json);
+    }
+
+    /// <summary>
+    /// Importe des profils depuis un fichier JSON. Les noms de profils intégrés
+    /// sont protégés (ignorés) ; un profil personnalisé existant du même nom
+    /// est remplacé.
+    /// </summary>
+    public (int Imported, int Skipped) ImportProfiles(string filePath)
+    {
+        var json = File.ReadAllText(filePath);
+        var incoming = JsonSerializer.Deserialize<List<OptimizationProfile>>(json) ?? [];
+
+        var imported = 0;
+        var skipped = 0;
+
+        foreach (var profile in incoming)
+        {
+            if (string.IsNullOrWhiteSpace(profile.Name) || profile.Actions is not { Count: > 0 })
+            {
+                skipped++;
+                continue;
+            }
+
+            if (BuiltInProfiles.Any(p => p.Name.Equals(profile.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                skipped++;
+                continue;
+            }
+
+            _customProfiles.RemoveAll(p => p.Name.Equals(profile.Name, StringComparison.OrdinalIgnoreCase));
+            _customProfiles.Add(profile);
+            imported++;
+        }
+
+        if (imported > 0)
+            SaveCustomProfiles();
+
+        return (imported, skipped);
+    }
+
+    private void LoadCustomProfiles()
+    {
+        try
+        {
+            if (!File.Exists(_customProfilesFile))
+                return;
+
+            var json = File.ReadAllText(_customProfilesFile);
+            _customProfiles = JsonSerializer.Deserialize<List<OptimizationProfile>>(json) ?? [];
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture des profils personnalisés impossible", ex);
+            _customProfiles = [];
+        }
+    }
+
+    private void SaveCustomProfiles()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_customProfiles, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_customProfilesFile, json);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Error("Sauvegarde des profils personnalisés impossible", ex);
+        }
     }
 
     private static void ExecuteAction(string action, List<string> warnings, List<string> applied)

@@ -46,6 +46,7 @@
             <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
             <conv:BoolToVisibilityConverter x:Key="BoolToVisInverse" Invert="True" />
             <conv:RiskLevelToBrushConverter x:Key="RiskToBrush" />
+            <conv:BoolToStatusBrushConverter x:Key="PrivacyBrush" />
 
             <!-- ============ Typographie ============ -->
             <Style TargetType="TextBlock" x:Key="PageTitleTextStyle">

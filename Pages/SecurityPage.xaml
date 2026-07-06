@@ -18,6 +18,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -112,6 +114,53 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Confidentialité Windows" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="FixAllPrivacyButton" Content="Tout corriger" Click="FixAllPrivacy_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock Text="Traceurs et collectes de données activés par défaut (identifiant publicitaire, télémétrie d'usage, suggestions…)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="PrivacyList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontWeight="SemiBold"
+                                               Foreground="{Binding IsPrivacyFriendly, Converter={StaticResource PrivacyBrush}}" />
+                                    <Button Grid.Column="2" Content="Corriger" Tag="{Binding Key}" Click="FixPrivacy_Click" VerticalAlignment="Center"
+                                            Visibility="{Binding IsPrivacyFriendly, Converter={StaticResource BoolToVisInverse}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Mot de passe compromis ? (HaveIBeenPwned)" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Vérification par k-anonymat : seuls les 5 premiers caractères du hash SHA-1 sont envoyés — jamais votre mot de passe." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PasswordBox x:Name="HibpPasswordBox" Width="280" PlaceholderText="Mot de passe à vérifier" />
+                        <Button x:Name="HibpCheckButton" Content="Vérifier" Click="CheckHibp_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </StackPanel>
+                    <TextBlock x:Name="HibpResultLabel" TextWrapping="Wrap" Foreground="{StaticResource ZiaTextBrush}" />
                 </StackPanel>
             </Border>
         </Grid>

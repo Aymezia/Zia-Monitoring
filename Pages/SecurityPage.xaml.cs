@@ -14,6 +14,64 @@ public sealed partial class SecurityPage : Page
         InitializeComponent();
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         ScanStatusLabel.Text = "Cliquez sur 'Lancer l'analyse' pour demarrer.";
+        RefreshPrivacy();
+    }
+
+    private void RefreshPrivacy()
+    {
+        try
+        {
+            PrivacyList.ItemsSource = _app.PrivacyScanner.Scan();
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Scan de confidentialité impossible", ex);
+        }
+    }
+
+    private void FixPrivacy_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string key })
+        {
+            _app.PrivacyScanner.Fix(key);
+            RefreshPrivacy();
+        }
+    }
+
+    private void FixAllPrivacy_Click(object sender, RoutedEventArgs e)
+    {
+        var fixedCount = _app.PrivacyScanner.FixAll();
+        RefreshPrivacy();
+        ScanStatusLabel.Text = $"{fixedCount} réglage(s) de confidentialité corrigé(s).";
+    }
+
+    private async void CheckHibp_Click(object sender, RoutedEventArgs e)
+    {
+        var password = HibpPasswordBox.Password;
+        if (string.IsNullOrEmpty(password))
+        {
+            HibpResultLabel.Text = "Saisissez un mot de passe à vérifier.";
+            return;
+        }
+
+        HibpCheckButton.IsEnabled = false;
+        HibpResultLabel.Text = "Vérification en cours…";
+        try
+        {
+            var count = await _app.Hibp.CheckPasswordAsync(password);
+            HibpPasswordBox.Password = string.Empty;
+
+            HibpResultLabel.Text = count switch
+            {
+                null => "Service injoignable (hors ligne ?). Réessayez plus tard.",
+                0 => "✔ Introuvable dans les fuites connues. (Cela ne garantit pas qu'il soit robuste.)",
+                _ => $"⚠ Compromis : ce mot de passe apparaît {count:N0} fois dans des fuites de données. Changez-le partout où il est utilisé."
+            };
+        }
+        finally
+        {
+            HibpCheckButton.IsEnabled = true;
+        }
     }
 
     private async void Scan_Click(object sender, RoutedEventArgs e)

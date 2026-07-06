@@ -43,6 +43,8 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.PresentMonService PresentMon => _services.GetRequiredService<Application.PresentMonService>();
     public Application.DeepCleanService DeepClean => _services.GetRequiredService<Application.DeepCleanService>();
     public Application.ProcessRuleService ProcessRules => _services.GetRequiredService<Application.ProcessRuleService>();
+    public Application.PrivacyScanService PrivacyScanner => _services.GetRequiredService<Application.PrivacyScanService>();
+    public Application.HibpService Hibp => _services.GetRequiredService<Application.HibpService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -87,6 +89,8 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.PresentMonService>();
         services.AddSingleton<Application.DeepCleanService>();
         services.AddSingleton<Application.ProcessRuleService>();
+        services.AddSingleton<Application.PrivacyScanService>();
+        services.AddSingleton<Application.HibpService>();
 
         return services.BuildServiceProvider();
     }

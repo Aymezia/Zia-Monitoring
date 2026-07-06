@@ -20,6 +20,19 @@ public sealed class BoolToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>true → vert, false → rouge (états OK/exposé).</summary>
+public sealed class BoolToStatusBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var ok = value is bool b && b;
+        return (Brush)Microsoft.UI.Xaml.Application.Current.Resources[ok ? "ZiaGreenBrush" : "ZiaRedBrush"];
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotSupportedException();
+}
+
 /// <summary>Low → vert, Medium → ambre, High (ou inconnu) → rouge.</summary>
 public sealed class RiskLevelToBrushConverter : IValueConverter
 {

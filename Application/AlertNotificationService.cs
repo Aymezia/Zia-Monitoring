@@ -8,6 +8,7 @@ public sealed class AlertNotificationService
 {
     private DateTime _lastCpuAlertTime = DateTime.MinValue;
     private DateTime _lastDiskAlertTime = DateTime.MinValue;
+    private DateTime _lastTempAlertTime = DateTime.MinValue;
     private DateTime _lastDailySummaryDate = DateTime.MinValue.Date;
 
     private readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(3);
@@ -18,28 +19,43 @@ public sealed class AlertNotificationService
             return;
 
         CheckCpuAlert(frame.Snapshot, settings);
+        CheckTemperatureAlert(frame.Snapshot, settings);
         CheckDiskAlert(frame.Profile, settings);
         CheckDailySummary(frame, settings);
     }
 
     private void CheckCpuAlert(SystemSnapshot snapshot, AppSettings settings)
     {
-        if (snapshot.CpuPercent > 90 && DateTime.Now - _lastCpuAlertTime > _alertCooldown)
+        if (snapshot.CpuPercent > settings.CpuAlertThresholdPercent && DateTime.Now - _lastCpuAlertTime > _alertCooldown)
         {
             _lastCpuAlertTime = DateTime.Now;
             SendToast("Zia Monitoring - CPU critique",
-                $"Utilisation CPU: {snapshot.CpuPercent:F0}%. Verifiez les processus actifs.");
+                $"Utilisation CPU: {snapshot.CpuPercent:F0}% (seuil: {settings.CpuAlertThresholdPercent:F0}%). Verifiez les processus actifs.");
+        }
+    }
+
+    private void CheckTemperatureAlert(SystemSnapshot snapshot, AppSettings settings)
+    {
+        var cpuHot = snapshot.CpuTemperatureC >= settings.CpuTempAlertThresholdC;
+        var gpuHot = snapshot.GpuTemperatureC >= settings.GpuTempAlertThresholdC;
+        if ((cpuHot || gpuHot) && DateTime.Now - _lastTempAlertTime > _alertCooldown)
+        {
+            _lastTempAlertTime = DateTime.Now;
+            var detail = cpuHot
+                ? $"CPU a {snapshot.CpuTemperatureC:F0}°C (seuil: {settings.CpuTempAlertThresholdC:F0}°C)"
+                : $"GPU a {snapshot.GpuTemperatureC:F0}°C (seuil: {settings.GpuTempAlertThresholdC:F0}°C)";
+            SendToast("Zia Monitoring - Surchauffe", $"{detail}. Verifiez la ventilation.");
         }
     }
 
     private void CheckDiskAlert(PcProfile profile, AppSettings settings)
     {
-        var criticalDisk = profile.Disks.FirstOrDefault(d => d.FreeGb < 10);
+        var criticalDisk = profile.Disks.FirstOrDefault(d => d.FreeGb < settings.DiskFreeAlertGb);
         if (criticalDisk is not null && DateTime.Now - _lastDiskAlertTime > _alertCooldown)
         {
             _lastDiskAlertTime = DateTime.Now;
             SendToast("Zia Monitoring - Disque plein",
-                $"Disque {criticalDisk.Name}: seulement {criticalDisk.FreeGb:F1} GB libre.");
+                $"Disque {criticalDisk.Name}: seulement {criticalDisk.FreeGb:F1} GB libre (seuil: {settings.DiskFreeAlertGb:F0} GB).");
         }
     }
 

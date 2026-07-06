@@ -91,7 +91,7 @@ public sealed partial class MainWindow : Window
                     {
                         app.State.Update(frame);
                         app.State.UpdateActiveGame(activeGame);
-                        UpdateTitleBar(frame);
+                        UpdateTitleBar(frame, settings);
                         ConfigureSystray(settings, frame);
                         ConfigureOverlay(settings, activeGame);
                         ConfigureHotkey(settings);
@@ -123,11 +123,12 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void UpdateTitleBar(MonitoringFrame frame)
+    private void UpdateTitleBar(MonitoringFrame frame, AppSettings settings)
     {
         var cpuT = frame.Snapshot.CpuTemperatureC is { } ct ? $"{ct:F0}C" : "N/A";
         var gpuT = frame.Snapshot.GpuTemperatureC is { } gt ? $"{gt:F0}C" : "N/A";
-        var tempAlert = frame.Snapshot.CpuTemperatureC >= 85 || frame.Snapshot.GpuTemperatureC >= 82;
+        var tempAlert = frame.Snapshot.CpuTemperatureC >= settings.CpuTempAlertThresholdC
+                        || frame.Snapshot.GpuTemperatureC >= settings.GpuTempAlertThresholdC;
         var fps = frame.Snapshot.EstimatedFps > 0 ? $" | FPS {frame.Snapshot.EstimatedFps:F0}" : string.Empty;
 
         AppTitleBar.Title = tempAlert ? "Zia Monitoring - ALERTE TEMP" : "Zia Monitoring";

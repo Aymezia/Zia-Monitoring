@@ -38,6 +38,15 @@ public sealed partial class SettingsPage : Page
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
             SchedulerToggle.IsOn = _settings.EnableCleanupScheduler;
 
+            CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
+            CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
+            CpuTempAlertSlider.Value = _settings.CpuTempAlertThresholdC;
+            CpuTempAlertValueLabel.Text = $"{_settings.CpuTempAlertThresholdC:F0}°C";
+            GpuTempAlertSlider.Value = _settings.GpuTempAlertThresholdC;
+            GpuTempAlertValueLabel.Text = $"{_settings.GpuTempAlertThresholdC:F0}°C";
+            DiskAlertSlider.Value = _settings.DiskFreeAlertGb;
+            DiskAlertValueLabel.Text = $"{_settings.DiskFreeAlertGb:F0} GB";
+
             _loading = false;
             _settings = _settings with { EnableAutoStart = AutoStartToggle.IsOn };
 
@@ -122,6 +131,38 @@ public sealed partial class SettingsPage : Page
             MiniOpacityValueLabel.Text = $"{e.NewValue:F0}%";
 
         _settings = _settings with { MiniWidgetOpacity = Math.Clamp(e.NewValue / 100.0, 0.35, 1.0) };
+        SaveSettings();
+    }
+
+    private void CpuAlertSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (CpuAlertValueLabel != null)
+            CpuAlertValueLabel.Text = $"{e.NewValue:F0}%";
+        _settings = _settings with { CpuAlertThresholdPercent = e.NewValue };
+        SaveSettings();
+    }
+
+    private void CpuTempAlertSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (CpuTempAlertValueLabel != null)
+            CpuTempAlertValueLabel.Text = $"{e.NewValue:F0}°C";
+        _settings = _settings with { CpuTempAlertThresholdC = e.NewValue };
+        SaveSettings();
+    }
+
+    private void GpuTempAlertSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (GpuTempAlertValueLabel != null)
+            GpuTempAlertValueLabel.Text = $"{e.NewValue:F0}°C";
+        _settings = _settings with { GpuTempAlertThresholdC = e.NewValue };
+        SaveSettings();
+    }
+
+    private void DiskAlertSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (DiskAlertValueLabel != null)
+            DiskAlertValueLabel.Text = $"{e.NewValue:F0} GB";
+        _settings = _settings with { DiskFreeAlertGb = e.NewValue };
         SaveSettings();
     }
 

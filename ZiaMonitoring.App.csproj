@@ -56,6 +56,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools.WinApp" Version="0.4.0" />
     <PackageReference Include="System.Management" Version="9.0.0" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.9" />
   </ItemGroup>
 
@@ -72,8 +73,13 @@
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <!--
+      Trimming désactivé : WinUI 3, LiveChartsCore et WMI (System.Management)
+      reposent sur la réflexion — le trimming produit des crashs au runtime
+      uniquement en build publié. Les scripts installer/Build-*.ps1 passent
+      déjà -p:PublishTrimmed=false ; on aligne le défaut du projet.
+    -->
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using ZiaMonitoring_App.Core.Models;
 
@@ -54,7 +56,9 @@ public sealed class SettingsService
             _cached = Clamp(settings);
             try
             {
-                var json = JsonSerializer.Serialize(_cached, new JsonSerializerOptions { WriteIndented = true });
+                // La clé API n'est jamais écrite en clair sur disque.
+                var persisted = _cached with { SteamGridDbApiKey = Protect(_cached.SteamGridDbApiKey) };
+                var json = JsonSerializer.Serialize(persisted, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_settingsFile, json);
             }
             catch (Exception ex)
@@ -73,6 +77,7 @@ public sealed class SettingsService
 
             var json = File.ReadAllText(_settingsFile);
             var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
+            settings = settings with { SteamGridDbApiKey = Unprotect(settings.SteamGridDbApiKey ?? string.Empty) };
             return Normalize(settings, json);
         }
         catch (Exception ex)
@@ -108,7 +113,56 @@ public sealed class SettingsService
         {
             RefreshIntervalSeconds = Math.Clamp(settings.RefreshIntervalSeconds, 1, 10),
             MiniWidgetOpacity = Math.Clamp(settings.MiniWidgetOpacity, 0.35, 1.0),
-            SteamGridDbApiKey = settings.SteamGridDbApiKey ?? string.Empty
+            SteamGridDbApiKey = settings.SteamGridDbApiKey ?? string.Empty,
+            CpuAlertThresholdPercent = Math.Clamp(settings.CpuAlertThresholdPercent, 50, 100),
+            CpuTempAlertThresholdC = Math.Clamp(settings.CpuTempAlertThresholdC, 50, 105),
+            GpuTempAlertThresholdC = Math.Clamp(settings.GpuTempAlertThresholdC, 50, 105),
+            DiskFreeAlertGb = Math.Clamp(settings.DiskFreeAlertGb, 1, 100)
         };
+    }
+
+    private const string DpapiPrefix = "dpapi:";
+
+    /// <summary>Chiffre la valeur via DPAPI (portée utilisateur Windows).</summary>
+    private static string Protect(string plainText)
+    {
+        if (string.IsNullOrEmpty(plainText))
+            return string.Empty;
+
+        try
+        {
+            var encrypted = ProtectedData.Protect(
+                Encoding.UTF8.GetBytes(plainText),
+                optionalEntropy: null,
+                scope: DataProtectionScope.CurrentUser);
+            return DpapiPrefix + Convert.ToBase64String(encrypted);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Error("Chiffrement DPAPI de la clé API impossible", ex);
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Déchiffre une valeur DPAPI ; une valeur sans préfixe (ancien format en
+    /// clair) est retournée telle quelle et sera chiffrée à la prochaine sauvegarde.
+    /// </summary>
+    private static string Unprotect(string storedValue)
+    {
+        if (string.IsNullOrEmpty(storedValue) || !storedValue.StartsWith(DpapiPrefix, StringComparison.Ordinal))
+            return storedValue;
+
+        try
+        {
+            var raw = Convert.FromBase64String(storedValue[DpapiPrefix.Length..]);
+            var decrypted = ProtectedData.Unprotect(raw, optionalEntropy: null, scope: DataProtectionScope.CurrentUser);
+            return Encoding.UTF8.GetString(decrypted);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Déchiffrement DPAPI de la clé API impossible (clé réinitialisée)", ex);
+            return string.Empty;
+        }
     }
 }

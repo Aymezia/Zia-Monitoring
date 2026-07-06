@@ -31,6 +31,27 @@
                     </StackPanel>
                     <ToggleSwitch x:Name="ToastToggle" Header="Alertes toast CPU / disque" Toggled="ToastToggle_Toggled" />
                     <ToggleSwitch x:Name="DailySummaryToggle" Header="Resume sante quotidien au demarrage" Toggled="DailySummary_Toggled" />
+                    <TextBlock Text="Seuils d'alerte" Style="{StaticResource CardTitleTextStyle}" Margin="0,8,0,0" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Alerte CPU (%):" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="CpuAlertSlider" Minimum="50" Maximum="100" StepFrequency="5" Width="200" ValueChanged="CpuAlertSlider_ValueChanged" />
+                        <TextBlock x:Name="CpuAlertValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Alerte temperature CPU (°C):" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="CpuTempAlertSlider" Minimum="50" Maximum="105" StepFrequency="1" Width="200" ValueChanged="CpuTempAlertSlider_ValueChanged" />
+                        <TextBlock x:Name="CpuTempAlertValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Alerte temperature GPU (°C):" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="GpuTempAlertSlider" Minimum="50" Maximum="105" StepFrequency="1" Width="200" ValueChanged="GpuTempAlertSlider_ValueChanged" />
+                        <TextBlock x:Name="GpuTempAlertValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Alerte disque plein (GB libres):" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="DiskAlertSlider" Minimum="1" Maximum="100" StepFrequency="1" Width="200" ValueChanged="DiskAlertSlider_ValueChanged" />
+                        <TextBlock x:Name="DiskAlertValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

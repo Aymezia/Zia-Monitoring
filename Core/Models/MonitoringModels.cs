@@ -106,7 +106,11 @@ public sealed record AppSettings(
     bool EnableGameOverlay = true,
     bool EnableMiniWidget = false,
     double MiniWidgetOpacity = 0.88,
-    string SteamGridDbApiKey = "");
+    string SteamGridDbApiKey = "",
+    double CpuAlertThresholdPercent = 90,
+    double CpuTempAlertThresholdC = 85,
+    double GpuTempAlertThresholdC = 82,
+    double DiskFreeAlertGb = 10);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

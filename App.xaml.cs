@@ -29,6 +29,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public ZiaMonitoring_App.Application.OptimizationProfileService OptimizationProfileService { get; } = new();
     public ZiaMonitoring_App.Application.BrowserCacheCleanerService BrowserCacheCleaner { get; } = new();
     public ZiaMonitoring_App.Application.SecurityScanService SecurityScanner { get; } = new();
+    public ZiaMonitoring_App.Application.SecurityReportExportService SecurityReportExporter { get; } = new();
     
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code

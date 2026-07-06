@@ -1,5 +1,6 @@
 using System.Management;
 using System.Net.NetworkInformation;
+using System.Security.Cryptography;
 using Microsoft.Win32;
 using ZiaMonitoring_App.Core.Models;
 
@@ -15,8 +16,21 @@ public sealed class SecurityScanService
         var suspicious = ScanSuspiciousStartup();
         var drivers = ScanObsoleteDrivers();
         var smart = ScanSmartWarnings();
+        var maliciousProcesses = ScanProcessSignatures();
+        var keyloggerWarnings = ScanKeyboardHookIndicators();
+        var riskScore = ComputeRiskScore(firewall, uac, suspicious, drivers, smart, maliciousProcesses, keyloggerWarnings);
 
-        return new SecurityReport(firewall, uac, ports, suspicious, drivers, smart);
+        return new SecurityReport(
+            DateTime.Now,
+            riskScore,
+            firewall,
+            uac,
+            ports,
+            suspicious,
+            drivers,
+            smart,
+            maliciousProcesses,
+            keyloggerWarnings);
     }
 
     private static bool IsFirewallEnabled()
@@ -139,5 +153,125 @@ public sealed class SecurityScanService
         }
         catch { }
         return result;
+    }
+
+    private static IReadOnlyList<string> ScanProcessSignatures()
+    {
+        var result = new List<string>();
+        var signatures = LoadKnownSha256Signatures();
+
+        foreach (var process in System.Diagnostics.Process.GetProcesses().Take(180))
+        {
+            using (process)
+            {
+                try
+                {
+                    var path = process.MainModule?.FileName;
+                    if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                        continue;
+
+                    using var stream = File.OpenRead(path);
+                    var hash = Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
+                    if (signatures.Contains(hash))
+                        result.Add($"{process.ProcessName} ({process.Id}) - {hash}");
+                }
+                catch
+                {
+                    // Access denied is expected for protected processes.
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static HashSet<string> LoadKnownSha256Signatures()
+    {
+        var signatures = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"
+        };
+
+        try
+        {
+            var path = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ZiaMonitoring",
+                "known-malware-sha256.txt");
+
+            if (!File.Exists(path))
+                return signatures;
+
+            foreach (var line in File.ReadLines(path))
+            {
+                var value = line.Trim();
+                if (value.Length == 64 && value.All(Uri.IsHexDigit))
+                    signatures.Add(value);
+            }
+        }
+        catch { }
+
+        return signatures;
+    }
+
+    private static IReadOnlyList<string> ScanKeyboardHookIndicators()
+    {
+        var result = new List<string>();
+        var suspiciousTokens = new[]
+        {
+            "keylogger", "keyboardhook", "keyhook", "inputhook", "interception", "globalhook"
+        };
+
+        foreach (var process in System.Diagnostics.Process.GetProcesses().Take(180))
+        {
+            using (process)
+            {
+                try
+                {
+                    var name = process.ProcessName;
+                    if (suspiciousTokens.Any(token => name.Contains(token, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        result.Add($"{name} ({process.Id}) - nom de processus suspect");
+                        continue;
+                    }
+
+                    foreach (System.Diagnostics.ProcessModule module in process.Modules)
+                    {
+                        var moduleName = module.ModuleName ?? string.Empty;
+                        if (suspiciousTokens.Any(token => moduleName.Contains(token, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            result.Add($"{name} ({process.Id}) - module hook probable: {moduleName}");
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Module enumeration is restricted for many system processes.
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static int ComputeRiskScore(
+        bool firewall,
+        bool uac,
+        IReadOnlyList<string> suspicious,
+        IReadOnlyList<string> drivers,
+        IReadOnlyList<string> smart,
+        IReadOnlyList<string> maliciousProcesses,
+        IReadOnlyList<string> keyloggerWarnings)
+    {
+        var score = 0;
+        if (!firewall) score += 18;
+        if (!uac) score += 22;
+        score += Math.Min(20, suspicious.Count * 8);
+        score += Math.Min(14, drivers.Count);
+        score += Math.Min(20, smart.Count * 12);
+        score += Math.Min(45, maliciousProcesses.Count * 30);
+        score += Math.Min(35, keyloggerWarnings.Count * 18);
+        return Math.Clamp(score, 0, 100);
     }
 }

@@ -68,26 +68,28 @@
                 <StackPanel>
                     <TextBlock Text="Jeux installes" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="{Binding GamesCountLabel}" Foreground="{StaticResource ZiaMutedBrush}" Margin="0,0,0,6" />
-                    <ListView ItemsSource="{Binding InstalledGames}" MaxHeight="320">
-                        <ListView.ItemTemplate>
+                    <GridView ItemsSource="{Binding InstalledGames}" MaxHeight="430" IsItemClickEnabled="False">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnSpacing="12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Platform}" Foreground="{StaticResource ZiaVioletBrush}" />
-                                    <TextBlock Grid.Column="2" Text="{Binding Version}" Foreground="{StaticResource ZiaMutedBrush}" />
-                                    <TextBlock Grid.Column="3" Text="{Binding PlayTimeLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
-                                    <Button Grid.Column="4" Content="Lancer" Tag="{Binding LaunchUri}" Click="LaunchGame_Click" Padding="8,4" />
-                                </Grid>
+                                <Border Width="190" MinHeight="265" Background="{StaticResource ZiaPanelAltBrush}" CornerRadius="8" Padding="10" Margin="0,0,10,10">
+                                    <StackPanel Spacing="8">
+                                        <Border Height="170" CornerRadius="6" Background="{StaticResource ZiaBlackBrush}">
+                                            <Image Source="{Binding CoverImageUri}" Stretch="UniformToFill" />
+                                        </Border>
+                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" MaxLines="2" />
+                                        <TextBlock Text="{Binding Platform}" Foreground="{StaticResource ZiaVioletBrush}" />
+                                        <TextBlock Text="{Binding PlayTimeLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                                        <Button Content="Lancer" Tag="{Binding LaunchUri}" Click="LaunchGame_Click" Padding="8,4" HorizontalAlignment="Stretch" />
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        </GridView.ItemTemplate>
+                    </GridView>
                 </StackPanel>
             </Border>
         </Grid>

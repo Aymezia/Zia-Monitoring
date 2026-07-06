@@ -9,6 +9,31 @@ public sealed record PerCoreCpuUsage(int CoreIndex, double Percent);
 
 public sealed record NetworkStats(double UploadKbps, double DownloadKbps, double PingMs);
 
+public sealed record TcpConnectionInfo(
+    int Pid,
+    string ProcessName,
+    string LocalEndpoint,
+    string RemoteEndpoint,
+    string State);
+
+public sealed record ProcessNetworkUsage(
+    int Pid,
+    string ProcessName,
+    int ActiveConnections,
+    double EstimatedKbps)
+{
+    public string EstimatedKbpsLabel => EstimatedKbps > 0 ? $"{EstimatedKbps:F0} KB/s" : "N/A";
+}
+
+public sealed record GameServerLatency(
+    string Provider,
+    string Host,
+    double PingMs,
+    bool IsReachable)
+{
+    public string PingLabel => IsReachable ? $"{PingMs:F0} ms" : "N/A";
+}
+
 public sealed record SystemSnapshot(
     DateTime Timestamp,
     double CpuPercent,
@@ -22,8 +47,12 @@ public sealed record SystemSnapshot(
     double VramTotalMb,
     double DiskIoReadMbps,
     double DiskIoWriteMbps,
+    double EstimatedFps,
     IReadOnlyList<PerCoreCpuUsage> PerCoreCpu,
     NetworkStats Network,
+    IReadOnlyList<TcpConnectionInfo> ActiveTcpConnections,
+    IReadOnlyList<ProcessNetworkUsage> TopNetworkProcesses,
+    IReadOnlyList<GameServerLatency> GameServerLatencies,
     IReadOnlyList<ProcessInfo> TopProcesses);
 
 public sealed record DiskProfile(string Name, string Format, double TotalGb, double FreeGb)
@@ -37,14 +66,24 @@ public sealed record GameInstallation(
     string Version,
     string InstallLocation,
     TimeSpan PlayTime,
-    string? LaunchUri)
+    string? LaunchUri,
+    string? CoverImageUri = null,
+    string? SteamAppId = null)
 {
     public string PlayTimeLabel => PlayTime.TotalMinutes > 0
         ? $"{(int)PlayTime.TotalHours}h{PlayTime.Minutes:D2}m"
         : "N/A";
 }
 
-public sealed record ActiveGameSession(string GameName, double CpuPercent, double MemoryMb, TimeSpan SessionDuration);
+public sealed record ActiveGameSession(
+    int Pid,
+    string GameName,
+    double CpuPercent,
+    double MemoryMb,
+    TimeSpan SessionDuration,
+    double EstimatedFps,
+    string? ServerEndpoint,
+    double ServerPingMs);
 
 public sealed record BoostHistoryEntry(
     DateTime AppliedAt,
@@ -61,17 +100,27 @@ public sealed record AppSettings(
     TimeSpan ScheduledCleanupTime,
     string Theme,
     bool ShowSystray,
-    bool EnableOnboarding);
+    bool EnableOnboarding,
+    bool EnableAutoStart = false,
+    bool EnableGlobalHotkey = true,
+    bool EnableGameOverlay = true,
+    bool EnableMiniWidget = false,
+    double MiniWidgetOpacity = 0.88,
+    string SteamGridDbApiKey = "");
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 
 public sealed record SecurityReport(
+    DateTime GeneratedAt,
+    int RiskScore,
     bool FirewallEnabled,
     bool UacEnabled,
     IReadOnlyList<string> OpenPorts,
     IReadOnlyList<string> SuspiciousStartupEntries,
     IReadOnlyList<string> ObsoleteDrivers,
-    IReadOnlyList<string> DiskSmartWarnings);
+    IReadOnlyList<string> DiskSmartWarnings,
+    IReadOnlyList<string> MaliciousProcessMatches,
+    IReadOnlyList<string> KeyloggerHookWarnings);
 
 public sealed record GameCompatScore(string GameName, int Score, string Verdict, IReadOnlyList<string> Issues);
 

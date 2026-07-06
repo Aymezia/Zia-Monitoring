@@ -16,7 +16,13 @@ public sealed class SettingsService
         ScheduledCleanupTime: TimeSpan.FromHours(3),
         Theme: "dark",
         ShowSystray: true,
-        EnableOnboarding: true);
+        EnableOnboarding: true,
+        EnableAutoStart: false,
+        EnableGlobalHotkey: true,
+        EnableGameOverlay: true,
+        EnableMiniWidget: false,
+        MiniWidgetOpacity: 0.88,
+        SteamGridDbApiKey: "");
 
     public SettingsService()
     {
@@ -35,7 +41,8 @@ public sealed class SettingsService
                 return Default;
 
             var json = File.ReadAllText(_settingsFile);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
+            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
+            return Normalize(settings, json);
         }
         catch
         {
@@ -51,5 +58,30 @@ public sealed class SettingsService
             File.WriteAllText(_settingsFile, json);
         }
         catch { }
+    }
+
+    private static AppSettings Normalize(AppSettings settings, string json)
+    {
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        if (!root.TryGetProperty(nameof(AppSettings.EnableGlobalHotkey), out _))
+            settings = settings with { EnableGlobalHotkey = Default.EnableGlobalHotkey };
+
+        if (!root.TryGetProperty(nameof(AppSettings.EnableGameOverlay), out _))
+            settings = settings with { EnableGameOverlay = Default.EnableGameOverlay };
+
+        if (!root.TryGetProperty(nameof(AppSettings.MiniWidgetOpacity), out _))
+            settings = settings with { MiniWidgetOpacity = Default.MiniWidgetOpacity };
+
+        if (!root.TryGetProperty(nameof(AppSettings.ShowSystray), out _))
+            settings = settings with { ShowSystray = Default.ShowSystray };
+
+        return settings with
+        {
+            RefreshIntervalSeconds = Math.Clamp(settings.RefreshIntervalSeconds, 1, 10),
+            MiniWidgetOpacity = Math.Clamp(settings.MiniWidgetOpacity, 0.35, 1.0),
+            SteamGridDbApiKey = settings.SteamGridDbApiKey ?? string.Empty
+        };
     }
 }

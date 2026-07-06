@@ -1,16 +1,33 @@
+using System.Runtime.InteropServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WinRT.Interop;
+using ZiaMonitoring_App.Core.Models;
+using ZiaMonitoring_App.Infrastructure;
 using ZiaMonitoring_App.Pages;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace ZiaMonitoring_App;
 
 public sealed partial class MainWindow : Window
 {
+    private const int WmHotkey = 0x0312;
+    private const int HotkeyId = 0x515A;
+    private const uint ModShift = 0x0004;
+    private const uint ModControl = 0x0002;
+    private const uint VkZ = 0x5A;
+    private const int GwlpWndProc = -4;
+    private const int SwHide = 0;
+    private const int SwShow = 5;
+
     private readonly DispatcherTimer _timer = new();
+    private readonly nint _hwnd;
+    private readonly WindowProc _windowProc;
+    private nint _oldWindowProc;
+    private SystrayIcon? _systray;
+    private PerformanceOverlayWindow? _overlayWindow;
+    private bool _hotkeyRegistered;
+    private bool _mainWindowVisible = true;
 
     public MainWindow()
     {
@@ -21,11 +38,19 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
+        _hwnd = WindowNative.GetWindowHandle(this);
+        _windowProc = WndProc;
+        _oldWindowProc = SetWindowLongPtr(_hwnd, GwlpWndProc, Marshal.GetFunctionPointerForDelegate(_windowProc));
+        Closed += MainWindow_Closed;
+
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += Timer_Tick;
         _timer.Start();
 
         NavFrame.Navigate(typeof(DashboardPage));
+
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+        ConfigureHotkey(app.SettingsService.Load());
     }
 
     private void Timer_Tick(object? sender, object e)
@@ -33,16 +58,22 @@ public sealed partial class MainWindow : Window
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         var settings = app.SettingsService.Load();
 
-        // Adjust timer interval if setting changed
         if (_timer.Interval.TotalSeconds != settings.RefreshIntervalSeconds)
             _timer.Interval = TimeSpan.FromSeconds(Math.Clamp(settings.RefreshIntervalSeconds, 1, 10));
 
         var frame = app.MonitoringService.CaptureFrame();
         app.State.Update(frame);
 
-        // Active game detection + silent mode
-        var activeGame = app.ActiveGameDetector.DetectActiveGame();
+        var activeGame = app.ActiveGameDetector.DetectActiveGame(
+            frame.Snapshot.ActiveTcpConnections,
+            frame.Snapshot.EstimatedFps);
         app.State.UpdateActiveGame(activeGame);
+
+        UpdateTitleBar(frame);
+        ConfigureSystray(settings, frame);
+        ConfigureOverlay(settings, activeGame);
+        ConfigureHotkey(settings);
+
         if (settings.AutoSilentModeOnGame)
         {
             var warnings = new List<string>();
@@ -52,8 +83,69 @@ public sealed partial class MainWindow : Window
                 app.SilentModeService.Deactivate(warnings);
         }
 
-        // Toast notifications
         app.AlertNotificationService.CheckAndNotify(frame, settings);
+    }
+
+    private void UpdateTitleBar(MonitoringFrame frame)
+    {
+        var cpuT = frame.Snapshot.CpuTemperatureC is { } ct ? $"{ct:F0}C" : "N/A";
+        var gpuT = frame.Snapshot.GpuTemperatureC is { } gt ? $"{gt:F0}C" : "N/A";
+        var tempAlert = frame.Snapshot.CpuTemperatureC >= 85 || frame.Snapshot.GpuTemperatureC >= 82;
+        var fps = frame.Snapshot.EstimatedFps > 0 ? $" | FPS {frame.Snapshot.EstimatedFps:F0}" : string.Empty;
+
+        AppTitleBar.Title = tempAlert ? "Zia Monitoring - ALERTE TEMP" : "Zia Monitoring";
+        AppTitleBar.Subtitle = tempAlert
+            ? $"Temperature persistante  CPU {cpuT}  |  GPU {gpuT}{fps}"
+            : $"CPU {frame.Snapshot.CpuPercent:F0}%  {cpuT}  |  GPU {frame.Snapshot.GpuUsagePercent ?? 0:F0}%  {gpuT}{fps}";
+    }
+
+    private void ConfigureSystray(AppSettings settings, MonitoringFrame frame)
+    {
+        if (!settings.ShowSystray)
+        {
+            _systray?.Dispose();
+            _systray = null;
+            return;
+        }
+
+        _systray ??= new SystrayIcon(_hwnd);
+        var cpuT = frame.Snapshot.CpuTemperatureC is { } ct ? $"{ct:F0}C" : "N/A";
+        var gpuT = frame.Snapshot.GpuTemperatureC is { } gt ? $"{gt:F0}C" : "N/A";
+        var fps = frame.Snapshot.EstimatedFps > 0 ? $" | FPS {frame.Snapshot.EstimatedFps:F0}" : string.Empty;
+        _systray.UpdateTooltip($"Zia | CPU {frame.Snapshot.CpuPercent:F0}% {cpuT} | GPU {frame.Snapshot.GpuUsagePercent ?? 0:F0}% {gpuT}{fps}");
+    }
+
+    private void ConfigureOverlay(AppSettings settings, ActiveGameSession? activeGame)
+    {
+        var shouldShow = settings.EnableMiniWidget || (settings.EnableGameOverlay && activeGame is not null);
+        if (!shouldShow)
+        {
+            _overlayWindow?.HideOverlay();
+            return;
+        }
+
+        if (_overlayWindow is null)
+        {
+            _overlayWindow = new PerformanceOverlayWindow();
+            _overlayWindow.Activate();
+            _overlayWindow.HideOverlay();
+        }
+
+        _overlayWindow.ApplySettings(settings);
+        _overlayWindow.ShowOverlay();
+    }
+
+    private void ConfigureHotkey(AppSettings settings)
+    {
+        if (settings.EnableGlobalHotkey && !_hotkeyRegistered)
+        {
+            _hotkeyRegistered = RegisterHotKey(_hwnd, HotkeyId, ModControl | ModShift, VkZ);
+        }
+        else if (!settings.EnableGlobalHotkey && _hotkeyRegistered)
+        {
+            UnregisterHotKey(_hwnd, HotkeyId);
+            _hotkeyRegistered = false;
+        }
     }
 
     private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
@@ -64,6 +156,14 @@ public sealed partial class MainWindow : Window
     private void TitleBar_BackRequested(TitleBar sender, object args)
     {
         NavFrame.GoBack();
+    }
+
+    private void ToggleMainWindowVisibility()
+    {
+        _mainWindowVisible = !_mainWindowVisible;
+        ShowWindow(_hwnd, _mainWindowVisible ? SwShow : SwHide);
+        if (_mainWindowVisible)
+            Activate();
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -106,9 +206,61 @@ public sealed partial class MainWindow : Window
                 case "security":
                     NavFrame.Navigate(typeof(SecurityPage));
                     break;
-                default:
+                case "network":
+                    NavFrame.Navigate(typeof(NetworkPage));
                     break;
             }
         }
+    }
+
+    private nint WndProc(nint hwnd, uint message, nint wParam, nint lParam)
+    {
+        if (message == WmHotkey && wParam == HotkeyId)
+        {
+            ToggleMainWindowVisibility();
+            return 0;
+        }
+
+        return CallWindowProc(_oldWindowProc, hwnd, message, wParam, lParam);
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        _timer.Stop();
+        if (_hotkeyRegistered)
+            UnregisterHotKey(_hwnd, HotkeyId);
+
+        _systray?.Dispose();
+        _overlayWindow?.Close();
+
+        if (_oldWindowProc != nint.Zero)
+            SetWindowLongPtr(_hwnd, GwlpWndProc, _oldWindowProc);
+    }
+
+    private delegate nint WindowProc(nint hwnd, uint message, nint wParam, nint lParam);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(nint hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(nint hWnd, int id);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern nint CallWindowProc(nint lpPrevWndFunc, nint hWnd, uint msg, nint wParam, nint lParam);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+    private static extern nint SetWindowLongPtr64(nint hWnd, int nIndex, nint dwNewLong);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
+    private static extern int SetWindowLong32(nint hWnd, int nIndex, int dwNewLong);
+
+    private static nint SetWindowLongPtr(nint hWnd, int nIndex, nint dwNewLong)
+    {
+        return IntPtr.Size == 8
+            ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong)
+            : SetWindowLong32(hWnd, nIndex, dwNewLong.ToInt32());
     }
 }

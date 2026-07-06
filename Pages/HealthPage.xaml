@@ -5,52 +5,102 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI">
 
-    <Grid Padding="24" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <TextBlock Text="Sante Globale" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+            <TextBlock Text="Sante Globale" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
 
-        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
-            <StackPanel>
-                <TextBlock Text="{Binding HealthScoreLongLabel}" FontSize="34" Foreground="{StaticResource ZiaTextBrush}" />
-                <TextBlock Text="{Binding HealthRiskLongLabel}" FontSize="18" Foreground="{StaticResource ZiaRedBrush}" />
-                <TextBlock Text="L'evaluation se base sur charge CPU, pression RAM et alertes actives." Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
-            </StackPanel>
-        </Border>
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                <Grid ColumnSpacing="18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="2" ColumnSpacing="12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding HealthScoreLongLabel}" FontSize="34" Foreground="{StaticResource ZiaTextBrush}" />
+                        <TextBlock Text="{Binding HealthRiskLongLabel}" FontSize="18" Foreground="{StaticResource ZiaRedBrush}" />
+                        <TextBlock Text="Evaluation sur charge CPU, pression RAM, temperatures et alertes actives." Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
 
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="Historique CPU 24h" Style="{StaticResource CardTitleTextStyle}" />
-                    <lvc:CartesianChart
-                        Height="240"
-                        LegendPosition="Hidden"
-                        Series="{Binding Cpu24Series}"
-                        XAxes="{Binding Cpu24XAxes}"
-                        YAxes="{Binding CpuYAxes}" />
-                </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="CPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <Grid Height="126">
+                            <lvc:PieChart LegendPosition="Hidden" Series="{Binding CpuGaugeSeries}" TooltipPosition="Hidden" />
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" Foreground="{StaticResource ZiaTextBrush}" Text="{Binding CpuPercentLabel}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="GPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <Grid Height="126">
+                            <lvc:PieChart LegendPosition="Hidden" Series="{Binding GpuGaugeSeries}" TooltipPosition="Hidden" />
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" Foreground="{StaticResource ZiaTextBrush}" Text="{Binding GpuUsageLabel}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="Tendance CPU 7j" Style="{StaticResource CardTitleTextStyle}" />
-                    <lvc:CartesianChart
-                        Height="240"
-                        LegendPosition="Hidden"
-                        Series="{Binding Cpu7Series}"
-                        XAxes="{Binding Cpu7XAxes}"
-                        YAxes="{Binding CpuYAxes}" />
-                </StackPanel>
-            </Border>
+            <!-- CPU + GPU usage history -->
+            <Grid Grid.Row="2" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Historique CPU 24h" Style="{StaticResource CardTitleTextStyle}" />
+                        <lvc:CartesianChart Height="200" LegendPosition="Hidden"
+                            Series="{Binding Cpu24Series}" XAxes="{Binding Cpu24XAxes}" YAxes="{Binding CpuYAxes}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="GPU usage temps reel" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding GpuUsageLabel}" FontSize="20" Foreground="{StaticResource ZiaVioletBrush}" />
+                        <lvc:CartesianChart Height="180" LegendPosition="Hidden"
+                            Series="{Binding GpuSeries}" YAxes="{Binding GpuYAxes}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Temperatures + Disk I/O -->
+            <Grid Grid.Row="3" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Temperatures CPU / GPU" Style="{StaticResource CardTitleTextStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <TextBlock Text="{Binding CpuTempLabel}" Foreground="{StaticResource ZiaTextBrush}" FontSize="18" />
+                            <TextBlock Text="{Binding GpuTempLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="18" />
+                        </StackPanel>
+                        <lvc:CartesianChart Height="180" LegendPosition="Bottom"
+                            Series="{Binding TempSeries}" YAxes="{Binding TempYAxes}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="I/O disque - historique 24h" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="{Binding DiskIoLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                        <lvc:CartesianChart Height="180" LegendPosition="Bottom"
+                            Series="{Binding DiskIoSeries}" YAxes="{Binding DiskYAxes}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </Page>

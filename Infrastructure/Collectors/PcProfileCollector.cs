@@ -192,10 +192,20 @@ public sealed class PcProfileCollector
 
                 var platform = DetectPlatform(name, installLocation);
                 var launchUri = BuildLaunchUri(platform, name, subName, installLocation);
+                var steamAppId = ExtractSteamAppId(registrySubName: subName);
+                var coverUri = BuildCoverUri(steamAppId);
                 playtimes.TryGetValue(name, out var playTime);
 
                 var key = name.ToLowerInvariant();
-                games[key] = new GameInstallation(name, platform, version, string.IsNullOrWhiteSpace(installLocation) ? "N/A" : installLocation, playTime, launchUri);
+                games[key] = new GameInstallation(
+                    name,
+                    platform,
+                    version,
+                    string.IsNullOrWhiteSpace(installLocation) ? "N/A" : installLocation,
+                    playTime,
+                    launchUri,
+                    coverUri,
+                    steamAppId);
             }
         }
         catch
@@ -239,7 +249,18 @@ public sealed class PcProfileCollector
                 playtimes.TryGetValue(gameName, out var playTime);
                 var key = gameName.ToLowerInvariant();
                 if (!games.ContainsKey(key))
-                    games[key] = new GameInstallation(gameName, "Steam", "N/A", steamApps, playTime, launchUri);
+                {
+                    var steamAppId = ExtractSteamAppIdFromLaunchUri(launchUri);
+                    games[key] = new GameInstallation(
+                        gameName,
+                        "Steam",
+                        "N/A",
+                        steamApps,
+                        playTime,
+                        launchUri,
+                        BuildCoverUri(steamAppId),
+                        steamAppId);
+                }
             }
             catch
             {
@@ -268,6 +289,34 @@ public sealed class PcProfileCollector
                 return exe;
         }
         return null;
+    }
+
+    private static string? ExtractSteamAppId(string registrySubName)
+    {
+        if (!registrySubName.StartsWith("Steam App ", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var appId = registrySubName["Steam App ".Length..];
+        return appId.All(char.IsDigit) ? appId : null;
+    }
+
+    private static string? ExtractSteamAppIdFromLaunchUri(string? launchUri)
+    {
+        if (string.IsNullOrWhiteSpace(launchUri)
+            || !launchUri.StartsWith("steam://rungameid/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var appId = launchUri["steam://rungameid/".Length..];
+        return appId.All(char.IsDigit) ? appId : null;
+    }
+
+    private static string? BuildCoverUri(string? steamAppId)
+    {
+        return string.IsNullOrWhiteSpace(steamAppId)
+            ? null
+            : $"https://cdn.cloudflare.steamstatic.com/steam/apps/{steamAppId}/library_600x900.jpg";
     }
 
     private static bool LooksLikeGame(string name, string publisher, string installLocation)

@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -34,7 +35,15 @@
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
                         <TextBlock Text="CPU" Style="{StaticResource CardTitleTextStyle}" />
-                        <TextBlock Text="{Binding CpuPercentLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                        <Grid Height="118">
+                            <lvc:PieChart LegendPosition="Hidden" Series="{Binding CpuGaugeSeries}" TooltipPosition="Hidden" />
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="26"
+                                Foreground="{StaticResource ZiaTextBrush}"
+                                Text="{Binding CpuPercentLabel}" />
+                        </Grid>
                     </StackPanel>
                 </Border>
 
@@ -56,7 +65,15 @@
                 <Border Grid.Column="3" Style="{StaticResource CardStyle}">
                     <StackPanel>
                         <TextBlock Text="GPU" Style="{StaticResource CardTitleTextStyle}" />
-                        <TextBlock Text="{Binding GpuUsageLabel}" FontSize="28" Foreground="{StaticResource ZiaTextBrush}" />
+                        <Grid Height="118">
+                            <lvc:PieChart LegendPosition="Hidden" Series="{Binding GpuGaugeSeries}" TooltipPosition="Hidden" />
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="26"
+                                Foreground="{StaticResource ZiaTextBrush}"
+                                Text="{Binding GpuUsageLabel}" />
+                        </Grid>
                         <TextBlock Text="{Binding GpuTempLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
                         <TextBlock Text="{Binding VramLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
                     </StackPanel>
@@ -130,6 +147,7 @@
                 <StackPanel>
                     <TextBlock Text="Jeu actif detecte" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="{Binding ActiveGameLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="14" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ActiveGameServerLabel}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

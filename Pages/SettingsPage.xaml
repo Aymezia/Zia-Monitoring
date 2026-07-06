@@ -15,6 +15,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -33,8 +34,25 @@
                 </StackPanel>
             </Border>
 
-            <!-- Jeux & Optimisation -->
+            <!-- Systeme -->
             <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Systeme" Style="{StaticResource CardTitleTextStyle}" />
+                    <ToggleSwitch x:Name="SystrayToggle" Header="Icone systray avec tooltip CPU / GPU live" Toggled="Systray_Toggled" />
+                    <ToggleSwitch x:Name="AutoStartToggle" Header="Demarrer automatiquement avec Windows" Toggled="AutoStart_Toggled" />
+                    <ToggleSwitch x:Name="HotkeyToggle" Header="Raccourci global Ctrl+Shift+Z" Toggled="Hotkey_Toggled" />
+                    <ToggleSwitch x:Name="OverlayToggle" Header="Overlay in-game CPU / GPU / FPS" Toggled="Overlay_Toggled" />
+                    <ToggleSwitch x:Name="MiniWidgetToggle" Header="Widget mini toujours au premier plan" Toggled="MiniWidget_Toggled" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Transparence widget:" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" />
+                        <Slider x:Name="MiniOpacitySlider" Minimum="35" Maximum="100" StepFrequency="5" Width="200" ValueChanged="MiniOpacitySlider_ValueChanged" />
+                        <TextBlock x:Name="MiniOpacityValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Jeux & Optimisation -->
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Jeux et optimisation" Style="{StaticResource CardTitleTextStyle}" />
                     <ToggleSwitch x:Name="SilentModeToggle" Header="Mode silencieux automatique quand un jeu est detecte" Toggled="SilentMode_Toggled" />
@@ -45,7 +63,7 @@
             </Border>
 
             <!-- Export -->
-            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Export et rapports" Style="{StaticResource CardTitleTextStyle}" />
                     <Button x:Name="ExportPdfButton" Content="Exporter rapport HTML (ouvrir dans navigateur)" Click="ExportHtml_Click" Style="{StaticResource AccentButtonStyle}" />
@@ -54,7 +72,7 @@
             </Border>
 
             <!-- Historique Boost -->
-            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+            <Border Grid.Row="5" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Historique des optimisations" Style="{StaticResource CardTitleTextStyle}" />
                     <Button Content="Rafraichir l'historique" Click="RefreshHistory_Click" />

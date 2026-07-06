@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ZiaMonitoring_App.Application;
 using ZiaMonitoring_App.Core.Models;
+using ZiaMonitoring_App.Infrastructure;
 
 namespace ZiaMonitoring_App.Pages;
 
@@ -27,10 +28,18 @@ public sealed partial class SettingsPage : Page
             RefreshValueLabel.Text = $"{_settings.RefreshIntervalSeconds}s";
             ToastToggle.IsOn = _settings.EnableToastAlerts;
             DailySummaryToggle.IsOn = _settings.EnableDailyHealthSummary;
+            SystrayToggle.IsOn = _settings.ShowSystray;
+            AutoStartToggle.IsOn = AutoStartManager.IsEnabled();
+            HotkeyToggle.IsOn = _settings.EnableGlobalHotkey;
+            OverlayToggle.IsOn = _settings.EnableGameOverlay;
+            MiniWidgetToggle.IsOn = _settings.EnableMiniWidget;
+            MiniOpacitySlider.Value = _settings.MiniWidgetOpacity * 100;
+            MiniOpacityValueLabel.Text = $"{MiniOpacitySlider.Value:F0}%";
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
             SchedulerToggle.IsOn = _settings.EnableCleanupScheduler;
 
             _loading = false;
+            _settings = _settings with { EnableAutoStart = AutoStartToggle.IsOn };
 
             RefreshHistory_Click(this, null!);
         }
@@ -65,6 +74,53 @@ public sealed partial class SettingsPage : Page
     private void DailySummary_Toggled(object sender, RoutedEventArgs e)
     {
         _settings = _settings with { EnableDailyHealthSummary = DailySummaryToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void Systray_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { ShowSystray = SystrayToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void AutoStart_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableAutoStart = AutoStartToggle.IsOn };
+        if (!_loading)
+        {
+            if (AutoStartToggle.IsOn)
+                AutoStartManager.Enable();
+            else
+                AutoStartManager.Disable();
+        }
+
+        SaveSettings();
+    }
+
+    private void Hotkey_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableGlobalHotkey = HotkeyToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void Overlay_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableGameOverlay = OverlayToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void MiniWidget_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableMiniWidget = MiniWidgetToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void MiniOpacitySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (MiniOpacityValueLabel != null)
+            MiniOpacityValueLabel.Text = $"{e.NewValue:F0}%";
+
+        _settings = _settings with { MiniWidgetOpacity = Math.Clamp(e.NewValue / 100.0, 0.35, 1.0) };
         SaveSettings();
     }
 

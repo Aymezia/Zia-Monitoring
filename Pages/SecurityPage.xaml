@@ -16,6 +16,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -27,6 +29,8 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="Analyse de securite" Style="{StaticResource CardTitleTextStyle}" />
                     <Button x:Name="ScanButton" Content="Lancer l'analyse de securite" Click="Scan_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <Button x:Name="ExportSecurityButton" Content="Exporter rapport PDF / HTML" Click="ExportSecurity_Click" IsEnabled="False" />
+                    <TextBlock x:Name="RiskScoreLabel" Foreground="{StaticResource ZiaRedBrush}" FontSize="22" />
                     <TextBlock x:Name="ScanStatusLabel" Foreground="{StaticResource ZiaMutedBrush}" />
                 </StackPanel>
             </Border>
@@ -36,6 +40,8 @@
                     <TextBlock Text="Etat Windows" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock x:Name="FirewallLabel" Foreground="{StaticResource ZiaTextBrush}" />
                     <TextBlock x:Name="UacLabel" Foreground="{StaticResource ZiaTextBrush}" />
+                    <TextBlock x:Name="OpenPortsStatusLabel" Foreground="{StaticResource ZiaMutedBrush}" />
+                    <ListView x:Name="OpenPortsList" MaxHeight="110" />
                 </StackPanel>
             </Border>
 
@@ -72,6 +78,34 @@
                     <TextBlock Text="Demarrage - entrees suspectes" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock x:Name="SuspiciousStatusLabel" Foreground="{StaticResource ZiaMutedBrush}" />
                     <ListView x:Name="SuspiciousList" MaxHeight="120">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaRedBrush}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Signatures antivirus processus" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock x:Name="SignatureStatusLabel" Foreground="{StaticResource ZiaMutedBrush}" />
+                    <ListView x:Name="SignatureList" MaxHeight="150">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaRedBrush}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Hooks clavier probables" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock x:Name="HookStatusLabel" Foreground="{StaticResource ZiaMutedBrush}" />
+                    <ListView x:Name="HookList" MaxHeight="150">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaRedBrush}" TextWrapping="Wrap" />

@@ -14,6 +14,9 @@ public sealed class MonitoringService : IDisposable
     private readonly DiskIoCollector _diskIoCollector = new();
     private readonly FanAndVramCollector _fanVramCollector = new();
     private readonly HardwareMonitor _hardwareMonitor = new();
+    private readonly EstimatedFpsCollector _estimatedFpsCollector = new();
+    private readonly NetworkConnectionCollector _networkConnectionCollector = new();
+    private readonly GameServerLatencyCollector _gameServerLatencyCollector = new();
     private readonly RecommendationEngine _engine = new();
 
     private PcProfile? _profileCache;
@@ -28,6 +31,10 @@ public sealed class MonitoringService : IDisposable
         var perCore = _perCoreCollector.GetPerCoreUsage();
         var (diskRead, diskWrite) = _diskIoCollector.GetDiskIoMbps();
         var (vramUsed, vramTotal) = _fanVramCollector.GetVramUsage();
+        var estimatedFps = _estimatedFpsCollector.GetEstimatedFps();
+        var activeConnections = _networkConnectionCollector.GetActiveTcpConnections();
+        var networkProcesses = _networkConnectionCollector.GetTopNetworkProcesses(activeConnections);
+        var gameLatencies = _gameServerLatencyCollector.GetGameServerLatencies();
 
         // Real hardware readings from LibreHardwareMonitor
         var hw = _hardwareMonitor.Read();
@@ -40,7 +47,10 @@ public sealed class MonitoringService : IDisposable
             hw.FanSpeedRpm,
             vramUsed, vramTotal,
             diskRead, diskWrite,
-            perCore, network, processes);
+            estimatedFps,
+            perCore, network,
+            activeConnections, networkProcesses, gameLatencies,
+            processes);
 
         var analysis = _engine.Build(snapshot, profile);
 
@@ -55,5 +65,6 @@ public sealed class MonitoringService : IDisposable
     public void Dispose()
     {
         _hardwareMonitor.Dispose();
+        _estimatedFpsCollector.Dispose();
     }
 }

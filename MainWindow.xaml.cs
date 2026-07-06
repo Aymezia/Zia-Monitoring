@@ -20,7 +20,8 @@ public sealed partial class MainWindow : Window
     private const int SwHide = 0;
     private const int SwShow = 5;
 
-    private readonly DispatcherTimer _timer = new();
+    private readonly CancellationTokenSource _monitoringCts = new();
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
     private readonly nint _hwnd;
     private readonly WindowProc _windowProc;
     private nint _oldWindowProc;
@@ -39,51 +40,87 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
         _hwnd = WindowNative.GetWindowHandle(this);
+        _dispatcherQueue = DispatcherQueue;
         _windowProc = WndProc;
         _oldWindowProc = SetWindowLongPtr(_hwnd, GwlpWndProc, Marshal.GetFunctionPointerForDelegate(_windowProc));
         Closed += MainWindow_Closed;
-
-        _timer.Interval = TimeSpan.FromSeconds(1);
-        _timer.Tick += Timer_Tick;
-        _timer.Start();
 
         NavFrame.Navigate(typeof(DashboardPage));
 
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         ConfigureHotkey(app.SettingsService.Load());
+
+        // La collecte (WMI, LibreHardwareMonitor, pings) tourne hors du thread UI ;
+        // seul le report des résultats repasse par le DispatcherQueue.
+        _ = Task.Run(() => MonitoringLoopAsync(_monitoringCts.Token));
     }
 
-    private void Timer_Tick(object? sender, object e)
+    private async Task MonitoringLoopAsync(CancellationToken ct)
     {
         var app = (App)Microsoft.UI.Xaml.Application.Current;
-        var settings = app.SettingsService.Load();
 
-        if (_timer.Interval.TotalSeconds != settings.RefreshIntervalSeconds)
-            _timer.Interval = TimeSpan.FromSeconds(Math.Clamp(settings.RefreshIntervalSeconds, 1, 10));
-
-        var frame = app.MonitoringService.CaptureFrame();
-        app.State.Update(frame);
-
-        var activeGame = app.ActiveGameDetector.DetectActiveGame(
-            frame.Snapshot.ActiveTcpConnections,
-            frame.Snapshot.EstimatedFps);
-        app.State.UpdateActiveGame(activeGame);
-
-        UpdateTitleBar(frame);
-        ConfigureSystray(settings, frame);
-        ConfigureOverlay(settings, activeGame);
-        ConfigureHotkey(settings);
-
-        if (settings.AutoSilentModeOnGame)
+        while (!ct.IsCancellationRequested)
         {
-            var warnings = new List<string>();
-            if (activeGame is not null && !app.SilentModeService.IsActive)
-                app.SilentModeService.Activate(warnings);
-            else if (activeGame is null && app.SilentModeService.IsActive)
-                app.SilentModeService.Deactivate(warnings);
-        }
+            var cycleStart = Environment.TickCount64;
+            var settings = app.SettingsService.Load();
 
-        app.AlertNotificationService.CheckAndNotify(frame, settings);
+            try
+            {
+                var frame = app.MonitoringService.CaptureFrame();
+                var activeGame = app.ActiveGameDetector.DetectActiveGame(
+                    frame.Snapshot.ActiveTcpConnections,
+                    frame.Snapshot.EstimatedFps);
+
+                if (settings.AutoSilentModeOnGame)
+                {
+                    var warnings = new List<string>();
+                    if (activeGame is not null && !app.SilentModeService.IsActive)
+                        app.SilentModeService.Activate(warnings);
+                    else if (activeGame is null && app.SilentModeService.IsActive)
+                        app.SilentModeService.Deactivate(warnings);
+
+                    foreach (var warning in warnings)
+                        AppLog.Warn($"Mode silencieux: {warning}");
+                }
+
+                app.AlertNotificationService.CheckAndNotify(frame, settings);
+
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    try
+                    {
+                        app.State.Update(frame);
+                        app.State.UpdateActiveGame(activeGame);
+                        UpdateTitleBar(frame);
+                        ConfigureSystray(settings, frame);
+                        ConfigureOverlay(settings, activeGame);
+                        ConfigureHotkey(settings);
+                    }
+                    catch (Exception ex)
+                    {
+                        // La fenêtre peut être en cours de fermeture.
+                        AppLog.Warn("Mise à jour UI du monitoring ignorée", ex);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error("Cycle de monitoring en échec", ex);
+            }
+
+            var interval = TimeSpan.FromSeconds(Math.Clamp(settings.RefreshIntervalSeconds, 1, 10));
+            var elapsed = TimeSpan.FromMilliseconds(Environment.TickCount64 - cycleStart);
+            var delay = interval - elapsed;
+
+            try
+            {
+                await Task.Delay(delay > TimeSpan.Zero ? delay : TimeSpan.FromMilliseconds(50), ct);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
     }
 
     private void UpdateTitleBar(MonitoringFrame frame)
@@ -226,7 +263,7 @@ public sealed partial class MainWindow : Window
 
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
-        _timer.Stop();
+        _monitoringCts.Cancel();
         if (_hotkeyRegistered)
             UnregisterHotKey(_hwnd, HotkeyId);
 

@@ -6,6 +6,8 @@ namespace ZiaMonitoring_App.Application;
 public sealed class SettingsService
 {
     private readonly string _settingsFile;
+    private readonly object _gate = new();
+    private AppSettings? _cached;
 
     private static readonly AppSettings Default = new(
         RefreshIntervalSeconds: 1,
@@ -33,7 +35,36 @@ public sealed class SettingsService
         _settingsFile = Path.Combine(dir, "settings.json");
     }
 
+    /// <summary>
+    /// Retourne les paramètres depuis le cache mémoire ; le disque n'est lu
+    /// qu'au premier appel (la boucle de monitoring appelle Load chaque cycle).
+    /// </summary>
     public AppSettings Load()
+    {
+        lock (_gate)
+        {
+            return _cached ??= LoadFromDisk();
+        }
+    }
+
+    public void Save(AppSettings settings)
+    {
+        lock (_gate)
+        {
+            _cached = Clamp(settings);
+            try
+            {
+                var json = JsonSerializer.Serialize(_cached, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_settingsFile, json);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.AppLog.Error("Sauvegarde des paramètres impossible", ex);
+            }
+        }
+    }
+
+    private AppSettings LoadFromDisk()
     {
         try
         {
@@ -44,20 +75,11 @@ public sealed class SettingsService
             var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
             return Normalize(settings, json);
         }
-        catch
+        catch (Exception ex)
         {
+            Infrastructure.AppLog.Warn("Lecture des paramètres impossible, valeurs par défaut utilisées", ex);
             return Default;
         }
-    }
-
-    public void Save(AppSettings settings)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_settingsFile, json);
-        }
-        catch { }
     }
 
     private static AppSettings Normalize(AppSettings settings, string json)
@@ -77,6 +99,11 @@ public sealed class SettingsService
         if (!root.TryGetProperty(nameof(AppSettings.ShowSystray), out _))
             settings = settings with { ShowSystray = Default.ShowSystray };
 
+        return Clamp(settings);
+    }
+
+    private static AppSettings Clamp(AppSettings settings)
+    {
         return settings with
         {
             RefreshIntervalSeconds = Math.Clamp(settings.RefreshIntervalSeconds, 1, 10),

@@ -25,13 +25,19 @@ public sealed class GameServerLatencyCollector
             return _lastBulkResult;
 
         _lastBulkCheck = DateTime.UtcNow;
-        _lastBulkResult = Targets
-            .Select(target =>
+
+        // Les 4 cibles sont mesurées en parallèle : le pire cas passe de
+        // ~4 × (450 ms + fallback TCP) en série à un seul timeout.
+        var probes = Targets
+            .Select(target => Task.Run(() =>
             {
                 var (pingMs, ok) = MeasureHost(target.Host, 450);
                 return new GameServerLatency(target.Provider, target.Host, pingMs, ok);
-            })
-            .ToList();
+            }))
+            .ToArray();
+
+        Task.WaitAll(probes);
+        _lastBulkResult = probes.Select(p => p.Result).ToList();
 
         return _lastBulkResult;
     }

@@ -37,17 +37,21 @@ public static class AppLog
         {
             // Un collecteur qui échoue le fait souvent à chaque tick : on ne
             // journalise le même message qu'une fois par fenêtre de suppression.
-            var key = $"{level}|{message}|{exception?.GetType().Name}";
-            var now = DateTime.UtcNow;
-            if (RecentMessages.TryGetValue(key, out var lastWrite)
-                && now - lastWrite < DuplicateSuppressionWindow)
+            // Les INFO (traces de démarrage) sont volontairement exemptés.
+            if (level != "INFO")
             {
-                return;
-            }
+                var key = $"{level}|{message}|{exception?.GetType().Name}";
+                var now = DateTime.UtcNow;
+                if (RecentMessages.TryGetValue(key, out var lastWrite)
+                    && now - lastWrite < DuplicateSuppressionWindow)
+                {
+                    return;
+                }
 
-            RecentMessages[key] = now;
-            if (RecentMessages.Count > 256)
-                PruneRecentMessages(now);
+                RecentMessages[key] = now;
+                if (RecentMessages.Count > 256)
+                    PruneRecentMessages(now);
+            }
 
             var line = exception is null
                 ? $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}{Environment.NewLine}"

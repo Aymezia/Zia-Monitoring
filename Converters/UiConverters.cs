@@ -1,0 +1,40 @@
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Media;
+
+namespace ZiaMonitoring_App.Converters;
+
+public sealed class BoolToVisibilityConverter : IValueConverter
+{
+    public bool Invert { get; set; }
+
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var flag = value is bool b && b;
+        if (Invert)
+            flag = !flag;
+        return flag ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotSupportedException();
+}
+
+/// <summary>Low → vert, Medium → ambre, High (ou inconnu) → rouge.</summary>
+public sealed class RiskLevelToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var key = (value as string)?.ToLowerInvariant() switch
+        {
+            "low" => "ZiaGreenBrush",
+            "medium" => "ZiaAmberBrush",
+            _ => "ZiaRedBrush"
+        };
+
+        return (Brush)Microsoft.UI.Xaml.Application.Current.Resources[key];
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotSupportedException();
+}

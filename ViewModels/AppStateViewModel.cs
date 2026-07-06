@@ -41,6 +41,7 @@ public sealed partial class AppStateViewModel : ObservableObject
     [ObservableProperty] private string _lastUpdate = "-";
     [ObservableProperty] private string _activeGameLabel = "Aucun jeu detecte";
     [ObservableProperty] private bool _isGameActive;
+    [ObservableProperty] private bool _noAlerts = true;
 
     private DateTime _lastDiskHistorySample = DateTime.MinValue;
 
@@ -144,38 +145,6 @@ public sealed partial class AppStateViewModel : ObservableObject
             }
         ];
 
-        CpuGaugeSeries =
-        [
-            new PieSeries<double>
-            {
-                Name = "CPU",
-                Values = new[] { 0d },
-                InnerRadius = 42
-            },
-            new PieSeries<double>
-            {
-                Name = "Libre",
-                Values = new[] { 100d },
-                InnerRadius = 42
-            }
-        ];
-
-        GpuGaugeSeries =
-        [
-            new PieSeries<double>
-            {
-                Name = "GPU",
-                Values = new[] { 0d },
-                InnerRadius = 42
-            },
-            new PieSeries<double>
-            {
-                Name = "Libre",
-                Values = new[] { 100d },
-                InnerRadius = 42
-            }
-        ];
-
         GamePingSeries =
         [
             new LineSeries<double> { Name = "Riot", Values = Array.Empty<double>(), GeometrySize = 0, LineSmoothness = 0.4, Fill = null },
@@ -193,9 +162,12 @@ public sealed partial class AppStateViewModel : ObservableObject
     public double MemoryPercent => MemoryTotalMb <= 0 ? 0 : (MemoryUsedMb / MemoryTotalMb) * 100;
     public string CpuPercentLabel => $"{CpuPercent:F1}%";
     public string MemoryPercentLabel => $"{MemoryPercent:F1}%";
+    public string MemoryDetailLabel => MemoryTotalMb <= 0
+        ? "-"
+        : $"{MemoryUsedMb / 1024:F1} / {MemoryTotalMb / 1024:F1} GB";
     public string HealthScoreLabel => $"{HealthScore}/100";
     public string RiskLevelLabel => $"Risk: {RiskLevel}";
-    public string LastUpdateLabel => $"Derniere mise a jour: {LastUpdate}";
+    public string LastUpdateLabel => $"Dernière mise à jour : {LastUpdate}";
     public string HealthScoreLongLabel => $"Score: {HealthScore}/100";
     public string HealthRiskLongLabel => $"Risque: {RiskLevel}";
     public string MachineLabel => $"Machine: {MachineName}";
@@ -234,8 +206,6 @@ public sealed partial class AppStateViewModel : ObservableObject
     public ObservableCollection<double> EpicPingHistory { get; } = new();
     public ISeries[] Cpu24Series { get; }
     public ISeries[] Cpu7Series { get; }
-    public ISeries[] CpuGaugeSeries { get; }
-    public ISeries[] GpuGaugeSeries { get; }
     public ISeries[] GpuSeries { get; }
     public ISeries[] TempSeries { get; }
     public ISeries[] DiskIoSeries { get; }
@@ -305,9 +275,7 @@ public sealed partial class AppStateViewModel : ObservableObject
         Replace(BoostActions, frame.Analysis.BoostActions);
         Replace(AssistedActions, frame.Analysis.AssistedActions);
         Replace(Alerts, frame.Analysis.Alerts);
-
-        UpdateGauge(CpuGaugeSeries, CpuPercent);
-        UpdateGauge(GpuGaugeSeries, GpuUsagePercent);
+        NoAlerts = frame.Analysis.Alerts.Count == 0;
 
         // GPU usage history (last 60 ticks)
         AddCapped(GpuHistory, frame.Snapshot.GpuUsagePercent ?? 0, 60);
@@ -329,8 +297,6 @@ public sealed partial class AppStateViewModel : ObservableObject
 
         UpdateGamePingHistory(frame.Snapshot.GameServerLatencies);
 
-        OnPropertyChanged(nameof(CpuGaugeSeries));
-        OnPropertyChanged(nameof(GpuGaugeSeries));
         OnPropertyChanged(nameof(GpuSeries));
         OnPropertyChanged(nameof(TempSeries));
         OnPropertyChanged(nameof(DiskIoSeries));
@@ -339,6 +305,7 @@ public sealed partial class AppStateViewModel : ObservableObject
         OnPropertyChanged(nameof(MemoryPercent));
         OnPropertyChanged(nameof(CpuPercentLabel));
         OnPropertyChanged(nameof(MemoryPercentLabel));
+        OnPropertyChanged(nameof(MemoryDetailLabel));
         OnPropertyChanged(nameof(HealthScoreLabel));
         OnPropertyChanged(nameof(RiskLevelLabel));
         OnPropertyChanged(nameof(LastUpdateLabel));
@@ -406,13 +373,6 @@ public sealed partial class AppStateViewModel : ObservableObject
 
         _lastDiskHistorySample = timestamp;
         return true;
-    }
-
-    private static void UpdateGauge(ISeries[] series, double value)
-    {
-        var clamped = Math.Clamp(value, 0, 100);
-        ((PieSeries<double>)series[0]).Values = new[] { clamped };
-        ((PieSeries<double>)series[1]).Values = new[] { 100 - clamped };
     }
 
     private void UpdateGamePingHistory(IReadOnlyList<GameServerLatency> latencies)

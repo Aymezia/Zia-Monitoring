@@ -14,19 +14,20 @@
             Height="86"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Stroke="{StaticResource ZiaPanelAltBrush}"
-            StrokeThickness="4" />
+            Stroke="{StaticResource ZiaStrokeBrush}"
+            StrokeThickness="6" />
         <Path
             x:Name="ArcPath"
-            Stroke="{StaticResource ZiaVioletBrush}"
+            Stroke="{StaticResource ZiaPurpleBrush}"
             StrokeEndLineCap="Round"
             StrokeStartLineCap="Round"
-            StrokeThickness="4" />
+            StrokeThickness="6" />
         <TextBlock
             x:Name="ValueText"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            FontSize="24"
+            FontSize="21"
+            FontWeight="SemiBold"
             Foreground="{StaticResource ZiaTextBrush}"
             TextAlignment="Center" />
     </Grid>

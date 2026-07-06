@@ -21,6 +21,7 @@ public sealed partial class MainWindow : Window
     private const int SwShow = 5;
 
     private readonly CancellationTokenSource _monitoringCts = new();
+    private Task? _monitoringLoop;
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
     private readonly nint _hwnd;
     private readonly WindowProc _windowProc;
@@ -52,7 +53,7 @@ public sealed partial class MainWindow : Window
 
         // La collecte (WMI, LibreHardwareMonitor, pings) tourne hors du thread UI ;
         // seul le report des résultats repasse par le DispatcherQueue.
-        _ = Task.Run(() => MonitoringLoopAsync(_monitoringCts.Token));
+        _monitoringLoop = Task.Run(() => MonitoringLoopAsync(_monitoringCts.Token));
     }
 
     private async Task MonitoringLoopAsync(CancellationToken ct)
@@ -265,6 +266,13 @@ public sealed partial class MainWindow : Window
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         _monitoringCts.Cancel();
+
+        // Laisse le cycle de collecte en cours se terminer avant de libérer
+        // les services (LibreHardwareMonitor ne doit pas être fermé en pleine
+        // lecture). Le lambda UI en attente n'est pas bloquant : TryEnqueue
+        // est fire-and-forget côté boucle.
+        try { _monitoringLoop?.Wait(TimeSpan.FromSeconds(3)); } catch { }
+
         if (_hotkeyRegistered)
             UnregisterHotKey(_hwnd, HotkeyId);
 
@@ -273,6 +281,8 @@ public sealed partial class MainWindow : Window
 
         if (_oldWindowProc != nint.Zero)
             SetWindowLongPtr(_hwnd, GwlpWndProc, _oldWindowProc);
+
+        ((App)Microsoft.UI.Xaml.Application.Current).ShutdownServices();
     }
 
     private delegate nint WindowProc(nint hwnd, uint message, nint wParam, nint lParam);

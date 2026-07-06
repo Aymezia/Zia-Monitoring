@@ -1,50 +1,48 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using ZiaMonitoring_App.Core.Models;
 
 namespace ZiaMonitoring_App.ViewModels;
 
-public sealed class AppStateViewModel : INotifyPropertyChanged
+public sealed partial class AppStateViewModel : ObservableObject
 {
-    private double _cpuPercent;
-    private double _memoryUsedMb;
-    private double _memoryTotalMb;
-    private string _cpuTempLabel = "N/A";
-    private string _gpuTempLabel = "N/A";
-    private string _gpuUsageLabel = "N/A";
-    private double _gpuUsagePercent;
-    private string _fanLabel = "N/A";
-    private string _vramLabel = "N/A";
-    private string _diskIoLabel = "N/A";
-    private string _networkLabel = "-";
-    private string _pingLabel = "-";
-    private string _estimatedFpsLabel = "FPS: N/A";
-    private string _activeGameServerLabel = "Serveur: N/A";
-    private int _healthScore;
-    private string _riskLevel = "Low";
-    private string _machineName = string.Empty;
-    private string _operatingSystem = string.Empty;
-    private string _architecture = string.Empty;
-    private string _cpuModel = string.Empty;
-    private string _gpuModel = string.Empty;
-    private string _motherboard = string.Empty;
-    private string _biosVersion = string.Empty;
-    private int _logicalCores;
-    private double _installedRamGb;
-    private double _totalDiskGb;
-    private string _uptimeLabel = "-";
-    private bool _isOptimizing;
-    private int _optimizationProgress;
-    private string _optimizationStageText = "Pret";
-    private string _lastUpdate = "-";
-    private string _activeGameLabel = "Aucun jeu detecte";
-    private bool _isGameActive;
-    private DateTime _lastDiskHistorySample = DateTime.MinValue;
+    [ObservableProperty] private double _cpuPercent;
+    [ObservableProperty] private double _memoryUsedMb;
+    [ObservableProperty] private double _memoryTotalMb;
+    [ObservableProperty] private string _cpuTempLabel = "N/A";
+    [ObservableProperty] private string _gpuTempLabel = "N/A";
+    [ObservableProperty] private string _gpuUsageLabel = "N/A";
+    [ObservableProperty] private double _gpuUsagePercent;
+    [ObservableProperty] private string _fanLabel = "N/A";
+    [ObservableProperty] private string _vramLabel = "N/A";
+    [ObservableProperty] private string _diskIoLabel = "N/A";
+    [ObservableProperty] private string _networkLabel = "-";
+    [ObservableProperty] private string _pingLabel = "-";
+    [ObservableProperty] private string _estimatedFpsLabel = "FPS: N/A";
+    [ObservableProperty] private string _activeGameServerLabel = "Serveur: N/A";
+    [ObservableProperty] private int _healthScore;
+    [ObservableProperty] private string _riskLevel = "Low";
+    [ObservableProperty] private string _machineName = string.Empty;
+    [ObservableProperty] private string _operatingSystem = string.Empty;
+    [ObservableProperty] private string _architecture = string.Empty;
+    [ObservableProperty] private string _cpuModel = string.Empty;
+    [ObservableProperty] private string _gpuModel = string.Empty;
+    [ObservableProperty] private string _motherboard = string.Empty;
+    [ObservableProperty] private string _biosVersion = string.Empty;
+    [ObservableProperty] private int _logicalCores;
+    [ObservableProperty] private double _installedRamGb;
+    [ObservableProperty] private double _totalDiskGb;
+    [ObservableProperty] private string _uptimeLabel = "-";
+    [ObservableProperty] private bool _isOptimizing;
+    [ObservableProperty] private int _optimizationProgress;
+    [ObservableProperty] private string _optimizationStageText = "Pret";
+    [ObservableProperty] private string _lastUpdate = "-";
+    [ObservableProperty] private string _activeGameLabel = "Aucun jeu detecte";
+    [ObservableProperty] private bool _isGameActive;
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    private DateTime _lastDiskHistorySample = DateTime.MinValue;
 
     public AppStateViewModel()
     {
@@ -191,40 +189,6 @@ public sealed class AppStateViewModel : INotifyPropertyChanged
         DiskYAxes = [new Axis { MinLimit = 0, MinStep = 10 }];
         PingYAxes = [new Axis { MinLimit = 0, MinStep = 20 }];
     }
-
-    public double CpuPercent { get => _cpuPercent; private set => SetField(ref _cpuPercent, value); }
-    public double MemoryUsedMb { get => _memoryUsedMb; private set => SetField(ref _memoryUsedMb, value); }
-    public double MemoryTotalMb { get => _memoryTotalMb; private set => SetField(ref _memoryTotalMb, value); }
-    public string CpuTempLabel { get => _cpuTempLabel; private set => SetField(ref _cpuTempLabel, value); }
-    public int HealthScore { get => _healthScore; private set => SetField(ref _healthScore, value); }
-    public string RiskLevel { get => _riskLevel; private set => SetField(ref _riskLevel, value); }
-    public string MachineName { get => _machineName; private set => SetField(ref _machineName, value); }
-    public string OperatingSystem { get => _operatingSystem; private set => SetField(ref _operatingSystem, value); }
-    public string Architecture { get => _architecture; private set => SetField(ref _architecture, value); }
-    public string CpuModel { get => _cpuModel; private set => SetField(ref _cpuModel, value); }
-    public string GpuModel { get => _gpuModel; private set => SetField(ref _gpuModel, value); }
-    public string Motherboard { get => _motherboard; private set => SetField(ref _motherboard, value); }
-    public string BiosVersion { get => _biosVersion; private set => SetField(ref _biosVersion, value); }
-    public int LogicalCores { get => _logicalCores; private set => SetField(ref _logicalCores, value); }
-    public double InstalledRamGb { get => _installedRamGb; private set => SetField(ref _installedRamGb, value); }
-    public double TotalDiskGb { get => _totalDiskGb; private set => SetField(ref _totalDiskGb, value); }
-    public string UptimeLabel { get => _uptimeLabel; private set => SetField(ref _uptimeLabel, value); }
-    public bool IsOptimizing { get => _isOptimizing; private set => SetField(ref _isOptimizing, value); }
-    public int OptimizationProgress { get => _optimizationProgress; private set => SetField(ref _optimizationProgress, value); }
-    public string OptimizationStageText { get => _optimizationStageText; private set => SetField(ref _optimizationStageText, value); }
-    public string LastUpdate { get => _lastUpdate; private set => SetField(ref _lastUpdate, value); }
-    public string GpuTempLabel { get => _gpuTempLabel; private set => SetField(ref _gpuTempLabel, value); }
-    public string GpuUsageLabel { get => _gpuUsageLabel; private set => SetField(ref _gpuUsageLabel, value); }
-    public double GpuUsagePercent { get => _gpuUsagePercent; private set => SetField(ref _gpuUsagePercent, value); }
-    public string FanLabel { get => _fanLabel; private set => SetField(ref _fanLabel, value); }
-    public string VramLabel { get => _vramLabel; private set => SetField(ref _vramLabel, value); }
-    public string DiskIoLabel { get => _diskIoLabel; private set => SetField(ref _diskIoLabel, value); }
-    public string NetworkLabel { get => _networkLabel; private set => SetField(ref _networkLabel, value); }
-    public string PingLabel { get => _pingLabel; private set => SetField(ref _pingLabel, value); }
-    public string EstimatedFpsLabel { get => _estimatedFpsLabel; private set => SetField(ref _estimatedFpsLabel, value); }
-    public string ActiveGameServerLabel { get => _activeGameServerLabel; private set => SetField(ref _activeGameServerLabel, value); }
-    public string ActiveGameLabel { get => _activeGameLabel; private set => SetField(ref _activeGameLabel, value); }
-    public bool IsGameActive { get => _isGameActive; private set => SetField(ref _isGameActive, value); }
 
     public double MemoryPercent => MemoryTotalMb <= 0 ? 0 : (MemoryUsedMb / MemoryTotalMb) * 100;
     public string CpuPercentLabel => $"{CpuPercent:F1}%";
@@ -473,19 +437,4 @@ public sealed class AppStateViewModel : INotifyPropertyChanged
             collection.RemoveAt(0);
     }
 
-    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value))
-        {
-            return;
-        }
-
-        field = value;
-        OnPropertyChanged(propertyName);
-    }
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }

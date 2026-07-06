@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppNotifications;
 using ZiaMonitoring_App.ViewModels;
 
@@ -13,29 +14,34 @@ namespace ZiaMonitoring_App;
 public partial class App : Microsoft.UI.Xaml.Application
 {
     private Window? _window;
+    private readonly ServiceProvider _services;
 
-    public AppStateViewModel State { get; } = new();
+    /// <summary>Conteneur d'injection de dépendances de l'application.</summary>
+    public IServiceProvider Services => _services;
 
-    public ZiaMonitoring_App.Application.MonitoringService MonitoringService { get; } = new();
-    public ZiaMonitoring_App.Application.BoostEngine BoostEngine { get; } = new();
-    public ZiaMonitoring_App.Application.SupportExportService SupportExportService { get; } = new();
-    public ZiaMonitoring_App.Application.GamerTroubleshootingService GamerTroubleshootingService { get; } = new();
-    public ZiaMonitoring_App.Application.ActiveGameDetector ActiveGameDetector { get; } = new();
-    public ZiaMonitoring_App.Application.BoostHistoryService BoostHistoryService { get; } = new();
-    public ZiaMonitoring_App.Application.SettingsService SettingsService { get; } = new();
-    public ZiaMonitoring_App.Application.AlertNotificationService AlertNotificationService { get; } = new();
-    public ZiaMonitoring_App.Application.SilentModeService SilentModeService { get; } = new();
-    public ZiaMonitoring_App.Application.OptimizationProfileService OptimizationProfileService { get; } = new();
-    public ZiaMonitoring_App.Application.BrowserCacheCleanerService BrowserCacheCleaner { get; } = new();
-    public ZiaMonitoring_App.Application.SecurityScanService SecurityScanner { get; } = new();
-    public ZiaMonitoring_App.Application.SecurityReportExportService SecurityReportExporter { get; } = new();
-    
+    public AppStateViewModel State => _services.GetRequiredService<AppStateViewModel>();
+    public Application.MonitoringService MonitoringService => _services.GetRequiredService<Application.MonitoringService>();
+    public Application.BoostEngine BoostEngine => _services.GetRequiredService<Application.BoostEngine>();
+    public Application.SupportExportService SupportExportService => _services.GetRequiredService<Application.SupportExportService>();
+    public Application.GamerTroubleshootingService GamerTroubleshootingService => _services.GetRequiredService<Application.GamerTroubleshootingService>();
+    public Application.ActiveGameDetector ActiveGameDetector => _services.GetRequiredService<Application.ActiveGameDetector>();
+    public Application.BoostHistoryService BoostHistoryService => _services.GetRequiredService<Application.BoostHistoryService>();
+    public Application.SettingsService SettingsService => _services.GetRequiredService<Application.SettingsService>();
+    public Application.AlertNotificationService AlertNotificationService => _services.GetRequiredService<Application.AlertNotificationService>();
+    public Application.SilentModeService SilentModeService => _services.GetRequiredService<Application.SilentModeService>();
+    public Application.OptimizationProfileService OptimizationProfileService => _services.GetRequiredService<Application.OptimizationProfileService>();
+    public Application.BrowserCacheCleanerService BrowserCacheCleaner => _services.GetRequiredService<Application.BrowserCacheCleanerService>();
+    public Application.SecurityScanService SecurityScanner => _services.GetRequiredService<Application.SecurityScanService>();
+    public Application.SecurityReportExportService SecurityReportExporter => _services.GetRequiredService<Application.SecurityReportExportService>();
+
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {
+        _services = ConfigureServices();
+
         this.UnhandledException += App_UnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -44,6 +50,44 @@ public partial class App : Microsoft.UI.Xaml.Application
         InitializeComponent();
 
         try { AppNotificationManager.Default.Register(); } catch { }
+    }
+
+    private static ServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<AppStateViewModel>();
+        services.AddSingleton<Application.MonitoringService>();
+        services.AddSingleton<Application.BoostEngine>();
+        services.AddSingleton<Application.SupportExportService>();
+        services.AddSingleton<Application.GamerTroubleshootingService>();
+        services.AddSingleton<Application.ActiveGameDetector>();
+        services.AddSingleton<Application.BoostHistoryService>();
+        services.AddSingleton<Application.SettingsService>();
+        services.AddSingleton<Application.AlertNotificationService>();
+        services.AddSingleton<Application.SilentModeService>();
+        services.AddSingleton<Application.OptimizationProfileService>();
+        services.AddSingleton<Application.BrowserCacheCleanerService>();
+        services.AddSingleton<Application.SecurityScanService>();
+        services.AddSingleton<Application.SecurityReportExportService>();
+
+        return services.BuildServiceProvider();
+    }
+
+    /// <summary>
+    /// Libère les services (dont LibreHardwareMonitor, qui doit fermer son
+    /// pilote noyau). Appelé à la fermeture de la fenêtre principale.
+    /// </summary>
+    public void ShutdownServices()
+    {
+        try
+        {
+            _services.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Libération des services incomplète", ex);
+        }
     }
 
     /// <summary>

@@ -159,6 +159,16 @@ public sealed partial class MainWindow : Window
                         "Zia Monitoring - Throttling détecté", frame.ThrottlingToast);
                 }
 
+                // Snapshot + tendance SMART une fois par jour.
+                if (app.SmartTrend.IsDailyCheckDue())
+                {
+                    foreach (var smartWarning in app.SmartTrend.RecordAndAnalyze())
+                    {
+                        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                            "Zia Monitoring - Disque en dégradation", smartWarning.Label);
+                    }
+                }
+
                 // Nettoyage planifié quotidien (le jeu actif n'est jamais interrompu).
                 if (activeGame is null
                     && app.DeepClean.IsScheduledRunDue(settings.EnableCleanupScheduler, settings.ScheduledCleanupTime))

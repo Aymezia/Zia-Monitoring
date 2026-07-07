@@ -116,7 +116,8 @@ public sealed record AppSettings(
     double GpuTempAlertThresholdC = 82,
     double DiskFreeAlertGb = 10,
     double WeeklyPlaytimeGoalHours = 0,
-    bool EnableGameBooster = false);
+    bool EnableGameBooster = false,
+    bool EnableRestorePointBeforeRiskyActions = true);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

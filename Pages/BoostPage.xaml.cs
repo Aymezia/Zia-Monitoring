@@ -63,6 +63,12 @@ public sealed partial class BoostPage : Page
                 $"{lines}{Environment.NewLine}{Environment.NewLine}Startup candidates: {preview.StartupCandidates.Count}{Environment.NewLine}Service candidates: {preview.ServiceCandidates.Count}");
 
             await StepAsync(35, "Preparation nettoyage temporaire");
+
+            if (_app.SettingsService.Load().EnableRestorePointBeforeRiskyActions)
+            {
+                await Task.Run(() => _app.RestorePoint.CreateRestorePoint("Zia Monitoring - avant Boost"));
+            }
+
             await StepAsync(55, "Optimisation startup/services");
             var execution = await Task.Run(() => _app.BoostEngine.ExecuteSafeBoost());
 

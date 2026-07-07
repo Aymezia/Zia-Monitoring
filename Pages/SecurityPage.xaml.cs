@@ -81,13 +81,19 @@ public sealed partial class SecurityPage : Page
         }
     }
 
-    private void CleanAllDebloat_Click(object sender, RoutedEventArgs e)
+    private async void CleanAllDebloat_Click(object sender, RoutedEventArgs e)
     {
         CleanAllDebloatButton.IsEnabled = false;
         try
         {
+            if (_app.SettingsService.Load().EnableRestorePointBeforeRiskyActions)
+            {
+                DebloatStatusLabel.Text = "Création d'un point de restauration…";
+                await Task.Run(() => _app.RestorePoint.CreateRestorePoint("Zia Monitoring - avant Débloat"));
+            }
+
             var items = _app.Debloat.Scan();
-            var count = _app.Debloat.CleanAll(items);
+            var count = await Task.Run(() => _app.Debloat.CleanAll(items));
             DebloatStatusLabel.Text = $"{count} élément(s) nettoyé(s).";
             RefreshDebloat();
         }

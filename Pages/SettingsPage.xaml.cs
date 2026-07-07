@@ -36,6 +36,7 @@ public sealed partial class SettingsPage : Page
             MiniOpacitySlider.Value = _settings.MiniWidgetOpacity * 100;
             MiniOpacityValueLabel.Text = $"{MiniOpacitySlider.Value:F0}%";
             GameBoosterToggle.IsOn = _settings.EnableGameBooster;
+            RestorePointToggle.IsOn = _settings.EnableRestorePointBeforeRiskyActions;
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
             SchedulerToggle.IsOn = _settings.EnableCleanupScheduler;
 
@@ -186,6 +187,12 @@ public sealed partial class SettingsPage : Page
     private void GameBooster_Toggled(object sender, RoutedEventArgs e)
     {
         _settings = _settings with { EnableGameBooster = GameBoosterToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void RestorePoint_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableRestorePointBeforeRiskyActions = RestorePointToggle.IsOn };
         SaveSettings();
     }
 

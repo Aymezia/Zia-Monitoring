@@ -9,6 +9,14 @@ public sealed partial class MappingPage : Page
     {
         InitializeComponent();
         DataContext = ((App)Microsoft.UI.Xaml.Application.Current).State;
+        RefreshDisplays();
+    }
+
+    private void RefreshDisplays_Click(object sender, RoutedEventArgs e) => RefreshDisplays();
+
+    private void RefreshDisplays()
+    {
+        DisplaysList.ItemsSource = Infrastructure.Collectors.RefreshRateDetector.DetectAll();
     }
 
     private void LaunchGame_Click(object sender, RoutedEventArgs e)

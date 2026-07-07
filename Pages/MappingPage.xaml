@@ -11,6 +11,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Mapping PC" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -90,6 +91,28 @@
                             </DataTemplate>
                         </GridView.ItemTemplate>
                     </GridView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Écrans — taux de rafraîchissement" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshDisplaysButton" Content="Vérifier" Click="RefreshDisplays_Click" />
+                    </Grid>
+                    <TextBlock Text="Détecte un écran resté en 60 Hz alors qu'il supporte un taux supérieur (144 Hz, G-Sync/FreeSync mal configuré, oubli après branchement)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="DisplaysList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" FontSize="13" TextWrapping="Wrap" Margin="0,2"
+                                           Foreground="{Binding IsHealthy, Converter={StaticResource PrivacyBrush}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

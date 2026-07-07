@@ -41,6 +41,7 @@
     <Compile Include="..\..\Application\UpdateCheckService.cs" Link="Linked\UpdateCheckService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />
+    <Compile Include="..\..\Infrastructure\Collectors\RefreshRateDetector.cs" Link="Linked\RefreshRateDetector.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,6 +21,30 @@ public sealed partial class BoostPage : Page
     {
         _pulseStoryboard = Resources["PulseStoryboard"] as Storyboard;
         _app.State.SetOptimizationState(false, 0, "Pret");
+        RefreshStartupEntries();
+    }
+
+    private void RefreshStartup_Click(object sender, RoutedEventArgs e) => RefreshStartupEntries();
+
+    private void RefreshStartupEntries()
+    {
+        try
+        {
+            StartupList.ItemsSource = _app.StartupManager.GetEntries();
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Chargement des entrées de démarrage impossible", ex);
+        }
+    }
+
+    private void ToggleStartup_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: ZiaMonitoring_App.Application.StartupEntry entry })
+        {
+            _app.StartupManager.SetEnabled(entry.Name, entry.Source, !entry.IsEnabled);
+            RefreshStartupEntries();
+        }
     }
 
     private async void GameMode_Click(object sender, RoutedEventArgs e)

@@ -47,6 +47,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.HibpService Hibp => _services.GetRequiredService<Application.HibpService>();
     public Application.GeoIpService GeoIp => _services.GetRequiredService<Application.GeoIpService>();
     public Application.SmartTrendService SmartTrend => _services.GetRequiredService<Application.SmartTrendService>();
+    public Application.StartupManagerService StartupManager => _services.GetRequiredService<Application.StartupManagerService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -95,6 +96,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.HibpService>();
         services.AddSingleton<Application.GeoIpService>();
         services.AddSingleton<Application.SmartTrendService>();
+        services.AddSingleton<Application.StartupManagerService>();
 
         return services.BuildServiceProvider();
     }

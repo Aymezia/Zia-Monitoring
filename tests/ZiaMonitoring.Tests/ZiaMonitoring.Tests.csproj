@@ -27,6 +27,7 @@
     <Compile Include="..\..\Application\OptimizationProfileService.cs" Link="Linked\OptimizationProfileService.cs" />
     <Compile Include="..\..\Application\SilentModeService.cs" Link="Linked\SilentModeService.cs" />
     <Compile Include="..\..\Application\SmartTrendService.cs" Link="Linked\SmartTrendService.cs" />
+    <Compile Include="..\..\Application\StartupManagerService.cs" Link="Linked\StartupManagerService.cs" />
     <Compile Include="..\..\Application\UpdateCheckService.cs" Link="Linked\UpdateCheckService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />

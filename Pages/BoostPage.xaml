@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -40,7 +41,41 @@
             </StackPanel>
         </Border>
 
-        <ListView Grid.Row="3" ItemsSource="{Binding BoostActions}">
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Programmes au démarrage" Style="{StaticResource CardTitleTextStyle}" />
+                    <Button Grid.Column="1" Content="Actualiser" Click="RefreshStartup_Click" />
+                </Grid>
+                <TextBlock Text="Activation/désactivation via le mécanisme officiel (StartupApproved) — compatible avec le Gestionnaire des tâches." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                <ItemsControl x:Name="StartupList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnSpacing="10" Margin="0,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding DetailLabel}" Style="{StaticResource CaptionTextStyle}" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontWeight="SemiBold"
+                                           Foreground="{Binding IsEnabled, Converter={StaticResource PrivacyBrush}}" />
+                                <Button Grid.Column="2" Content="{Binding ToggleLabel}" Tag="{Binding}" Click="ToggleStartup_Click" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <ListView Grid.Row="4" ItemsSource="{Binding BoostActions}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">

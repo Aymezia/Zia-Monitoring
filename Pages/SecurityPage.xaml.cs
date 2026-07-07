@@ -15,6 +15,64 @@ public sealed partial class SecurityPage : Page
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         ScanStatusLabel.Text = "Cliquez sur 'Lancer l'analyse' pour demarrer.";
         RefreshPrivacy();
+        RefreshDebloat();
+    }
+
+    private void RefreshDebloat()
+    {
+        try
+        {
+            var items = _app.Debloat.Scan();
+            DebloatList.ItemsSource = items;
+            var toClean = items.Count(i => !i.IsClean);
+            DebloatStatusLabel.Text = toClean == 0
+                ? "Tout est déjà nettoyé."
+                : $"{toClean} élément(s) encore actif(s) sur {items.Count}.";
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Scan de débloat impossible", ex);
+        }
+    }
+
+    private void RefreshDebloat_Click(object sender, RoutedEventArgs e) => RefreshDebloat();
+
+    private void CleanDebloat_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
+        {
+            var (success, message) = _app.Debloat.Clean(item.Category, item.Key);
+            DebloatStatusLabel.Text = message;
+            if (success)
+                RefreshDebloat();
+        }
+    }
+
+    private void UndoDebloat_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
+        {
+            var (success, message) = _app.Debloat.Undo(item.Category, item.Key);
+            DebloatStatusLabel.Text = message;
+            if (success)
+                RefreshDebloat();
+        }
+    }
+
+    private void CleanAllDebloat_Click(object sender, RoutedEventArgs e)
+    {
+        CleanAllDebloatButton.IsEnabled = false;
+        try
+        {
+            var items = _app.Debloat.Scan();
+            var count = _app.Debloat.CleanAll(items);
+            DebloatStatusLabel.Text = $"{count} élément(s) nettoyé(s).";
+            RefreshDebloat();
+        }
+        finally
+        {
+            CleanAllDebloatButton.IsEnabled = true;
+        }
     }
 
     private void RefreshPrivacy()

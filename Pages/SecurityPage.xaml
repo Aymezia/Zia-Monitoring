@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -161,6 +162,46 @@
                         <Button x:Name="HibpCheckButton" Content="Vérifier" Click="CheckHibp_Click" Style="{StaticResource AccentButtonStyle}" />
                     </StackPanel>
                     <TextBlock x:Name="HibpResultLabel" TextWrapping="Wrap" Foreground="{StaticResource ZiaTextBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Débloat Windows guidé" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshDebloatButton" Content="Actualiser" Click="RefreshDebloat_Click" />
+                        <Button Grid.Column="2" x:Name="CleanAllDebloatButton" Content="Tout nettoyer" Click="CleanAllDebloat_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock Text="Télémétrie, tâches planifiées de diagnostic et applications préinstallées non essentielles. Chaque action reste réversible (sauf les apps, réinstallables depuis le Store)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="DebloatStatusLabel" Style="{StaticResource CaptionTextStyle}" />
+                    <ItemsControl x:Name="DebloatList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontWeight="SemiBold"
+                                               Foreground="{Binding IsClean, Converter={StaticResource PrivacyBrush}}" />
+                                    <Button Grid.Column="2" Content="Nettoyer" Tag="{Binding}" Click="CleanDebloat_Click" VerticalAlignment="Center"
+                                            Visibility="{Binding IsClean, Converter={StaticResource BoolToVisInverse}}" />
+                                    <Button Grid.Column="2" Content="Restaurer" Tag="{Binding}" Click="UndoDebloat_Click" VerticalAlignment="Center"
+                                            Visibility="{Binding IsClean, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

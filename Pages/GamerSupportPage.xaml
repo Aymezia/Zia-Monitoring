@@ -73,8 +73,14 @@
 
             <Border Grid.Row="2" Style="{StaticResource CardStyle}">
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                    <ComboBox x:Name="ProductCombo" Width="180" SelectedIndex="0">
+                    <ComboBox x:Name="ProductCombo" Width="200" SelectedIndex="0">
                         <ComboBoxItem Content="Valorant" />
+                        <ComboBoxItem Content="Fortnite" />
+                        <ComboBoxItem Content="CS2" />
+                        <ComboBoxItem Content="Apex Legends" />
+                        <ComboBoxItem Content="Rainbow Six Siege" />
+                        <ComboBoxItem Content="League of Legends" />
+                        <ComboBoxItem Content="DirectX" />
                         <ComboBoxItem Content="OBS" />
                     </ComboBox>
                     <TextBox x:Name="ErrorText" Width="360" PlaceholderText="Code erreur ou symptome (ex: VAN 9003, encoder overloaded)" />

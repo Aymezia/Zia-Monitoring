@@ -167,6 +167,159 @@ public sealed class GamerTroubleshootingService
             [
                 "https://obsproject.com/kb/",
                 "https://inspector.twitch.tv/"
+            ]),
+
+        new IssueFixItem(
+            Product: "Fortnite",
+            ErrorCode: "EAC Error / Easy Anti-Cheat failed to load",
+            Symptom: "Game refuses to launch, Easy Anti-Cheat service fails to initialize.",
+            RootCauses: ["EAC service not running", "Corrupted EAC install", "Conflicting overlay/injector software"],
+            Solutions:
+            [
+                "Repair Easy Anti-Cheat from the game launcher (right-click > Repair).",
+                "Run the game once as administrator to reinstall the EAC driver.",
+                "Close overlay tools (RGB software, injectors) that hook into the game process."
+            ],
+            Sources:
+            [
+                "https://www.epicgames.com/help/",
+                "https://www.easy.ac/en-us/support/"
+            ]),
+
+        new IssueFixItem(
+            Product: "Fortnite",
+            ErrorCode: "Video memory could not be allocated",
+            Symptom: "Crash or black screen on launch due to a DirectX video memory allocation failure.",
+            RootCauses: ["VRAM exhausted by background overlays/capture tools", "Outdated GPU driver", "Texture settings too aggressive for available VRAM"],
+            Solutions:
+            [
+                "Close background GPU-heavy apps (browsers, capture software) before launching.",
+                "Update the GPU driver to the latest stable version.",
+                "Lower texture quality / resolution scale in the game's video settings."
+            ],
+            Sources:
+            [
+                "https://www.epicgames.com/help/",
+                "https://www.nvidia.com/Download/index.aspx"
+            ]),
+
+        new IssueFixItem(
+            Product: "CS2",
+            ErrorCode: "VAC was unable to verify the game session",
+            Symptom: "Cannot join VAC-secured servers; VAC verification fails at connect.",
+            RootCauses: ["Modified/corrupted game files", "Background injector or overlay tool flagged as suspicious", "VAC service temporarily unstable"],
+            Solutions:
+            [
+                "Verify integrity of game files via Steam (Properties > Installed Files).",
+                "Disable third-party overlays/injectors (including unofficial FPS/skin tools) before playing.",
+                "Restart Steam completely and retry."
+            ],
+            Sources:
+            [
+                "https://help.steampowered.com/",
+                "https://support.steampowered.com/kb_article.php?ref=7849-radz-6869"
+            ]),
+
+        new IssueFixItem(
+            Product: "CS2",
+            ErrorCode: "Shader Cache Stutter",
+            Symptom: "Noticeable stutter/freezes during the first minutes after a driver update or game update, then smooths out.",
+            RootCauses: ["GPU driver update purges the shader cache", "Shaders recompiling on first use of new effects/maps", "Low free disk space slowing cache writes"],
+            Solutions:
+            [
+                "Play a warm-up deathmatch/casual match before a ranked game after any driver update.",
+                "Ensure at least a few GB of free disk space on the system drive.",
+                "Avoid manually deleting the GPU shader cache folders while mid-session."
+            ],
+            Sources:
+            [
+                "https://help.steampowered.com/",
+                "https://www.nvidia.com/Download/index.aspx"
+            ]),
+
+        new IssueFixItem(
+            Product: "Apex Legends",
+            ErrorCode: "EAC error at launch",
+            Symptom: "Game closes immediately or shows an Easy Anti-Cheat initialization error before reaching the menu.",
+            RootCauses: ["EAC driver not installed/corrupted", "Secure Boot or driver signature conflict", "Leftover EAC service from a previous install"],
+            Solutions:
+            [
+                "Repair Easy Anti-Cheat from the platform (Origin/Steam) game properties.",
+                "Reinstall the game's EAC component from the install folder if repair fails.",
+                "Ensure Secure Boot is enabled if the platform requires it."
+            ],
+            Sources:
+            [
+                "https://www.easy.ac/en-us/support/",
+                "https://help.ea.com/"
+            ]),
+
+        new IssueFixItem(
+            Product: "Rainbow Six Siege",
+            ErrorCode: "BattlEye Initialization Failed",
+            Symptom: "Game does not launch and reports that BattlEye failed to start.",
+            RootCauses: ["BEService not running", "Driver signature enforcement disabled (conflicts with anti-cheat)", "Third-party overlay interfering with the anti-cheat driver"],
+            Solutions:
+            [
+                "Re-enable driver signature enforcement in Windows startup settings if it was disabled.",
+                "Restart the BEService via Task Manager or reinstall BattlEye from the game folder.",
+                "Disable conflicting overlays (some RGB/monitoring tools included) and retry."
+            ],
+            Sources:
+            [
+                "https://www.battleye.com/support/",
+                "https://www.ubisoft.com/help"
+            ]),
+
+        new IssueFixItem(
+            Product: "League of Legends",
+            ErrorCode: "Client Won't Patch / Update Stuck",
+            Symptom: "The League client hangs or fails while downloading a patch.",
+            RootCauses: ["Corrupted patcher cache", "Firewall/antivirus blocking the patcher", "Insufficient permissions on the install folder"],
+            Solutions:
+            [
+                "Run the official Hextech Repair Tool to clear the patcher cache.",
+                "Allow LeagueClient.exe and RiotClientServices.exe through the firewall/antivirus.",
+                "Run the client once as administrator to rule out permission issues."
+            ],
+            Sources:
+            [
+                "https://support-leagueoflegends.riotgames.com/",
+                "https://status.riotgames.com/"
+            ]),
+
+        new IssueFixItem(
+            Product: "DirectX",
+            ErrorCode: "DXGI_ERROR_DEVICE_REMOVED",
+            Symptom: "Game crashes to desktop; the GPU driver resets (TDR event) during play.",
+            RootCauses: ["Unstable GPU overclock", "Driver timeout from overheating or sustained overload", "Corrupted or outdated GPU driver"],
+            Solutions:
+            [
+                "Revert any GPU/VRAM overclock to stock settings and retest.",
+                "Clean-reinstall the GPU driver using DDU in Safe Mode, then install the latest stable version.",
+                "Check GPU temperatures for thermal throttling during the crash window (page Sante)."
+            ],
+            Sources:
+            [
+                "https://learn.microsoft.com/windows-hardware/drivers/display/timeout-detection-and-recovery",
+                "https://www.nvidia.com/Download/index.aspx"
+            ]),
+
+        new IssueFixItem(
+            Product: "DirectX",
+            ErrorCode: "DXGI_ERROR_DEVICE_HUNG",
+            Symptom: "Game freezes then crashes; the GPU command queue stops responding.",
+            RootCauses: ["Unresponsive GPU command queue under heavy load", "Power delivery instability under load spikes", "Aggressive driver-level overclock profile"],
+            Solutions:
+            [
+                "Disable any driver-level auto-overclock/boost profile (e.g. GPU vendor tuning utilities).",
+                "Update the GPU driver to the latest stable (non-beta) version.",
+                "Verify the PSU comfortably covers the GPU's peak power draw."
+            ],
+            Sources:
+            [
+                "https://learn.microsoft.com/windows-hardware/drivers/display/timeout-detection-and-recovery",
+                "https://www.amd.com/en/support"
             ])
     ];
 
@@ -434,7 +587,11 @@ public sealed class GamerTroubleshootingService
             tags.Add($"encoder:{encoder}");
         }
 
-        if (product.Contains("valorant", StringComparison.OrdinalIgnoreCase))
+        if (product.Contains("valorant", StringComparison.OrdinalIgnoreCase)
+            || product.Contains("fortnite", StringComparison.OrdinalIgnoreCase)
+            || product.Contains("apex", StringComparison.OrdinalIgnoreCase)
+            || product.Contains("rainbow", StringComparison.OrdinalIgnoreCase)
+            || product.Contains("siege", StringComparison.OrdinalIgnoreCase))
         {
             tags.Add("anti_cheat_sensitive_context");
         }
@@ -451,6 +608,41 @@ public sealed class GamerTroubleshootingService
                 "https://support-valorant.riotgames.com/",
                 "https://status.riotgames.com/",
                 "https://learn.microsoft.com/windows/security/"
+            ];
+        }
+
+        if (product.Contains("fortnite", StringComparison.OrdinalIgnoreCase))
+        {
+            return ["https://www.epicgames.com/help/", "https://www.easy.ac/en-us/support/"];
+        }
+
+        if (product.Contains("cs2", StringComparison.OrdinalIgnoreCase) || product.Contains("counter", StringComparison.OrdinalIgnoreCase))
+        {
+            return ["https://help.steampowered.com/", "https://help.steampowered.com/en/wizard/HelpWithGame"];
+        }
+
+        if (product.Contains("apex", StringComparison.OrdinalIgnoreCase))
+        {
+            return ["https://www.easy.ac/en-us/support/", "https://help.ea.com/"];
+        }
+
+        if (product.Contains("rainbow", StringComparison.OrdinalIgnoreCase) || product.Contains("siege", StringComparison.OrdinalIgnoreCase))
+        {
+            return ["https://www.battleye.com/support/", "https://www.ubisoft.com/help"];
+        }
+
+        if (product.Contains("league", StringComparison.OrdinalIgnoreCase))
+        {
+            return ["https://support-leagueoflegends.riotgames.com/", "https://status.riotgames.com/"];
+        }
+
+        if (product.Contains("directx", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+            [
+                "https://learn.microsoft.com/windows-hardware/drivers/display/timeout-detection-and-recovery",
+                "https://www.nvidia.com/Download/index.aspx",
+                "https://www.amd.com/en/support"
             ];
         }
 

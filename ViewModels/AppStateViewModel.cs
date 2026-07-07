@@ -17,6 +17,7 @@ public sealed partial class AppStateViewModel : ObservableObject
     [ObservableProperty] private double _gpuUsagePercent;
     [ObservableProperty] private string _fanLabel = "N/A";
     [ObservableProperty] private string _vramLabel = "N/A";
+    [ObservableProperty] private double _vramTotalMb;
     [ObservableProperty] private string _diskIoLabel = "N/A";
     [ObservableProperty] private string _networkLabel = "-";
     [ObservableProperty] private string _pingLabel = "-";
@@ -240,6 +241,7 @@ public sealed partial class AppStateViewModel : ObservableObject
         FanLabel = frame.Snapshot.FanSpeedRpm is null ? "N/A" : $"{frame.Snapshot.FanSpeedRpm:F0} RPM";
         VramLabel = frame.Snapshot.VramTotalMb <= 0 ? "N/A"
             : $"{frame.Snapshot.VramUsedMb:F0} / {frame.Snapshot.VramTotalMb:F0} MB";
+        VramTotalMb = frame.Snapshot.VramTotalMb;
         DiskIoLabel = $"R:{frame.Snapshot.DiskIoReadMbps:F1}  W:{frame.Snapshot.DiskIoWriteMbps:F1} MB/s";
         EstimatedFpsLabel = frame.Snapshot.EstimatedFps > 0 ? $"FPS: {frame.Snapshot.EstimatedFps:F0}" : "FPS: N/A";
 

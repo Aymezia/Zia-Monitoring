@@ -12,6 +12,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -128,6 +129,59 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Preset graphique recommandé" Style="{StaticResource CardTitleTextStyle}" />
+                        <Border Grid.Column="1" Style="{StaticResource BadgeStyle}" Background="{StaticResource ZiaPurpleBrush}">
+                            <TextBlock x:Name="HardwareTierLabel" FontSize="12" FontWeight="SemiBold" Foreground="White" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="Recommandation générique selon votre palier matériel (VRAM, CPU, RAM) — pas un benchmark mesuré pour un jeu précis." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Grid ColumnSpacing="20" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="RÉSOLUTION" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetResolutionLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="TEXTURES" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetTextureLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="OMBRES" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetShadowLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1">
+                            <TextBlock Text="ANTI-ALIASING" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetAaLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1">
+                            <TextBlock Text="EFFETS" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetEffectsLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="2">
+                            <TextBlock Text="FPS VISÉ" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="PresetFpsLabel" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock x:Name="PresetNotesLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                    <TextBlock x:Name="CompetitiveTipLabel" Foreground="{StaticResource ZiaAmberBrush}" FontSize="12" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

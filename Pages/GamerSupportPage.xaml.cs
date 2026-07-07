@@ -15,6 +15,31 @@ public sealed partial class GamerSupportPage : Page
         InitializeComponent();
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         LoadSessions();
+        LoadGraphicsPreset();
+    }
+
+    private void LoadGraphicsPreset()
+    {
+        try
+        {
+            var state = _app.State;
+            var tier = _app.GraphicsPreset.DetectTier(state.VramTotalMb, state.LogicalCores, state.InstalledRamGb);
+            var preset = _app.GraphicsPreset.GetPreset(tier);
+
+            HardwareTierLabel.Text = preset.TierLabel;
+            PresetResolutionLabel.Text = preset.Resolution;
+            PresetTextureLabel.Text = preset.TextureQuality;
+            PresetShadowLabel.Text = preset.ShadowQuality;
+            PresetAaLabel.Text = preset.AntiAliasing;
+            PresetEffectsLabel.Text = preset.EffectsQuality;
+            PresetFpsLabel.Text = preset.TargetFps;
+            PresetNotesLabel.Text = preset.Notes;
+            CompetitiveTipLabel.Text = ZiaMonitoring_App.Application.GraphicsPresetService.CompetitiveGamingTip;
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Calcul du preset graphique impossible", ex);
+        }
     }
 
     private void RefreshSessions_Click(object sender, RoutedEventArgs e) => LoadSessions();

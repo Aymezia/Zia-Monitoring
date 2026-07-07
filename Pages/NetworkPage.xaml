@@ -13,6 +13,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -157,6 +158,37 @@
                                             Visibility="{Binding IsBest, Converter={StaticResource BoolToVis}}">
                                         <TextBlock Text="Recommandé" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" />
                                     </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="5" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Perte de paquets" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="MeasurePacketLossButton" Content="Mesurer (rafale de 10 pings)" Click="MeasurePacketLoss_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock Text="Complète la latence : une connexion peut sembler rapide en moyenne tout en perdant des paquets, source de micro-freezes en jeu." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="PacketLossStatusLabel" Style="{StaticResource CaptionTextStyle}" />
+                    <ItemsControl x:Name="PacketLossResultsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="12" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Provider}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="1" Text="{Binding RttLabel}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="2" Text="{Binding LossLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" FontWeight="SemiBold" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

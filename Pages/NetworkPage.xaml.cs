@@ -1,12 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ZiaMonitoring_App.Application;
+using ZiaMonitoring_App.Infrastructure.Collectors;
 
 namespace ZiaMonitoring_App.Pages;
 
 public sealed partial class NetworkPage : Page
 {
     private readonly App _app;
+    private readonly GameServerLatencyCollector _packetLossCollector = new();
 
     public NetworkPage()
     {
@@ -15,6 +17,32 @@ public sealed partial class NetworkPage : Page
         DataContext = _app.State;
         GeoStatusLabel.Text = "Lookup à la demande via ip-api.com (aucune requête automatique).";
         RegionStatusLabel.Text = "Cliquez sur 'Mesurer les régions' pour lancer le test (8 mesures en parallèle).";
+        PacketLossStatusLabel.Text = "Mesure à la demande (10 pings par cible, ~1 s).";
+    }
+
+    private async void MeasurePacketLoss_Click(object sender, RoutedEventArgs e)
+    {
+        MeasurePacketLossButton.IsEnabled = false;
+        PacketLossStatusLabel.Text = "Mesure en cours…";
+        try
+        {
+            var results = await Task.Run(() => _packetLossCollector.MeasureAllPacketLoss());
+            PacketLossResultsList.ItemsSource = results;
+
+            var worst = results.Where(r => r.HasData).OrderByDescending(r => r.LossPercent).FirstOrDefault();
+            PacketLossStatusLabel.Text = worst is { LossPercent: > 0 }
+                ? $"Perte la plus élevée : {worst.Provider} ({worst.LossLabel})."
+                : "Aucune perte détectée sur les cibles mesurées.";
+        }
+        catch (Exception ex)
+        {
+            PacketLossStatusLabel.Text = "Mesure impossible (hors ligne ?).";
+            Infrastructure.AppLog.Warn("Mesure de perte de paquets en échec", ex);
+        }
+        finally
+        {
+            MeasurePacketLossButton.IsEnabled = true;
+        }
     }
 
     private async void MeasureRegions_Click(object sender, RoutedEventArgs e)

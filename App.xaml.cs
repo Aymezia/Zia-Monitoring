@@ -51,6 +51,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.DebloatService Debloat => _services.GetRequiredService<Application.DebloatService>();
     public Application.RegionalLatencyService RegionalLatency => _services.GetRequiredService<Application.RegionalLatencyService>();
     public Application.GraphicsPresetService GraphicsPreset => _services.GetRequiredService<Application.GraphicsPresetService>();
+    public Application.DeviceAccessAuditService DeviceAccessAudit => _services.GetRequiredService<Application.DeviceAccessAuditService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -103,6 +104,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.DebloatService>();
         services.AddSingleton<Application.RegionalLatencyService>();
         services.AddSingleton<Application.GraphicsPresetService>();
+        services.AddSingleton<Application.DeviceAccessAuditService>();
 
         return services.BuildServiceProvider();
     }

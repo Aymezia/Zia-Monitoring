@@ -16,6 +16,28 @@ public sealed partial class SecurityPage : Page
         ScanStatusLabel.Text = "Cliquez sur 'Lancer l'analyse' pour demarrer.";
         RefreshPrivacy();
         RefreshDebloat();
+        RefreshDeviceAudit();
+    }
+
+    private void RefreshDeviceAudit_Click(object sender, RoutedEventArgs e) => RefreshDeviceAudit();
+
+    private void RefreshDeviceAudit()
+    {
+        try
+        {
+            var entries = _app.DeviceAccessAudit.ScanWebcamAccess()
+                .Concat(_app.DeviceAccessAudit.ScanMicrophoneAccess())
+                .OrderByDescending(entry => entry.IsCurrentlyActive)
+                .ThenByDescending(entry => entry.LastUsedStop ?? entry.LastUsedStart ?? DateTime.MinValue)
+                .Take(20)
+                .ToList();
+
+            DeviceAuditList.ItemsSource = entries;
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Audit webcam/micro impossible", ex);
+        }
     }
 
     private void RefreshDebloat()

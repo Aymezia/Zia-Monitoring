@@ -23,6 +23,7 @@
     <Compile Include="..\..\Application\WifiAlertPolicy.cs" Link="Linked\WifiAlertPolicy.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\NetworkCollector.cs" Link="Linked\NetworkCollector.cs" />
     <Compile Include="..\..\Application\DebloatService.cs" Link="Linked\DebloatService.cs" />
+    <Compile Include="..\..\Application\DeviceAccessAuditService.cs" Link="Linked\DeviceAccessAuditService.cs" />
     <Compile Include="..\..\Application\GamerTroubleshootingService.cs" Link="Linked\GamerTroubleshootingService.cs" />
     <Compile Include="..\..\Application\GraphicsPresetService.cs" Link="Linked\GraphicsPresetService.cs" />
     <Compile Include="..\..\Application\GameSessionService.cs" Link="Linked\GameSessionService.cs" />

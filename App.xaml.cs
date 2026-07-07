@@ -45,6 +45,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.ProcessRuleService ProcessRules => _services.GetRequiredService<Application.ProcessRuleService>();
     public Application.PrivacyScanService PrivacyScanner => _services.GetRequiredService<Application.PrivacyScanService>();
     public Application.HibpService Hibp => _services.GetRequiredService<Application.HibpService>();
+    public Application.GeoIpService GeoIp => _services.GetRequiredService<Application.GeoIpService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -91,6 +92,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.ProcessRuleService>();
         services.AddSingleton<Application.PrivacyScanService>();
         services.AddSingleton<Application.HibpService>();
+        services.AddSingleton<Application.GeoIpService>();
 
         return services.BuildServiceProvider();
     }

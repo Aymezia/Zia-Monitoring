@@ -81,7 +81,31 @@
 
             <Border Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Connexions TCP actives" Style="{StaticResource CardTitleTextStyle}" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Connexions TCP actives" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="GeoLocateButton" Content="Géolocaliser les destinations" Click="GeoLocate_Click" />
+                    </Grid>
+                    <TextBlock x:Name="GeoStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="GeoResultsList" Margin="0,4,0,8">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Ip}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="1" Text="{Binding GeoLabel}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Processes}" Style="{StaticResource CaptionTextStyle}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <ListView ItemsSource="{Binding ActiveTcpConnections}" MaxHeight="360">
                         <ListView.ItemTemplate>
                             <DataTemplate>

@@ -17,6 +17,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -86,6 +87,7 @@
                     <ToggleSwitch x:Name="RestorePointToggle" Header="Point de restauration Windows avant Boost/Débloat" Toggled="RestorePoint_Toggled" />
                     <ToggleSwitch x:Name="SilentModeToggle" Header="Mode silencieux automatique quand un jeu est detecte" Toggled="SilentMode_Toggled" />
                     <ToggleSwitch x:Name="SchedulerToggle" Header="Nettoyage temp planifie (3h du matin)" Toggled="Scheduler_Toggled" />
+                    <ToggleSwitch x:Name="SaveBackupToggle" Header="Sauvegarde quotidienne des saves de jeux (My Games + Saved Games, même heure)" Toggled="SaveBackup_Toggled" />
                     <Button Content="Desactiver animations Windows (optimisation maximale)" Click="DisableAnimations_Click" Style="{StaticResource AccentButtonStyle}" />
                     <Button Content="Restaurer animations Windows" Click="RestoreAnimations_Click" />
                 </StackPanel>
@@ -136,6 +138,16 @@
                         <Button x:Name="ExportJsonButton" Content="Exporter en JSON" Click="ExportJson_Click" />
                     </StackPanel>
                     <TextBlock x:Name="ExportHistoryStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Sauvegarde des saves de jeux -->
+            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Sauvegarde des saves de jeux" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Zip de Documents\My Games et %USERPROFILE%\Saved Games — les deux conventions les plus répandues. 7 dernières sauvegardes conservées." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Button x:Name="BackupNowButton" Content="Sauvegarder maintenant" Click="BackupNow_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <TextBlock x:Name="BackupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

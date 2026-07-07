@@ -117,7 +117,8 @@ public sealed record AppSettings(
     double DiskFreeAlertGb = 10,
     double WeeklyPlaytimeGoalHours = 0,
     bool EnableGameBooster = false,
-    bool EnableRestorePointBeforeRiskyActions = true);
+    bool EnableRestorePointBeforeRiskyActions = true,
+    bool EnableScheduledSaveBackup = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

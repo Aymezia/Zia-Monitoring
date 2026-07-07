@@ -181,6 +181,15 @@ public sealed partial class MainWindow : Window
                         $"{cleaned.Sum(r => r.DeletedFiles)} fichier(s) supprimé(s), {cleaned.Sum(r => r.FreedMb):F0} Mo libérés.");
                 }
 
+                // Sauvegarde planifiée des saves de jeux (même heure que le nettoyage).
+                if (activeGame is null
+                    && app.SaveBackup.IsScheduledRunDue(settings.EnableScheduledSaveBackup, settings.ScheduledCleanupTime))
+                {
+                    var backupResult = app.SaveBackup.BackupNow();
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Sauvegarde des saves de jeux terminée", backupResult.Summary);
+                }
+
                 _dispatcherQueue.TryEnqueue(() =>
                 {
                     try

@@ -39,6 +39,7 @@ public sealed partial class SettingsPage : Page
             RestorePointToggle.IsOn = _settings.EnableRestorePointBeforeRiskyActions;
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
             SchedulerToggle.IsOn = _settings.EnableCleanupScheduler;
+            SaveBackupToggle.IsOn = _settings.EnableScheduledSaveBackup;
 
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
@@ -200,6 +201,34 @@ public sealed partial class SettingsPage : Page
     {
         _settings = _settings with { EnableCleanupScheduler = SchedulerToggle.IsOn };
         SaveSettings();
+    }
+
+    private void SaveBackup_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableScheduledSaveBackup = SaveBackupToggle.IsOn };
+        SaveSettings();
+    }
+
+    private async void BackupNow_Click(object sender, RoutedEventArgs e)
+    {
+        BackupNowButton.IsEnabled = false;
+        BackupStatusLabel.Text = "Sauvegarde en cours…";
+        try
+        {
+            var result = await Task.Run(() => _app.SaveBackup.BackupNow());
+            BackupStatusLabel.Text = result.Warnings.Count == 0
+                ? result.Summary
+                : $"{result.Summary} ({result.Warnings.Count} avertissement(s))";
+        }
+        catch (Exception ex)
+        {
+            BackupStatusLabel.Text = $"Sauvegarde impossible : {ex.Message}";
+            AppLog.Warn("Sauvegarde manuelle des saves en échec", ex);
+        }
+        finally
+        {
+            BackupNowButton.IsEnabled = true;
+        }
     }
 
     private void DisableAnimations_Click(object sender, RoutedEventArgs e)

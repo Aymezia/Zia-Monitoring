@@ -29,6 +29,7 @@
     <Compile Include="..\..\Application\GamerTroubleshootingService.cs" Link="Linked\GamerTroubleshootingService.cs" />
     <Compile Include="..\..\Application\GraphicsPresetService.cs" Link="Linked\GraphicsPresetService.cs" />
     <Compile Include="..\..\Application\GameSessionService.cs" Link="Linked\GameSessionService.cs" />
+    <Compile Include="..\..\Application\GameSaveBackupService.cs" Link="Linked\GameSaveBackupService.cs" />
     <Compile Include="..\..\Application\GeoIpService.cs" Link="Linked\GeoIpService.cs" />
     <Compile Include="..\..\Application\HibpService.cs" Link="Linked\HibpService.cs" />
     <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />

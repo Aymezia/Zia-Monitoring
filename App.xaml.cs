@@ -53,6 +53,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.GraphicsPresetService GraphicsPreset => _services.GetRequiredService<Application.GraphicsPresetService>();
     public Application.DeviceAccessAuditService DeviceAccessAudit => _services.GetRequiredService<Application.DeviceAccessAuditService>();
     public Application.RestorePointService RestorePoint => _services.GetRequiredService<Application.RestorePointService>();
+    public Application.GameSaveBackupService SaveBackup => _services.GetRequiredService<Application.GameSaveBackupService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -107,6 +108,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.GraphicsPresetService>();
         services.AddSingleton<Application.DeviceAccessAuditService>();
         services.AddSingleton<Application.RestorePointService>();
+        services.AddSingleton<Application.GameSaveBackupService>();
 
         return services.BuildServiceProvider();
     }

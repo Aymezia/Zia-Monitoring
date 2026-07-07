@@ -59,7 +59,8 @@ public sealed class GameServerLatencyCollector
         return ok ? pingMs : -1;
     }
 
-    private static (double PingMs, bool IsReachable) MeasureHost(string host, int timeoutMs)
+    /// <summary>Ping ICMP avec repli TCP:443 si l'ICMP est bloqué. Réutilisé par RegionalLatencyService.</summary>
+    internal static (double PingMs, bool IsReachable) MeasureHost(string host, int timeoutMs)
     {
         try
         {

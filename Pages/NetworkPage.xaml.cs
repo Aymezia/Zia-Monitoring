@@ -14,6 +14,32 @@ public sealed partial class NetworkPage : Page
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         DataContext = _app.State;
         GeoStatusLabel.Text = "Lookup à la demande via ip-api.com (aucune requête automatique).";
+        RegionStatusLabel.Text = "Cliquez sur 'Mesurer les régions' pour lancer le test (8 mesures en parallèle).";
+    }
+
+    private async void MeasureRegions_Click(object sender, RoutedEventArgs e)
+    {
+        MeasureRegionsButton.IsEnabled = false;
+        RegionStatusLabel.Text = "Mesure en cours…";
+        try
+        {
+            var results = await Task.Run(() => _app.RegionalLatency.MeasureAll());
+            RegionResultsList.ItemsSource = results;
+
+            var best = results.FirstOrDefault(r => r.IsBest);
+            RegionStatusLabel.Text = best is not null
+                ? $"Région la plus proche : {best.Region} ({best.PingLabel})."
+                : "Aucune région n'a répondu (hors ligne ?).";
+        }
+        catch (Exception ex)
+        {
+            RegionStatusLabel.Text = "Mesure impossible (hors ligne ?).";
+            Infrastructure.AppLog.Warn("Mesure de latence régionale en échec", ex);
+        }
+        finally
+        {
+            MeasureRegionsButton.IsEnabled = true;
+        }
     }
 
     private sealed record GeoRow(string Ip, string GeoLabel, string Processes);

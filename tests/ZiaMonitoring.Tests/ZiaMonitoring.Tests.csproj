@@ -24,6 +24,7 @@
     <Compile Include="..\..\Application\GeoIpService.cs" Link="Linked\GeoIpService.cs" />
     <Compile Include="..\..\Application\HibpService.cs" Link="Linked\HibpService.cs" />
     <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />
+    <Compile Include="..\..\Application\RegionalLatencyService.cs" Link="Linked\RegionalLatencyService.cs" />
     <Compile Include="..\..\Application\ThrottlingDetector.cs" Link="Linked\ThrottlingDetector.cs" />
     <Compile Include="..\..\Application\OptimizationProfileService.cs" Link="Linked\OptimizationProfileService.cs" />
     <Compile Include="..\..\Application\SilentModeService.cs" Link="Linked\SilentModeService.cs" />

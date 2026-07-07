@@ -18,6 +18,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -148,6 +149,47 @@
                     <TextBlock Text="Zip de Documents\My Games et %USERPROFILE%\Saved Games — les deux conventions les plus répandues. 7 dernières sauvegardes conservées." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <Button x:Name="BackupNowButton" Content="Sauvegarder maintenant" Click="BackupNow_Click" Style="{StaticResource AccentButtonStyle}" />
                     <TextBlock x:Name="BackupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Règles personnalisées -->
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Règles personnalisées" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Ex : CPU au-dessus de 90% pendant 10 min → nettoyage temp. Une alerte au maximum toutes les 15 min par règle." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox x:Name="RuleNameBox" Width="120" PlaceholderText="Nom" />
+                        <ComboBox x:Name="RuleConditionCombo" Width="180" SelectedIndex="0">
+                            <ComboBoxItem Content="CPU au-dessus de (%)" Tag="CpuAbove" />
+                            <ComboBoxItem Content="RAM au-dessus de (%)" Tag="RamAbove" />
+                            <ComboBoxItem Content="Temp. CPU au-dessus de (°C)" Tag="CpuTempAbove" />
+                            <ComboBoxItem Content="Temp. GPU au-dessus de (°C)" Tag="GpuTempAbove" />
+                            <ComboBoxItem Content="Disque C: libre sous (GB)" Tag="DiskFreeBelow" />
+                        </ComboBox>
+                        <TextBox x:Name="RuleThresholdBox" Width="60" PlaceholderText="Seuil" />
+                        <TextBox x:Name="RuleMinutesBox" Width="55" PlaceholderText="Min." />
+                        <ComboBox x:Name="RuleActionCombo" Width="180" SelectedIndex="0">
+                            <ComboBoxItem Content="Notifier seulement" Tag="Notify" />
+                            <ComboBoxItem Content="Nettoyage temp" Tag="RunDeepClean" />
+                            <ComboBoxItem Content="Ouvrir Gestionnaire des tâches" Tag="OpenTaskManager" />
+                        </ComboBox>
+                        <Button Content="Ajouter" Click="AddRule_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </StackPanel>
+                    <TextBlock x:Name="RuleStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="CustomRulesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                                    <Button Grid.Column="1" Content="Supprimer" Tag="{Binding Id}" Click="RemoveRule_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

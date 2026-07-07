@@ -160,6 +160,22 @@ public sealed partial class MainWindow : Window
                         "Zia Monitoring - Throttling détecté", frame.ThrottlingToast);
                 }
 
+                foreach (var rule in app.CustomRules.Evaluate(frame.Snapshot, frame.Profile))
+                {
+                    switch (rule.Action)
+                    {
+                        case ZiaMonitoring_App.Application.RuleAction.RunDeepClean:
+                            app.DeepClean.Run();
+                            break;
+                        case ZiaMonitoring_App.Application.RuleAction.OpenTaskManager:
+                            try { System.Diagnostics.Process.Start("taskmgr.exe"); } catch { }
+                            break;
+                    }
+
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Zia Monitoring - Règle personnalisée", rule.Description);
+                }
+
                 // Snapshot + tendance SMART une fois par jour.
                 if (app.SmartTrend.IsDailyCheckDue())
                 {

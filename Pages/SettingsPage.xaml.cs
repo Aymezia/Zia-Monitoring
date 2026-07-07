@@ -56,6 +56,7 @@ public sealed partial class SettingsPage : Page
             _settings = _settings with { EnableAutoStart = AutoStartToggle.IsOn };
 
             RefreshHistory_Click(this, null!);
+            RefreshCustomRules();
         }
         catch (Exception ex)
         {
@@ -195,6 +196,46 @@ public sealed partial class SettingsPage : Page
     {
         _settings = _settings with { EnableRestorePointBeforeRiskyActions = RestorePointToggle.IsOn };
         SaveSettings();
+    }
+
+    private void RefreshCustomRules() => CustomRulesList.ItemsSource = _app.CustomRules.GetRules();
+
+    private void AddRule_Click(object sender, RoutedEventArgs e)
+    {
+        var name = string.IsNullOrWhiteSpace(RuleNameBox.Text) ? "Règle" : RuleNameBox.Text.Trim();
+        var conditionTag = (RuleConditionCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "CpuAbove";
+        var actionTag = (RuleActionCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "Notify";
+
+        if (!double.TryParse(RuleThresholdBox.Text, out var threshold))
+        {
+            RuleStatusLabel.Text = "Seuil invalide.";
+            return;
+        }
+
+        if (!int.TryParse(RuleMinutesBox.Text, out var minutes))
+        {
+            RuleStatusLabel.Text = "Durée (min) invalide.";
+            return;
+        }
+
+        var condition = Enum.Parse<ZiaMonitoring_App.Application.RuleCondition>(conditionTag);
+        var action = Enum.Parse<ZiaMonitoring_App.Application.RuleAction>(actionTag);
+
+        _app.CustomRules.AddRule(name, condition, threshold, minutes, action);
+        RuleNameBox.Text = string.Empty;
+        RuleThresholdBox.Text = string.Empty;
+        RuleMinutesBox.Text = string.Empty;
+        RuleStatusLabel.Text = "Règle ajoutée.";
+        RefreshCustomRules();
+    }
+
+    private void RemoveRule_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string id })
+        {
+            _app.CustomRules.RemoveRule(id);
+            RefreshCustomRules();
+        }
     }
 
     private void Scheduler_Toggled(object sender, RoutedEventArgs e)

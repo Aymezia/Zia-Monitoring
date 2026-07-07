@@ -34,7 +34,7 @@ public sealed class SecurityReportExportService
         AppendList(sb, "Hooks clavier probables", report.KeyloggerHookWarnings);
         AppendList(sb, "Entrees de demarrage suspectes", report.SuspiciousStartupEntries);
         AppendList(sb, "Ports TCP ouverts", report.OpenPorts);
-        AppendList(sb, "Pilotes obsoletes", report.ObsoleteDrivers);
+        AppendList(sb, "Pilotes obsoletes", report.ObsoleteDrivers.Select(d => d.Label).ToList());
         AppendList(sb, "Avertissements S.M.A.R.T", report.DiskSmartWarnings);
         sb.AppendLine("</body></html>");
         return sb.ToString();

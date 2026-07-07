@@ -120,6 +120,11 @@ public sealed record AppSettings(
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 
+public sealed record ObsoleteDriverInfo(string Name, DateTime DriverDate, string Vendor, string UpdateUrl)
+{
+    public string Label => $"{Name} ({DriverDate:yyyy-MM-dd}) — {Vendor}";
+}
+
 public sealed record SecurityReport(
     DateTime GeneratedAt,
     int RiskScore,
@@ -127,7 +132,7 @@ public sealed record SecurityReport(
     bool UacEnabled,
     IReadOnlyList<string> OpenPorts,
     IReadOnlyList<string> SuspiciousStartupEntries,
-    IReadOnlyList<string> ObsoleteDrivers,
+    IReadOnlyList<ObsoleteDriverInfo> ObsoleteDrivers,
     IReadOnlyList<string> DiskSmartWarnings,
     IReadOnlyList<string> MaliciousProcessMatches,
     IReadOnlyList<string> KeyloggerHookWarnings);

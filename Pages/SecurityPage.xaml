@@ -70,7 +70,14 @@
                     <ListView x:Name="DriversList" MaxHeight="200">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                    <HyperlinkButton Grid.Column="1" Content="Mettre à jour" NavigateUri="{Binding UpdateUrl}" VerticalAlignment="Center" />
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

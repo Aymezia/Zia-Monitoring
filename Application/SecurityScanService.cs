@@ -115,9 +115,21 @@ public sealed class SecurityScanService
         return result;
     }
 
-    private static IReadOnlyList<string> ScanObsoleteDrivers()
+    private static readonly (string Match, string Vendor, string UpdateUrl)[] DriverVendors =
+    [
+        ("nvidia", "NVIDIA", "https://www.nvidia.com/Download/index.aspx"),
+        ("radeon", "AMD", "https://www.amd.com/en/support"),
+        ("advanced micro devices", "AMD", "https://www.amd.com/en/support"),
+        ("amd", "AMD", "https://www.amd.com/en/support"),
+        ("intel", "Intel", "https://www.intel.com/content/www/us/en/support/detect.html"),
+        ("realtek", "Realtek", "https://www.realtek.com/en/downloads"),
+        ("logitech", "Logitech", "https://www.logitech.com/en-us/software/g-hub.html"),
+        ("corsair", "Corsair", "https://www.corsair.com/us/en/icue")
+    ];
+
+    private static IReadOnlyList<ObsoleteDriverInfo> ScanObsoleteDrivers()
     {
-        var result = new List<string>();
+        var result = new List<ObsoleteDriverInfo>();
         try
         {
             var threshold = DateTime.Now.AddYears(-3);
@@ -139,7 +151,10 @@ public sealed class SecurityScanService
                 {
                     var driverDate = new DateTime(year, Math.Clamp(month, 1, 12), Math.Clamp(day, 1, 28));
                     if (driverDate < threshold)
-                        result.Add($"{name} ({driverDate:yyyy-MM-dd})");
+                    {
+                        var (vendor, updateUrl) = DetectDriverVendor(name);
+                        result.Add(new ObsoleteDriverInfo(name, driverDate, vendor, updateUrl));
+                    }
                 }
 
                 if (result.Count >= 20) break;
@@ -150,6 +165,25 @@ public sealed class SecurityScanService
             AppLog.Warn("Scan securite: enumeration des pilotes WMI impossible", ex);
         }
         return result;
+    }
+
+    /// <summary>
+    /// Devine le fabricant par simple correspondance de sous-chaîne dans le
+    /// nom du pilote et pointe vers sa page officielle de téléchargement
+    /// (pas un lien vers un pilote précis — impossible à garantir sans une
+    /// base de correspondance modèle/version que nous n'avons pas).
+    /// </summary>
+    internal static (string Vendor, string UpdateUrl) DetectDriverVendor(string driverName)
+    {
+        var lower = driverName.ToLowerInvariant();
+
+        foreach (var (match, vendor, updateUrl) in DriverVendors)
+        {
+            if (lower.Contains(match))
+                return (vendor, updateUrl);
+        }
+
+        return ("Fabricant inconnu", "https://support.microsoft.com/windows/mettre-a-jour-des-pilotes-manuellement-dans-windows-ec62f46c-ff14-c91d-eead-d7126dc1f7b6");
     }
 
     private static IReadOnlyList<string> ScanSmartWarnings()
@@ -283,7 +317,7 @@ public sealed class SecurityScanService
         bool firewall,
         bool uac,
         IReadOnlyList<string> suspicious,
-        IReadOnlyList<string> drivers,
+        IReadOnlyList<ObsoleteDriverInfo> drivers,
         IReadOnlyList<string> smart,
         IReadOnlyList<string> maliciousProcesses,
         IReadOnlyList<string> keyloggerWarnings)

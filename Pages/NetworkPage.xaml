@@ -14,6 +14,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -192,6 +193,44 @@
                                     <TextBlock Text="{Binding Provider}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
                                     <TextBlock Grid.Column="1" Text="{Binding RttLabel}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" />
                                     <TextBlock Grid.Column="2" Text="{Binding LossLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" FontWeight="SemiBold" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Traceroute vers un serveur de jeu" Style="{StaticResource CardTitleTextStyle}" />
+                        <ComboBox Grid.Column="1" x:Name="TracerouteTargetCombo" Width="140" SelectedIndex="0">
+                            <ComboBoxItem Content="Riot" />
+                            <ComboBoxItem Content="Valve" />
+                            <ComboBoxItem Content="EA" />
+                            <ComboBoxItem Content="Epic" />
+                        </ComboBox>
+                        <Button Grid.Column="2" x:Name="TracerouteButton" Content="Tracer" Click="Traceroute_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock Text="Chemin réseau saut par saut (comme tracert) : repère si la latence augmente chez votre FAI ou plus loin, proche de la destination." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="TracerouteStatusLabel" Style="{StaticResource CaptionTextStyle}" />
+                    <ItemsControl x:Name="TracerouteResultsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding HopNumber}" Style="{StaticResource CaptionTextStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding AddressLabel}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="2" Text="{Binding RttLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

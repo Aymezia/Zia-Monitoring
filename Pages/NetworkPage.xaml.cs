@@ -18,6 +18,45 @@ public sealed partial class NetworkPage : Page
         GeoStatusLabel.Text = "Lookup à la demande via ip-api.com (aucune requête automatique).";
         RegionStatusLabel.Text = "Cliquez sur 'Mesurer les régions' pour lancer le test (8 mesures en parallèle).";
         PacketLossStatusLabel.Text = "Mesure à la demande (10 pings par cible, ~1 s).";
+        TracerouteStatusLabel.Text = "Sélectionnez une cible et cliquez sur 'Tracer'.";
+    }
+
+    private static readonly Dictionary<string, string> TracerouteHosts = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Riot"] = "riotgames.com",
+        ["Valve"] = "steamcommunity.com",
+        ["EA"] = "ea.com",
+        ["Epic"] = "epicgames.com"
+    };
+
+    private async void Traceroute_Click(object sender, RoutedEventArgs e)
+    {
+        var provider = (TracerouteTargetCombo.SelectedItem as ComboBoxItem)?.Content as string ?? "Riot";
+        if (!TracerouteHosts.TryGetValue(provider, out var host))
+            return;
+
+        TracerouteButton.IsEnabled = false;
+        TracerouteStatusLabel.Text = $"Traceroute vers {host} en cours (jusqu'à 30 s)…";
+        TracerouteResultsList.ItemsSource = null;
+        try
+        {
+            var hops = await Task.Run(() => TracerouteService.Trace(host));
+            TracerouteResultsList.ItemsSource = hops;
+
+            var destination = hops.FirstOrDefault(h => h.IsDestination);
+            TracerouteStatusLabel.Text = destination is not null
+                ? $"Destination atteinte en {hops.Count} saut(s)."
+                : $"Destination non confirmée après {hops.Count} saut(s) (ICMP probablement filtré en fin de chemin).";
+        }
+        catch (Exception ex)
+        {
+            TracerouteStatusLabel.Text = "Traceroute impossible (hors ligne ?).";
+            Infrastructure.AppLog.Warn("Traceroute en échec", ex);
+        }
+        finally
+        {
+            TracerouteButton.IsEnabled = true;
+        }
     }
 
     private async void MeasurePacketLoss_Click(object sender, RoutedEventArgs e)

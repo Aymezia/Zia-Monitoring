@@ -28,6 +28,26 @@ public sealed record GameSessionReport(
     public string RamLabel => $"RAM {MaxRamMb / 1024:F1} GB max";
 }
 
+/// <summary>Récapitulatif façon "Wrapped" agrégé sur les sessions d'une année.</summary>
+public sealed record WrappedSummary(
+    int Year,
+    TimeSpan TotalPlaytime,
+    int TotalSessions,
+    string? MostPlayedGame,
+    TimeSpan MostPlayedGameDuration,
+    double AverageFps,
+    double MaxCpuTempRecorded,
+    double MaxGpuTempRecorded,
+    string? LongestSessionGame,
+    TimeSpan LongestSessionDuration)
+{
+    public string PlaytimeLabel => $"{(int)TotalPlaytime.TotalHours} h {TotalPlaytime.Minutes:D2}";
+    public string MostPlayedLabel => MostPlayedGame is null ? "-" : $"{MostPlayedGame} ({(int)MostPlayedGameDuration.TotalHours}h{MostPlayedGameDuration.Minutes:D2})";
+    public string LongestSessionLabel => LongestSessionGame is null ? "-" : $"{LongestSessionGame} — {(int)LongestSessionDuration.TotalHours}h{LongestSessionDuration.Minutes:D2}";
+    public string AvgFpsLabel => AverageFps > 0 ? $"{AverageFps:F0} FPS" : "N/A";
+    public string MaxTempLabel => $"CPU {MaxCpuTempRecorded:F0}°C · GPU {MaxGpuTempRecorded:F0}°C";
+}
+
 /// <summary>
 /// Suit la session de jeu active (FPS, températures et mémoire max) et
 /// produit un rapport persisté en SQLite à la fermeture du jeu — façon
@@ -323,6 +343,80 @@ public sealed class GameSessionService : IDisposable
         var today = DateTime.Today;
         var offset = ((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
         return today.AddDays(-offset);
+    }
+
+    /// <summary>
+    /// Récapitulatif façon "Wrapped" sur toutes les sessions de l'année
+    /// donnée. Retourne null si aucune session enregistrée (jamais "0h" —
+    /// distingue l'absence de données d'une vraie valeur nulle).
+    /// </summary>
+    public WrappedSummary? GetYearlyWrapped(int year)
+    {
+        if (_connection is null)
+            return null;
+
+        try
+        {
+            var start = new DateTimeOffset(new DateTime(year, 1, 1)).ToUnixTimeSeconds();
+            var end = new DateTimeOffset(new DateTime(year + 1, 1, 1)).ToUnixTimeSeconds();
+
+            using var command = _connection.CreateCommand();
+            command.CommandText = """
+                SELECT game, started_at, ended_at, avg_fps, max_cpu_temp, max_gpu_temp
+                FROM game_sessions
+                WHERE started_at >= $start AND started_at < $end
+                """;
+            command.Parameters.AddWithValue("$start", start);
+            command.Parameters.AddWithValue("$end", end);
+
+            var sessions = new List<WrappedSessionRow>();
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                sessions.Add(new WrappedSessionRow(
+                    reader.GetString(0), reader.GetInt64(1), reader.GetInt64(2),
+                    reader.GetDouble(3), reader.GetDouble(4), reader.GetDouble(5)));
+            }
+
+            return BuildWrappedSummary(year, sessions);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Calcul du récapitulatif annuel impossible", ex);
+            return null;
+        }
+    }
+
+    internal readonly record struct WrappedSessionRow(
+        string Game, long StartedAt, long EndedAt, double AvgFps, double MaxCpuTemp, double MaxGpuTemp);
+
+    internal static WrappedSummary? BuildWrappedSummary(int year, IReadOnlyList<WrappedSessionRow> sessions)
+    {
+        if (sessions.Count == 0)
+            return null;
+
+        var totalSeconds = sessions.Sum(s => s.EndedAt - s.StartedAt);
+
+        var byGame = sessions
+            .GroupBy(s => s.Game, StringComparer.OrdinalIgnoreCase)
+            .Select(g => (Game: g.Key, Duration: TimeSpan.FromSeconds(g.Sum(s => s.EndedAt - s.StartedAt))))
+            .OrderByDescending(g => g.Duration)
+            .First();
+
+        var longest = sessions.OrderByDescending(s => s.EndedAt - s.StartedAt).First();
+        var validFps = sessions.Where(s => s.AvgFps > 0).Select(s => s.AvgFps).ToList();
+
+        return new WrappedSummary(
+            year,
+            TimeSpan.FromSeconds(totalSeconds),
+            sessions.Count,
+            byGame.Game,
+            byGame.Duration,
+            validFps.Count > 0 ? validFps.Average() : 0,
+            sessions.Max(s => s.MaxCpuTemp),
+            sessions.Max(s => s.MaxGpuTemp),
+            longest.Game,
+            TimeSpan.FromSeconds(longest.EndedAt - longest.StartedAt));
     }
 
     public void Dispose()

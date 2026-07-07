@@ -16,6 +16,49 @@ public sealed partial class GamerSupportPage : Page
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         LoadSessions();
         LoadGraphicsPreset();
+        InitializeWrappedYears();
+    }
+
+    private void InitializeWrappedYears()
+    {
+        var currentYear = DateTime.Now.Year;
+        for (var year = currentYear; year >= currentYear - 4; year--)
+            WrappedYearCombo.Items.Add(new ComboBoxItem { Content = year.ToString() });
+
+        WrappedYearCombo.SelectedIndex = 0;
+    }
+
+    private void GenerateWrapped_Click(object sender, RoutedEventArgs e)
+    {
+        var yearText = (WrappedYearCombo.SelectedItem as ComboBoxItem)?.Content as string;
+        if (!int.TryParse(yearText, out var year))
+            return;
+
+        try
+        {
+            var summary = _app.GameSessions.GetYearlyWrapped(year);
+            if (summary is null)
+            {
+                WrappedContent.Visibility = Visibility.Collapsed;
+                WrappedStatusLabel.Text = $"Aucune session enregistrée en {year}.";
+                return;
+            }
+
+            WrappedPlaytimeLabel.Text = summary.PlaytimeLabel;
+            WrappedMostPlayedLabel.Text = summary.MostPlayedLabel;
+            WrappedSessionsLabel.Text = summary.TotalSessions.ToString();
+            WrappedFpsLabel.Text = summary.AvgFpsLabel;
+            WrappedTempLabel.Text = summary.MaxTempLabel;
+            WrappedLongestLabel.Text = summary.LongestSessionLabel;
+
+            WrappedContent.Visibility = Visibility.Visible;
+            WrappedStatusLabel.Text = $"Récapitulatif {year} généré.";
+        }
+        catch (Exception ex)
+        {
+            WrappedStatusLabel.Text = "Génération impossible.";
+            Infrastructure.AppLog.Warn("Génération du récap annuel en échec", ex);
+        }
     }
 
     private void LoadGraphicsPreset()

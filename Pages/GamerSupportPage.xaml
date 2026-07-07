@@ -13,6 +13,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -182,6 +183,57 @@
                     </Grid>
                     <TextBlock x:Name="PresetNotesLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0,4,0,0" />
                     <TextBlock x:Name="CompetitiveTipLabel" Foreground="{StaticResource ZiaAmberBrush}" FontSize="12" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Récap annuel" Style="{StaticResource CardTitleTextStyle}" />
+                        <ComboBox x:Name="WrappedYearCombo" Grid.Column="1" Width="100" />
+                        <Button Grid.Column="2" Content="Générer" Click="GenerateWrapped_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock x:Name="WrappedStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Grid x:Name="WrappedContent" ColumnSpacing="20" RowSpacing="10" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="TEMPS DE JEU TOTAL" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedPlaytimeLabel" Style="{StaticResource MetricValueTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="JEU LE PLUS JOUÉ" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedMostPlayedLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="15" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="SESSIONS" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedSessionsLabel" Style="{StaticResource MetricValueTextStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1">
+                            <TextBlock Text="FPS MOYEN" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedFpsLabel" Foreground="{StaticResource ZiaVioletBrush}" FontSize="15" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1">
+                            <TextBlock Text="PIRE TEMPÉRATURE" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedTempLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="15" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="2">
+                            <TextBlock Text="SESSION LA PLUS LONGUE" Style="{StaticResource KpiLabelTextStyle}" />
+                            <TextBlock x:Name="WrappedLongestLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
         </Grid>

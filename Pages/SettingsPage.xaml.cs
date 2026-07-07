@@ -40,6 +40,10 @@ public sealed partial class SettingsPage : Page
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
             SchedulerToggle.IsOn = _settings.EnableCleanupScheduler;
             SaveBackupToggle.IsOn = _settings.EnableScheduledSaveBackup;
+            PrometheusToggle.IsOn = _settings.EnablePrometheusExporter;
+            PrometheusStatusLabel.Text = _app.PrometheusExporter.IsRunning
+                ? $"Actif : http://localhost:{_app.PrometheusExporter.Port}/metrics"
+                : "Inactif.";
 
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
@@ -196,6 +200,29 @@ public sealed partial class SettingsPage : Page
     {
         _settings = _settings with { EnableRestorePointBeforeRiskyActions = RestorePointToggle.IsOn };
         SaveSettings();
+    }
+
+    private void Prometheus_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnablePrometheusExporter = PrometheusToggle.IsOn };
+        SaveSettings();
+
+        if (PrometheusToggle.IsOn)
+        {
+            var (success, message) = _app.PrometheusExporter.Start();
+            PrometheusStatusLabel.Text = message;
+            if (!success)
+            {
+                PrometheusToggle.IsOn = false;
+                _settings = _settings with { EnablePrometheusExporter = false };
+                SaveSettings();
+            }
+        }
+        else
+        {
+            _app.PrometheusExporter.Stop();
+            PrometheusStatusLabel.Text = "Inactif.";
+        }
     }
 
     private void RefreshCustomRules() => CustomRulesList.ItemsSource = _app.CustomRules.GetRules();

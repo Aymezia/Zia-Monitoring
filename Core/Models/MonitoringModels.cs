@@ -118,7 +118,8 @@ public sealed record AppSettings(
     double WeeklyPlaytimeGoalHours = 0,
     bool EnableGameBooster = false,
     bool EnableRestorePointBeforeRiskyActions = true,
-    bool EnableScheduledSaveBackup = false);
+    bool EnableScheduledSaveBackup = false,
+    bool EnablePrometheusExporter = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

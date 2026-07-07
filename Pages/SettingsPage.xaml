@@ -19,6 +19,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -190,6 +191,16 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Export Prometheus -->
+            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Export Prometheus" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Expose les métriques courantes sur http://localhost:9877/metrics pour un Grafana local. Accessible uniquement depuis cette machine." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="PrometheusToggle" Header="Activer l'export Prometheus" Toggled="Prometheus_Toggled" />
+                    <TextBlock x:Name="PrometheusStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

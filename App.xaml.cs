@@ -55,6 +55,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.RestorePointService RestorePoint => _services.GetRequiredService<Application.RestorePointService>();
     public Application.GameSaveBackupService SaveBackup => _services.GetRequiredService<Application.GameSaveBackupService>();
     public Application.CustomRuleEngine CustomRules => _services.GetRequiredService<Application.CustomRuleEngine>();
+    public Application.PrometheusExporterService PrometheusExporter => _services.GetRequiredService<Application.PrometheusExporterService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -111,6 +112,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.RestorePointService>();
         services.AddSingleton<Application.GameSaveBackupService>();
         services.AddSingleton<Application.CustomRuleEngine>();
+        services.AddSingleton<Application.PrometheusExporterService>();
 
         return services.BuildServiceProvider();
     }

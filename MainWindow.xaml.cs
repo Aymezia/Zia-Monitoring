@@ -88,6 +88,12 @@ public sealed partial class MainWindow : Window
                     frame.Snapshot.EstimatedFps);
 
                 app.MetricsHistory.Record(frame.Snapshot);
+                app.PrometheusExporter.UpdateFrame(frame);
+
+                if (settings.EnablePrometheusExporter && !app.PrometheusExporter.IsRunning)
+                    app.PrometheusExporter.Start();
+                else if (!settings.EnablePrometheusExporter && app.PrometheusExporter.IsRunning)
+                    app.PrometheusExporter.Stop();
                 app.PresentMon.EnsureTracking(activeGame?.Pid);
                 app.ProcessRules.ApplyRules();
 

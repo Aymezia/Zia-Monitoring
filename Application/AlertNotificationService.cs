@@ -1,6 +1,7 @@
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using ZiaMonitoring_App.Core.Models;
+using ZiaMonitoring_App.Infrastructure.Collectors;
 
 namespace ZiaMonitoring_App.Application;
 
@@ -10,8 +11,10 @@ public sealed class AlertNotificationService
     private DateTime _lastDiskAlertTime = DateTime.MinValue;
     private DateTime _lastTempAlertTime = DateTime.MinValue;
     private DateTime _lastDailySummaryDate = DateTime.MinValue.Date;
+    private DateTime _lastWifiAlertTime = DateTime.MinValue;
 
     private readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan WifiAlertCooldown = TimeSpan.FromMinutes(30);
 
     public void CheckAndNotify(MonitoringFrame frame, AppSettings settings)
     {
@@ -74,6 +77,25 @@ public sealed class AlertNotificationService
             SendToast("Zia Monitoring - Résumé sante du jour",
                 $"Score: {frame.Analysis.HealthScore}/100 | Risque: {frame.Analysis.RiskLevel} | {frame.Analysis.Alerts.Count} alerte(s) active(s).");
         }
+    }
+
+    /// <summary>
+    /// Alerte si un jeu tourne sur une connexion Wi-Fi plutôt qu'Ethernet —
+    /// le Wi-Fi introduit du jitter/micro-coupures que l'Ethernet évite.
+    /// Cooldown long (30 min) : une seule alerte par session de jeu, pas de
+    /// spam pendant toute la partie.
+    /// </summary>
+    public void CheckWifiDuringGame(ActiveGameSession? activeGame, ActiveConnectionKind connectionKind, AppSettings settings)
+    {
+        if (!WifiAlertPolicy.ShouldAlert(activeGame, connectionKind, settings.EnableToastAlerts))
+            return;
+
+        if (DateTime.Now - _lastWifiAlertTime < WifiAlertCooldown)
+            return;
+
+        _lastWifiAlertTime = DateTime.Now;
+        SendToast("Zia Monitoring - Connexion Wi-Fi",
+            $"{activeGame!.GameName} tourne sur Wi-Fi. L'Ethernet reduit la latence et le jitter pour le jeu en ligne.");
     }
 
     public static void SendToast(string title, string message)

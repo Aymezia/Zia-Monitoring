@@ -20,6 +20,8 @@
     <Compile Include="..\..\Application\RecommendationEngine.cs" Link="Linked\RecommendationEngine.cs" />
     <Compile Include="..\..\Application\SettingsService.cs" Link="Linked\SettingsService.cs" />
     <Compile Include="..\..\Application\ActiveGameDetector.cs" Link="Linked\ActiveGameDetector.cs" />
+    <Compile Include="..\..\Application\WifiAlertPolicy.cs" Link="Linked\WifiAlertPolicy.cs" />
+    <Compile Include="..\..\Infrastructure\Collectors\NetworkCollector.cs" Link="Linked\NetworkCollector.cs" />
     <Compile Include="..\..\Application\DebloatService.cs" Link="Linked\DebloatService.cs" />
     <Compile Include="..\..\Application\GamerTroubleshootingService.cs" Link="Linked\GamerTroubleshootingService.cs" />
     <Compile Include="..\..\Application\GraphicsPresetService.cs" Link="Linked\GraphicsPresetService.cs" />

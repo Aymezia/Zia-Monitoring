@@ -152,6 +152,7 @@ public sealed partial class MainWindow : Window
                 }
 
                 app.AlertNotificationService.CheckAndNotify(frame, settings);
+                app.AlertNotificationService.CheckWifiDuringGame(activeGame, frame.ConnectionKind, settings);
 
                 if (frame.ThrottlingToast is not null)
                 {

@@ -3,8 +3,46 @@ using ZiaMonitoring_App.Core.Models;
 
 namespace ZiaMonitoring_App.Infrastructure.Collectors;
 
+public enum ActiveConnectionKind { Wired, Wireless, Unknown }
+
 public sealed class NetworkCollector
 {
+    /// <summary>
+    /// Devine l'interface qui porte réellement le trafic (celle avec une
+    /// passerelle par défaut et le plus de trafic cumulé), pas juste la
+    /// première interface "up" — beaucoup de PC ont Wi-Fi et Ethernet actifs
+    /// simultanément sans que les deux soient réellement utilisés.
+    /// </summary>
+    public static ActiveConnectionKind DetectActiveConnectionKind()
+    {
+        try
+        {
+            var best = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up
+                         && n.NetworkInterfaceType != NetworkInterfaceType.Loopback
+                         && n.NetworkInterfaceType != NetworkInterfaceType.Tunnel
+                         && n.GetIPProperties().GatewayAddresses.Count > 0)
+                .OrderByDescending(n =>
+                {
+                    var stats = n.GetIPv4Statistics();
+                    return stats.BytesSent + stats.BytesReceived;
+                })
+                .FirstOrDefault();
+
+            if (best is null)
+                return ActiveConnectionKind.Unknown;
+
+            return best.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
+                ? ActiveConnectionKind.Wireless
+                : ActiveConnectionKind.Wired;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Détection du type de connexion réseau impossible", ex);
+            return ActiveConnectionKind.Unknown;
+        }
+    }
+
     private long _prevBytesSent;
     private long _prevBytesReceived;
     private DateTime _prevTime = DateTime.MinValue;

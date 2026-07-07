@@ -20,6 +20,7 @@ public sealed partial class AppStateViewModel : ObservableObject
     [ObservableProperty] private double _vramTotalMb;
     [ObservableProperty] private string _diskIoLabel = "N/A";
     [ObservableProperty] private string _networkLabel = "-";
+    [ObservableProperty] private string _connectionTypeLabel = "Connexion : -";
     [ObservableProperty] private string _pingLabel = "-";
     [ObservableProperty] private string _estimatedFpsLabel = "FPS: N/A";
     [ObservableProperty] private string _activeGameServerLabel = "Serveur: N/A";
@@ -247,6 +248,12 @@ public sealed partial class AppStateViewModel : ObservableObject
 
         var net = frame.Snapshot.Network;
         NetworkLabel = $"↑{net.UploadKbps:F0} KB/s  ↓{net.DownloadKbps:F0} KB/s";
+        ConnectionTypeLabel = frame.ConnectionKind switch
+        {
+            Infrastructure.Collectors.ActiveConnectionKind.Wireless => "Connexion : Wi-Fi",
+            Infrastructure.Collectors.ActiveConnectionKind.Wired => "Connexion : Ethernet",
+            _ => "Connexion : inconnue"
+        };
         PingLabel = net.PingMs < 0 ? "Ping: N/A" : $"Ping: {net.PingMs:F0} ms";
 
         HealthScore = frame.Analysis.HealthScore;

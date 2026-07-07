@@ -1,3 +1,5 @@
+using ZiaMonitoring_App.Infrastructure.Collectors;
+
 namespace ZiaMonitoring_App.Core.Models;
 
 public sealed record ProcessInfo(int Pid, string Name, double CpuPercent, double MemoryMb)
@@ -179,4 +181,5 @@ public sealed record MonitoringFrame(
     SystemSnapshot Snapshot,
     PcProfile Profile,
     AnalysisReport Analysis,
-    string? ThrottlingToast = null);
+    string? ThrottlingToast = null,
+    ActiveConnectionKind ConnectionKind = ActiveConnectionKind.Unknown);

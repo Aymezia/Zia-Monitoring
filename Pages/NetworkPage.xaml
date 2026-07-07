@@ -18,7 +18,10 @@
 
             <StackPanel>
                 <TextBlock Text="Monitoring reseau" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
-                <TextBlock Text="{Binding NetworkLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="{Binding NetworkLabel}" Foreground="{StaticResource ZiaMutedBrush}" />
+                    <TextBlock Text="{Binding ConnectionTypeLabel}" Foreground="{StaticResource ZiaVioletBrush}" />
+                </StackPanel>
             </StackPanel>
 
             <Grid Grid.Row="1" ColumnSpacing="12">

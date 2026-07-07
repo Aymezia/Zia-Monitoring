@@ -70,7 +70,9 @@ public sealed class MonitoringService : IDisposable
         if (_throttlingDetector.ActiveAlert is { } throttlingAlert)
             analysis = analysis with { Alerts = [.. analysis.Alerts, throttlingAlert] };
 
-        return new MonitoringFrame(snapshot, profile, analysis, throttlingToast);
+        var connectionKind = NetworkCollector.DetectActiveConnectionKind();
+
+        return new MonitoringFrame(snapshot, profile, analysis, throttlingToast, connectionKind);
     }
 
     public void RefreshProfile()

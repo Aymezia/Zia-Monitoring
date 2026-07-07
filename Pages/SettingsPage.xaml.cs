@@ -249,6 +249,78 @@ public sealed partial class SettingsPage : Page
         HistoryList.ItemsSource = history;
     }
 
+    private async void ExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        ExportCsvButton.IsEnabled = false;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                SuggestedFileName = $"zia-historique-{DateTime.Now:yyyy-MM-dd}"
+            };
+            picker.FileTypeChoices.Add("CSV", [".csv"]);
+            InitializeExportPicker(picker);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file is null)
+                return;
+
+            var count = await Task.Run(() => _app.MetricsHistory.ExportToCsv(file.Path));
+            ExportHistoryStatusLabel.Text = $"{count} échantillon(s) exporté(s) vers {file.Path}";
+        }
+        catch (Exception ex)
+        {
+            ExportHistoryStatusLabel.Text = $"Export impossible : {ex.Message}";
+            AppLog.Warn("Export CSV de l'historique en échec", ex);
+        }
+        finally
+        {
+            ExportCsvButton.IsEnabled = true;
+        }
+    }
+
+    private async void ExportJson_Click(object sender, RoutedEventArgs e)
+    {
+        ExportJsonButton.IsEnabled = false;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                SuggestedFileName = $"zia-historique-{DateTime.Now:yyyy-MM-dd}"
+            };
+            picker.FileTypeChoices.Add("JSON", [".json"]);
+            InitializeExportPicker(picker);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file is null)
+                return;
+
+            var count = await Task.Run(() => _app.MetricsHistory.ExportToJson(file.Path));
+            ExportHistoryStatusLabel.Text = $"{count} échantillon(s) exporté(s) vers {file.Path}";
+        }
+        catch (Exception ex)
+        {
+            ExportHistoryStatusLabel.Text = $"Export impossible : {ex.Message}";
+            AppLog.Warn("Export JSON de l'historique en échec", ex);
+        }
+        finally
+        {
+            ExportJsonButton.IsEnabled = true;
+        }
+    }
+
+    private static void InitializeExportPicker(object picker)
+    {
+        var window = ((App)Microsoft.UI.Xaml.Application.Current).MainWindowInstance;
+        if (window is not null)
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+        }
+    }
+
     private static string BuildHtmlReport(ZiaMonitoring_App.ViewModels.AppStateViewModel state)
     {
         var sb = new System.Text.StringBuilder();

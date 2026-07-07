@@ -1,7 +1,19 @@
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using ZiaMonitoring_App.Core.Models;
 
 namespace ZiaMonitoring_App.Application;
+
+public sealed record MetricSampleRow(
+    DateTime Timestamp,
+    double CpuPercent,
+    double MemoryUsedMb,
+    double MemoryTotalMb,
+    double? CpuTemperatureC,
+    double? GpuTemperatureC,
+    double? GpuUsagePercent);
 
 /// <summary>
 /// Persiste un échantillon de métriques toutes les 15 s dans une base SQLite
@@ -121,6 +133,81 @@ public sealed class MetricsHistoryService : IDisposable
             Infrastructure.AppLog.Warn("Lecture de l'historique des métriques impossible", ex);
             return Array.Empty<double>();
         }
+    }
+
+    /// <summary>Échantillons bruts des derniers <paramref name="days"/> jours (8 max, limite de rétention).</summary>
+    public IReadOnlyList<MetricSampleRow> GetRawSamples(int days = 8)
+    {
+        if (_connection is null)
+            return Array.Empty<MetricSampleRow>();
+
+        try
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = """
+                SELECT timestamp, cpu, mem_used, mem_total, cpu_temp, gpu_temp, gpu_usage
+                FROM metric_samples
+                WHERE timestamp >= $since
+                ORDER BY timestamp ASC
+                """;
+            command.Parameters.AddWithValue("$since", DateTimeOffset.UtcNow.ToUnixTimeSeconds() - days * 86400L);
+
+            var result = new List<MetricSampleRow>();
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                result.Add(new MetricSampleRow(
+                    DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(0)).LocalDateTime,
+                    reader.GetDouble(1),
+                    reader.GetDouble(2),
+                    reader.GetDouble(3),
+                    reader.IsDBNull(4) ? null : reader.GetDouble(4),
+                    reader.IsDBNull(5) ? null : reader.GetDouble(5),
+                    reader.IsDBNull(6) ? null : reader.GetDouble(6)));
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture des échantillons pour export impossible", ex);
+            return Array.Empty<MetricSampleRow>();
+        }
+    }
+
+    /// <summary>Exporte l'historique brut en CSV. Retourne le nombre de lignes écrites.</summary>
+    public int ExportToCsv(string filePath, int days = 8)
+    {
+        var rows = GetRawSamples(days);
+        File.WriteAllText(filePath, BuildCsv(rows), Encoding.UTF8);
+        return rows.Count;
+    }
+
+    /// <summary>Exporte l'historique brut en JSON. Retourne le nombre d'entrées écrites.</summary>
+    public int ExportToJson(string filePath, int days = 8)
+    {
+        var rows = GetRawSamples(days);
+        File.WriteAllText(filePath, JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true }), Encoding.UTF8);
+        return rows.Count;
+    }
+
+    internal static string BuildCsv(IReadOnlyList<MetricSampleRow> rows)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Timestamp,CpuPercent,MemoryUsedMb,MemoryTotalMb,CpuTemperatureC,GpuTemperatureC,GpuUsagePercent");
+
+        foreach (var row in rows)
+        {
+            sb.AppendLine(string.Join(',',
+                row.Timestamp.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture),
+                row.CpuPercent.ToString(CultureInfo.InvariantCulture),
+                row.MemoryUsedMb.ToString(CultureInfo.InvariantCulture),
+                row.MemoryTotalMb.ToString(CultureInfo.InvariantCulture),
+                row.CpuTemperatureC?.ToString(CultureInfo.InvariantCulture) ?? "",
+                row.GpuTemperatureC?.ToString(CultureInfo.InvariantCulture) ?? "",
+                row.GpuUsagePercent?.ToString(CultureInfo.InvariantCulture) ?? ""));
+        }
+
+        return sb.ToString();
     }
 
     private void PruneIfDue()

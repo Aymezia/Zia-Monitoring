@@ -16,6 +16,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -121,6 +122,19 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Export historique -->
+            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Export de l'historique des métriques" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Échantillons bruts (CPU, RAM, températures) des 8 derniers jours, pour analyse externe (Excel, Python...)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="ExportCsvButton" Content="Exporter en CSV" Click="ExportCsv_Click" />
+                        <Button x:Name="ExportJsonButton" Content="Exporter en JSON" Click="ExportJson_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="ExportHistoryStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

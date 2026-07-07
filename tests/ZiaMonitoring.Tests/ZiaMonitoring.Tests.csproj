@@ -25,6 +25,7 @@
     <Compile Include="..\..\Application\DebloatService.cs" Link="Linked\DebloatService.cs" />
     <Compile Include="..\..\Application\DeviceAccessAuditService.cs" Link="Linked\DeviceAccessAuditService.cs" />
     <Compile Include="..\..\Application\SecurityScanService.cs" Link="Linked\SecurityScanService.cs" />
+    <Compile Include="..\..\Application\MetricsHistoryService.cs" Link="Linked\MetricsHistoryService.cs" />
     <Compile Include="..\..\Application\GamerTroubleshootingService.cs" Link="Linked\GamerTroubleshootingService.cs" />
     <Compile Include="..\..\Application\GraphicsPresetService.cs" Link="Linked\GraphicsPresetService.cs" />
     <Compile Include="..\..\Application\GameSessionService.cs" Link="Linked\GameSessionService.cs" />

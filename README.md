@@ -1,5 +1,7 @@
 <div align="center">
 
+![Zia Monitoring](docs/brand/banner.png)
+
 # ⚡ Zia Monitoring
 
 **Logiciel de monitoring PC Windows — temps réel, jeux, sécurité et optimisation**

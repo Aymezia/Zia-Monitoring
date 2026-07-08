@@ -29,6 +29,7 @@ public sealed partial class NetworkPage : Page
         DnsStatusLabel.Text = "Sélectionnez un fournisseur pour basculer le DNS de l'interface active.";
 
         RefreshBlockedApps();
+        RefreshWolDevices();
     }
 
     private void RefreshBlockedApps()
@@ -229,6 +230,53 @@ public sealed partial class NetworkPage : Page
         {
             MeasureRegionsButton.IsEnabled = true;
         }
+    }
+
+    private async void AnalyzeWifiChannel_Click(object sender, RoutedEventArgs e)
+    {
+        AnalyzeWifiChannelButton.IsEnabled = false;
+        WifiChannelStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var analysis = await Task.Run(WifiChannelAnalyzerService.Analyze);
+            WifiChannelStatusLabel.Text = analysis.Label;
+        }
+        finally
+        {
+            AnalyzeWifiChannelButton.IsEnabled = true;
+        }
+    }
+
+    private void RefreshWolDevices()
+    {
+        WolDevicesList.ItemsSource = _app.WakeOnLan.GetDevices();
+    }
+
+    private void AddWolDevice_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = _app.WakeOnLan.AddDevice(WolNameBox.Text.Trim(), WolMacBox.Text.Trim());
+        WolStatusLabel.Text = message;
+        WolNameBox.Text = string.Empty;
+        WolMacBox.Text = string.Empty;
+        RefreshWolDevices();
+    }
+
+    private void RemoveWolDevice_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string mac })
+            return;
+
+        _app.WakeOnLan.RemoveDevice(mac);
+        RefreshWolDevices();
+    }
+
+    private void WakeDevice_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string mac })
+            return;
+
+        var (_, message) = WakeOnLanService.Wake(mac);
+        WolStatusLabel.Text = message;
     }
 
     private sealed record GeoRow(string Ip, string GeoLabel, string Processes);

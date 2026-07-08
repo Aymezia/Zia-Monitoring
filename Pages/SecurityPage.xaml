@@ -23,6 +23,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -181,10 +182,17 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Débloat Windows guidé" Style="{StaticResource CardTitleTextStyle}" />
-                        <Button Grid.Column="1" x:Name="RefreshDebloatButton" Content="Actualiser" Click="RefreshDebloat_Click" />
-                        <Button Grid.Column="2" x:Name="CleanAllDebloatButton" Content="Tout nettoyer" Click="CleanAllDebloat_Click" Style="{StaticResource AccentButtonStyle}" />
+                        <ComboBox Grid.Column="1" x:Name="DebloatCategoryFilterCombo" Width="180" SelectionChanged="DebloatCategoryFilter_Changed" SelectedIndex="0">
+                            <ComboBoxItem Content="Toutes les catégories" />
+                            <ComboBoxItem Content="Télémétrie" />
+                            <ComboBoxItem Content="Tâches planifiées" />
+                            <ComboBoxItem Content="Applications préinstallées" />
+                        </ComboBox>
+                        <Button Grid.Column="2" x:Name="RefreshDebloatButton" Content="Actualiser" Click="RefreshDebloat_Click" />
+                        <Button Grid.Column="3" x:Name="CleanAllDebloatButton" Content="Tout nettoyer" Click="CleanAllDebloat_Click" Style="{StaticResource AccentButtonStyle}" />
                     </Grid>
                     <TextBlock Text="Télémétrie, tâches planifiées de diagnostic et applications préinstallées non essentielles. Chaque action reste réversible (sauf les apps, réinstallables depuis le Store)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <TextBlock x:Name="DebloatStatusLabel" Style="{StaticResource CaptionTextStyle}" />
@@ -198,7 +206,10 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding CategoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="11" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        </StackPanel>
                                         <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontWeight="SemiBold"
@@ -266,6 +277,28 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Grid.Column="1" Text="{Binding DetailLabel}" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="13" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Antivirus installés" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Plusieurs antivirus tiers actifs en même temps se gênent mutuellement (chacun intercepte les mêmes fichiers) et ralentissent le PC sans message d'erreur clair. Rafraîchi avec l'analyse de sécurité." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AntivirusStatusLabel" Foreground="{StaticResource ZiaRedBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="AntivirusList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="1" Text="{Binding EnabledLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

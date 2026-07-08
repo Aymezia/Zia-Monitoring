@@ -188,6 +188,15 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <TextBlock Text="Services Windows en boucle de redémarrage" Style="{StaticResource CardTitleTextStyle}" Margin="0,8,0,0" FontSize="14" />
+                    <ItemsControl x:Name="ServiceCrashLoopList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaRedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="ServiceCrashLoopStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button Content="Lancer le diagnostic mémoire Windows" Click="LaunchMemDiag_Click" />
                     </StackPanel>

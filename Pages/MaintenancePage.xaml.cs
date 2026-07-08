@@ -231,13 +231,17 @@ public sealed partial class MaintenancePage : Page
         try
         {
             var diag = _app.CrashDiagnostics;
-            var (crashes, whea, bsod, memDiag) = await Task.Run(() =>
-                (diag.GetRecentAppCrashes(), diag.GetWheaSummary(), diag.GetLastBsod(), diag.GetLastMemoryDiagnosticResult()));
+            var (crashes, whea, bsod, memDiag, serviceLoops) = await Task.Run(() =>
+                (diag.GetRecentAppCrashes(), diag.GetWheaSummary(), diag.GetLastBsod(), diag.GetLastMemoryDiagnosticResult(), diag.GetServiceCrashLoops()));
 
             BsodLabel.Text = bsod?.Label ?? "Aucun écran bleu journalisé.";
             WheaLabel.Text = whea.Label;
             CrashGroupsList.ItemsSource = crashes;
             MemDiagLabel.Text = memDiag ?? "Aucun diagnostic mémoire exécuté (le verdict apparaît ici après le test).";
+            ServiceCrashLoopList.ItemsSource = serviceLoops;
+            ServiceCrashLoopStatusLabel.Text = serviceLoops.Count == 0
+                ? "Aucun service en boucle de redémarrage sur la dernière heure."
+                : $"{serviceLoops.Count} service(s) en boucle de redémarrage détecté(s).";
         }
         finally
         {

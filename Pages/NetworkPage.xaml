@@ -17,6 +17,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -292,6 +294,52 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                     <Button Grid.Column="1" Content="Débloquer" Tag="{Binding ExePath}" Click="UnblockApp_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Analyse du canal Wi-Fi" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="AnalyzeWifiChannelButton" Content="Analyser" Click="AnalyzeWifiChannel_Click" />
+                    </Grid>
+                    <TextBlock Text="Détecte les réseaux voisins par canal (bande 2,4 GHz) et recommande le moins encombré parmi les 3 canaux non-superposés (1, 6, 11). Le changement de canal se fait dans l'interface du routeur." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="WifiChannelStatusLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Wake-on-LAN" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Réveille un autre PC du réseau local par paquet magique. Nécessite que le Wake-on-LAN soit activé sur la carte réseau cible (BIOS/pilote)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBox x:Name="WolNameBox" PlaceholderText="Nom (ex: PC Salon)" Width="160" />
+                        <TextBox x:Name="WolMacBox" PlaceholderText="Adresse MAC (AA:BB:CC:DD:EE:FF)" Width="220" />
+                        <Button Content="Ajouter" Click="AddWolDevice_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="WolStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="WolDevicesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding MacAddress}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <Button Grid.Column="2" Content="Réveiller" Tag="{Binding MacAddress}" Click="WakeDevice_Click" Style="{StaticResource AccentButtonStyle}" />
+                                    <Button Grid.Column="3" Content="Retirer" Tag="{Binding MacAddress}" Click="RemoveWolDevice_Click" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

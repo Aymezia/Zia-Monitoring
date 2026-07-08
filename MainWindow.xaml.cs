@@ -78,6 +78,7 @@ public sealed partial class MainWindow : Window
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         var lastHistoryPush = DateTime.MinValue;
         var lastThermalDriftCheck = DateTime.MinValue;
+        var lastBsodCheck = DateTime.MinValue;
 
         while (!ct.IsCancellationRequested)
         {
@@ -107,6 +108,13 @@ public sealed partial class MainWindow : Window
                     ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
                         $"Session {finishedSession.GameName} terminée",
                         $"{finishedSession.DurationLabel} · {finishedSession.FpsLabel} · {finishedSession.TempLabel}");
+
+                    if (settings.EnableNtfyNotifications)
+                    {
+                        _ = ZiaMonitoring_App.Application.NtfyNotificationService.SendAsync(
+                            settings.NtfyTopic, $"Session {finishedSession.GameName} terminée",
+                            $"{finishedSession.DurationLabel} · {finishedSession.FpsLabel} · {finishedSession.TempLabel}");
+                    }
                 }
 
                 if (app.GameSessions.ShouldNotifyWeeklyGoalExceeded(settings.WeeklyPlaytimeGoalHours))
@@ -299,6 +307,37 @@ public sealed partial class MainWindow : Window
                     {
                         ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
                             "Zia Monitoring - Dérive thermique", driftWarning);
+                    }
+                }
+
+                // Nouveau BSOD depuis le dernier redémarrage, vérifié toutes les 30 min.
+                if (DateTime.UtcNow - lastBsodCheck >= TimeSpan.FromMinutes(30))
+                {
+                    lastBsodCheck = DateTime.UtcNow;
+                    if (app.CrashDiagnostics.CheckForNewBsodSinceLastNotified() is { } newBsod)
+                    {
+                        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                            "Zia Monitoring - Écran bleu détecté", newBsod.Label);
+
+                        if (settings.EnableNtfyNotifications)
+                        {
+                            _ = ZiaMonitoring_App.Application.NtfyNotificationService.SendAsync(
+                                settings.NtfyTopic, "Zia Monitoring - Écran bleu détecté", newBsod.Label);
+                        }
+                    }
+                }
+
+                // Alerte de changement d'IP publique (le service se limite lui-même à 15 min).
+                if (settings.EnablePublicIpAlert
+                    && await app.PublicIpMonitor.CheckForChangeAsync(ct) is { } newPublicIp)
+                {
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Zia Monitoring - IP publique modifiée", $"Nouvelle adresse IP publique : {newPublicIp}");
+
+                    if (settings.EnableNtfyNotifications)
+                    {
+                        _ = ZiaMonitoring_App.Application.NtfyNotificationService.SendAsync(
+                            settings.NtfyTopic, "Zia Monitoring - IP publique modifiée", $"Nouvelle adresse IP publique : {newPublicIp}");
                     }
                 }
 

@@ -23,6 +23,31 @@ public sealed partial class MappingPage : Page
 
     private void RefreshControllers_Click(object sender, RoutedEventArgs e) => RefreshControllers();
 
+    private async void RefreshHardwareDiag_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshHardwareDiagButton.IsEnabled = false;
+        HardwareDiagStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var (memory, pcie, ssd) = await Task.Run(() =>
+                (ZiaMonitoring_App.Application.MemoryConfigDiagnosticsService.Analyze(),
+                 ZiaMonitoring_App.Application.PcieLinkService.Detect(),
+                 ZiaMonitoring_App.Application.SsdWearService.Analyze()));
+
+            MemorySpeedLabel.Text = memory.SpeedLabel;
+            MemoryChannelLabel.Text = memory.Channel.Label;
+            PcieLinkList.ItemsSource = pcie;
+            SsdWearList.ItemsSource = ssd;
+            HardwareDiagStatusLabel.Text = pcie.Count == 0
+                ? "Lien PCIe non disponible (GPU non-NVIDIA ou pilote absent)."
+                : $"{pcie.Count} GPU analysé(s), {ssd.Count} disque(s) SSD/SCM analysé(s).";
+        }
+        finally
+        {
+            RefreshHardwareDiagButton.IsEnabled = true;
+        }
+    }
+
     private async void RefreshBattery_Click(object sender, RoutedEventArgs e)
     {
         RefreshBatteryButton.IsEnabled = false;

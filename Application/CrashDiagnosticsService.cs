@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
+using System.Text.Json;
 
 namespace ZiaMonitoring_App.Application;
 
@@ -24,14 +25,33 @@ public sealed record BsodInfo(DateTime OccurredAt, string BugcheckText)
     public string Label => $"Dernier écran bleu : {OccurredAt:dd/MM/yyyy HH:mm} — {BugcheckText}";
 }
 
+public sealed record ServiceCrashLoopWarning(string ServiceName, int Count, DateTime LastAt)
+{
+    public string Label => $"{ServiceName} : {Count} arrêt(s) inattendu(s) en moins d'une heure (dernier {LastAt:dd/MM HH:mm}) — boucle de redémarrage probable.";
+}
+
 /// <summary>
 /// Diagnostics de stabilité en lecture seule depuis les journaux Windows :
 /// crashs d'applications (Event 1000), erreurs matérielles corrigées WHEA
-/// (Event 19), dernier BSOD (Event 1001 WER) et verdict du diagnostic
-/// mémoire Windows. Aucune trace à activer, Windows journalise déjà tout.
+/// (Event 19), dernier BSOD (Event 1001 WER), verdict du diagnostic mémoire
+/// Windows et services en boucle de redémarrage (Event 7031/7034). Aucune
+/// trace à activer, Windows journalise déjà tout.
 /// </summary>
 public sealed class CrashDiagnosticsService
 {
+    private readonly string _stateFile;
+    private DateTime? _lastNotifiedBsod;
+
+    public CrashDiagnosticsService(string? storageDirectory = null)
+    {
+        var dir = storageDirectory ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ZiaMonitoring");
+        Directory.CreateDirectory(dir);
+        _stateFile = Path.Combine(dir, "crash-diagnostics-state.json");
+        LoadState();
+    }
+
     public IReadOnlyList<AppCrashGroup> GetRecentAppCrashes(int days = 30, int maxEvents = 200)
     {
         var crashes = new List<AppCrashInfo>();
@@ -133,6 +153,90 @@ public sealed class CrashDiagnosticsService
         {
             Infrastructure.AppLog.Warn("Lecture du dernier BSOD impossible", ex);
             return null;
+        }
+    }
+
+    public IReadOnlyList<ServiceCrashLoopWarning> GetServiceCrashLoops(int windowMinutes = 60, int minOccurrences = 3)
+    {
+        var events = new List<(string Service, DateTime At)>();
+
+        try
+        {
+            var query = new EventLogQuery("System", PathType.LogName,
+                $"*[System[Provider[@Name='Service Control Manager'] and (EventID=7031 or EventID=7034) and TimeCreated[timediff(@SystemTime) <= {windowMinutes * 60000L}]]]");
+
+            using var reader = new EventLogReader(query);
+            EventRecord? record;
+            while ((record = reader.ReadEvent()) is not null)
+            {
+                using (record)
+                {
+                    var service = ReadProperty(record, 0) ?? "Service inconnu";
+                    events.Add((service, record.TimeCreated ?? DateTime.MinValue));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture des arrêts de services (journal Windows) impossible", ex);
+        }
+
+        return DetectCrashLoops(events, minOccurrences);
+    }
+
+    /// <summary>Regroupement pur, séparé de la lecture du journal pour être testable.</summary>
+    internal static IReadOnlyList<ServiceCrashLoopWarning> DetectCrashLoops(
+        IReadOnlyList<(string Service, DateTime At)> events, int minOccurrences)
+    {
+        return events
+            .GroupBy(e => e.Service, StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() >= minOccurrences)
+            .Select(g => new ServiceCrashLoopWarning(g.Key, g.Count(), g.Max(e => e.At)))
+            .OrderByDescending(w => w.Count)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Retourne le dernier BSOD s'il est postérieur au dernier notifié (état
+    /// persisté), sinon null. Permet une seule notification par BSOD, y
+    /// compris à travers un redémarrage de l'application.
+    /// </summary>
+    public BsodInfo? CheckForNewBsodSinceLastNotified()
+    {
+        var bsod = GetLastBsod();
+        if (bsod is null || !IsNewBsod(bsod.OccurredAt, _lastNotifiedBsod))
+            return null;
+
+        _lastNotifiedBsod = bsod.OccurredAt;
+        SaveState();
+        return bsod;
+    }
+
+    internal static bool IsNewBsod(DateTime bsodOccurredAt, DateTime? lastNotified) =>
+        lastNotified is null || bsodOccurredAt > lastNotified;
+
+    private void LoadState()
+    {
+        try
+        {
+            if (File.Exists(_stateFile))
+                _lastNotifiedBsod = JsonSerializer.Deserialize<DateTime?>(File.ReadAllText(_stateFile));
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture de l'état de diagnostic de crash impossible", ex);
+        }
+    }
+
+    private void SaveState()
+    {
+        try
+        {
+            File.WriteAllText(_stateFile, JsonSerializer.Serialize(_lastNotifiedBsod));
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Error("Sauvegarde de l'état de diagnostic de crash impossible", ex);
         }
     }
 

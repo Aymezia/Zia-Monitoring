@@ -8,6 +8,7 @@ public sealed partial class SecurityPage : Page
 {
     private readonly App _app;
     private SecurityReport? _latestReport;
+    private IReadOnlyList<ZiaMonitoring_App.Application.DebloatItem> _allDebloatItems = [];
 
     public SecurityPage()
     {
@@ -65,18 +66,34 @@ public sealed partial class SecurityPage : Page
     {
         try
         {
-            var items = _app.Debloat.Scan();
-            DebloatList.ItemsSource = items;
-            var toClean = items.Count(i => !i.IsClean);
-            DebloatStatusLabel.Text = toClean == 0
-                ? "Tout est déjà nettoyé."
-                : $"{toClean} élément(s) encore actif(s) sur {items.Count}.";
+            _allDebloatItems = _app.Debloat.Scan();
+            ApplyDebloatFilter();
         }
         catch (Exception ex)
         {
             Infrastructure.AppLog.Warn("Scan de débloat impossible", ex);
         }
     }
+
+    private void ApplyDebloatFilter()
+    {
+        var selectedIndex = DebloatCategoryFilterCombo.SelectedIndex;
+        var items = selectedIndex switch
+        {
+            1 => _allDebloatItems.Where(i => i.Category == ZiaMonitoring_App.Application.DebloatCategory.Telemetry).ToList(),
+            2 => _allDebloatItems.Where(i => i.Category == ZiaMonitoring_App.Application.DebloatCategory.ScheduledTask).ToList(),
+            3 => _allDebloatItems.Where(i => i.Category == ZiaMonitoring_App.Application.DebloatCategory.BloatwareApp).ToList(),
+            _ => _allDebloatItems
+        };
+
+        DebloatList.ItemsSource = items;
+        var toClean = items.Count(i => !i.IsClean);
+        DebloatStatusLabel.Text = toClean == 0
+            ? "Tout est déjà nettoyé (dans cette catégorie)."
+            : $"{toClean} élément(s) encore actif(s) sur {items.Count} (dans cette catégorie).";
+    }
+
+    private void DebloatCategoryFilter_Changed(object sender, SelectionChangedEventArgs e) => ApplyDebloatFilter();
 
     private void RefreshDebloat_Click(object sender, RoutedEventArgs e) => RefreshDebloat();
 
@@ -241,6 +258,13 @@ public sealed partial class SecurityPage : Page
             HookStatusLabel.Text = report.KeyloggerHookWarnings.Count == 0
                 ? "Aucun indicateur de hook clavier global detecte."
                 : $"{report.KeyloggerHookWarnings.Count} indicateur(s) de hook clavier detecte(s) !";
+
+            AntivirusList.ItemsSource = report.AntivirusProducts;
+            AntivirusStatusLabel.Text = report.AntivirusProducts.Count == 0
+                ? "Aucun antivirus enregistré auprès du Centre de sécurité Windows."
+                : report.HasAntivirusConflict
+                    ? $"⚠ {report.AntivirusProducts.Count(p => p.IsEnabled)} antivirus actifs en même temps : conflit probable, désactivez-en un."
+                    : $"{report.AntivirusProducts.Count} antivirus détecté(s), aucun conflit.";
 
             ScanStatusLabel.Text = $"Analyse terminee - {DateTime.Now:HH:mm:ss}";
         }

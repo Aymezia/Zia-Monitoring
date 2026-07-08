@@ -9,6 +9,14 @@ public enum DebloatCategory { Telemetry, ScheduledTask, BloatwareApp }
 public sealed record DebloatItem(DebloatCategory Category, string Key, string Name, string Description, bool IsClean)
 {
     public string StatusLabel => IsClean ? "Nettoyé" : "Actif";
+
+    public string CategoryLabel => Category switch
+    {
+        DebloatCategory.Telemetry => "Télémétrie",
+        DebloatCategory.ScheduledTask => "Tâche planifiée",
+        DebloatCategory.BloatwareApp => "Application préinstallée",
+        _ => "Autre"
+    };
 }
 
 /// <summary>
@@ -35,7 +43,10 @@ public sealed class DebloatService
         (@"\Microsoft\Windows\Application Experience\ProgramDataUpdater", "Mise à jour des données de compatibilité"),
         (@"\Microsoft\Windows\Customer Experience Improvement Program\Consolidator", "Programme d'amélioration de l'expérience client"),
         (@"\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip", "Télémétrie USB"),
-        (@"\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector", "Collecteur de diagnostic disque")
+        (@"\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector", "Collecteur de diagnostic disque"),
+        (@"\Microsoft\Windows\Feedback\Siuf\DmClient", "Client de diagnostic (feedback)"),
+        (@"\Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload", "Client de diagnostic au téléchargement de scénario"),
+        (@"\Microsoft\Windows\Windows Error Reporting\QueueReporting", "Mise en file d'attente des rapports d'erreurs")
     ];
 
     private static readonly (string PackagePrefix, string DisplayName)[] BloatwareApps =
@@ -52,7 +63,25 @@ public sealed class DebloatService
         ("Microsoft.Getstarted", "Prise en main"),
         ("Microsoft.MixedReality.Portal", "Réalité mixte"),
         ("Microsoft.Print3D", "Print 3D"),
-        ("king.com.CandyCrushSaga", "Candy Crush Saga")
+        ("king.com.CandyCrushSaga", "Candy Crush Saga"),
+        ("Microsoft.YourPhone", "Lien avec Windows (téléphone)"),
+        ("Microsoft.WindowsFeedbackHub", "Centre de notes et commentaires"),
+        ("Microsoft.MicrosoftOfficeHub", "Accueil Office (aperçu)"),
+        ("Microsoft.SkypeApp", "Skype (app préinstallée)"),
+        ("Microsoft.GamingApp", "Xbox (app moderne)"),
+        ("Microsoft.XboxApp", "Xbox Console Companion"),
+        ("Microsoft.Xbox.TCUI", "Xbox — interface de jeu"),
+        ("Microsoft.XboxGameOverlay", "Xbox Game Bar (overlay)"),
+        ("Microsoft.XboxGamingOverlay", "Xbox Game Bar"),
+        ("Microsoft.XboxIdentityProvider", "Fournisseur d'identité Xbox"),
+        ("Microsoft.XboxSpeechToTextOverlay", "Xbox — sous-titres vocaux"),
+        ("Microsoft.549981C3F5F10", "Cortana"),
+        ("Microsoft.OneConnect", "Wi-Fi et données cellulaires payantes"),
+        ("Microsoft.Todos", "Microsoft To Do"),
+        ("Clipchamp.Clipchamp", "Clipchamp (montage vidéo)"),
+        ("MicrosoftTeams", "Teams (app grand public préinstallée)"),
+        ("SpotifyAB.SpotifyMusic", "Spotify (préinstallé)"),
+        ("Facebook.Facebook", "Facebook (préinstallé)")
     ];
 
     private const string ServicesRegistryRoot = @"SYSTEM\CurrentControlSet\Services\";

@@ -48,6 +48,9 @@ public sealed class AlertNotificationService
                 ? $"CPU a {snapshot.CpuTemperatureC:F0}°C (seuil: {settings.CpuTempAlertThresholdC:F0}°C)"
                 : $"GPU a {snapshot.GpuTemperatureC:F0}°C (seuil: {settings.GpuTempAlertThresholdC:F0}°C)";
             SendToast("Zia Monitoring - Surchauffe", $"{detail}. Verifiez la ventilation.");
+
+            if (settings.EnableNtfyNotifications)
+                _ = NtfyNotificationService.SendAsync(settings.NtfyTopic, "Zia Monitoring - Surchauffe", $"{detail}. Vérifiez la ventilation.");
         }
     }
 

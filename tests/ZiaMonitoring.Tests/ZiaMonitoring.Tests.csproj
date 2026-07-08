@@ -50,6 +50,14 @@
     <Compile Include="..\..\Application\AppWatchdogService.cs" Link="Linked\AppWatchdogService.cs" />
     <Compile Include="..\..\Application\SmartRebootService.cs" Link="Linked\SmartRebootService.cs" />
     <Compile Include="..\..\Application\DiscordRichPresenceService.cs" Link="Linked\DiscordRichPresenceService.cs" />
+    <Compile Include="..\..\Application\MemoryConfigDiagnosticsService.cs" Link="Linked\MemoryConfigDiagnosticsService.cs" />
+    <Compile Include="..\..\Application\PcieLinkService.cs" Link="Linked\PcieLinkService.cs" />
+    <Compile Include="..\..\Application\SsdWearService.cs" Link="Linked\SsdWearService.cs" />
+    <Compile Include="..\..\Application\WifiChannelAnalyzerService.cs" Link="Linked\WifiChannelAnalyzerService.cs" />
+    <Compile Include="..\..\Application\WakeOnLanService.cs" Link="Linked\WakeOnLanService.cs" />
+    <Compile Include="..\..\Application\PublicIpMonitorService.cs" Link="Linked\PublicIpMonitorService.cs" />
+    <Compile Include="..\..\Application\AntivirusInventoryService.cs" Link="Linked\AntivirusInventoryService.cs" />
+    <Compile Include="..\..\Application\NtfyNotificationService.cs" Link="Linked\NtfyNotificationService.cs" />
     <Compile Include="..\..\Application\GeoIpService.cs" Link="Linked\GeoIpService.cs" />
     <Compile Include="..\..\Application\HibpService.cs" Link="Linked\HibpService.cs" />
     <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />

@@ -162,7 +162,8 @@ public sealed class SettingsService
             DiskFreeAlertGb = Math.Clamp(settings.DiskFreeAlertGb, 1, 100),
             WeeklyPlaytimeGoalHours = Math.Clamp(settings.WeeklyPlaytimeGoalHours, 0, 100),
             SmartRebootUptimeDays = Math.Clamp(settings.SmartRebootUptimeDays, 1, 60),
-            DiscordApplicationId = settings.DiscordApplicationId ?? string.Empty
+            DiscordApplicationId = settings.DiscordApplicationId ?? string.Empty,
+            NtfyTopic = settings.NtfyTopic ?? string.Empty
         };
     }
 

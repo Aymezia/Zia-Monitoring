@@ -14,6 +14,7 @@ public sealed partial class SettingsPage : Page
     private readonly App _app;
     private AppSettings _settings = new(1, true, true, false, false, TimeSpan.FromHours(3), "dark", true, true);
     private bool _loading = true;
+    private bool _applyingGuestMask;
     private readonly List<string> _pendingCompanionApps = [];
     private readonly List<string> _pendingKillList = [];
 
@@ -75,6 +76,12 @@ public sealed partial class SettingsPage : Page
             RefreshWatchdogApps();
             DiscordToggle.IsOn = _settings.EnableDiscordRichPresence;
             DiscordAppIdBox.Text = _settings.DiscordApplicationId;
+
+            NtfyToggle.IsOn = _settings.EnableNtfyNotifications;
+            NtfyTopicBox.Text = _settings.NtfyTopic;
+            PublicIpAlertToggle.IsOn = _settings.EnablePublicIpAlert;
+            GuestModeToggle.IsOn = _settings.GuestModeActive;
+            ApplyGuestModeMasking();
 
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
@@ -448,11 +455,82 @@ public sealed partial class SettingsPage : Page
 
     private void DiscordAppId_Changed(object sender, TextChangedEventArgs e)
     {
-        if (_loading)
+        if (_loading || _applyingGuestMask)
             return;
 
         _settings = _settings with { DiscordApplicationId = DiscordAppIdBox.Text.Trim() };
         SaveSettings();
+    }
+
+    private void Ntfy_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableNtfyNotifications = NtfyToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void NtfyTopic_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (_loading)
+            return;
+
+        _settings = _settings with { NtfyTopic = NtfyTopicBox.Text.Trim() };
+        SaveSettings();
+    }
+
+    private async void TestNtfy_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_settings.NtfyTopic))
+        {
+            NtfyStatusLabel.Text = "Renseignez un topic avant de tester.";
+            return;
+        }
+
+        NtfyStatusLabel.Text = "Envoi en cours…";
+        await ZiaMonitoring_App.Application.NtfyNotificationService.SendAsync(
+            _settings.NtfyTopic, "Zia Monitoring - Test", "Si vous recevez ceci, les notifications ntfy.sh fonctionnent.");
+        NtfyStatusLabel.Text = "Notification de test envoyée (vérifiez votre téléphone).";
+    }
+
+    private void PublicIpAlert_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnablePublicIpAlert = PublicIpAlertToggle.IsOn };
+        SaveSettings();
+    }
+
+    private async void CheckPublicIpNow_Click(object sender, RoutedEventArgs e)
+    {
+        PublicIpStatusLabel.Text = "Vérification en cours…";
+        var changed = await _app.PublicIpMonitor.CheckForChangeAsync();
+        var current = _app.PublicIpMonitor.LastKnownIp;
+        PublicIpStatusLabel.Text = current is null
+            ? "Impossible de joindre le service de vérification (hors ligne ?)."
+            : changed is not null
+                ? $"IP publique changée : {current}"
+                : $"IP publique actuelle : {current}";
+    }
+
+    private void GuestMode_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { GuestModeActive = GuestModeToggle.IsOn };
+        SaveSettings();
+        ApplyGuestModeMasking();
+    }
+
+    private void ApplyGuestModeMasking()
+    {
+        _applyingGuestMask = true;
+        try
+        {
+            var active = _settings.GuestModeActive;
+            DiscordAppIdBox.IsEnabled = !active;
+            DiscordAppIdBox.Text = active ? "•••• masqué (mode invité actif) ••••" : _settings.DiscordApplicationId;
+            ObsPasswordBox.IsEnabled = !active;
+            ObsPasswordBox.Password = active ? string.Empty : _settings.ObsPassword;
+        }
+        finally
+        {
+            _applyingGuestMask = false;
+        }
     }
 
     private void RestorePoint_Toggled(object sender, RoutedEventArgs e)
@@ -507,7 +585,7 @@ public sealed partial class SettingsPage : Page
 
     private void ObsPassword_Changed(object sender, RoutedEventArgs e)
     {
-        if (_loading) return;
+        if (_loading || _applyingGuestMask) return;
 
         _settings = _settings with { ObsPassword = ObsPasswordBox.Password };
         SaveSettings();
@@ -801,7 +879,10 @@ public sealed partial class SettingsPage : Page
             (SettingsBackupCard, "sauvegarde complete des reglages export import migration"),
             (PowerRebootCard, "alimentation batterie secteur plan redemarrage intelligent uptime planifier"),
             (WatchdogCard, "watchdog relance automatique crash surveillance"),
-            (DiscordCard, "discord rich presence statut")
+            (DiscordCard, "discord rich presence statut"),
+            (NtfyCard, "ntfy notification telephone bsod ecran bleu surchauffe fin de partie push"),
+            (PublicIpAlertCard, "ip publique adresse changement alerte reseau"),
+            (GuestModeCard, "mode invite masquer confidentiel preter pc")
         };
 
         foreach (var (card, keywords) in cards)

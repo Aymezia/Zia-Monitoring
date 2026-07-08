@@ -19,7 +19,9 @@ public sealed class SecurityScanService
         var smart = ScanSmartWarnings();
         var maliciousProcesses = ScanProcessSignatures();
         var keyloggerWarnings = ScanKeyboardHookIndicators();
-        var riskScore = ComputeRiskScore(firewall, uac, suspicious, drivers, smart, maliciousProcesses, keyloggerWarnings);
+        var antivirusProducts = AntivirusInventoryService.ScanInstalled();
+        var (hasAvConflict, _) = AntivirusInventoryService.DetectConflict(antivirusProducts);
+        var riskScore = ComputeRiskScore(firewall, uac, suspicious, drivers, smart, maliciousProcesses, keyloggerWarnings, hasAvConflict);
 
         return new SecurityReport(
             DateTime.Now,
@@ -31,7 +33,9 @@ public sealed class SecurityScanService
             drivers,
             smart,
             maliciousProcesses,
-            keyloggerWarnings);
+            keyloggerWarnings,
+            antivirusProducts,
+            hasAvConflict);
     }
 
     private static bool IsFirewallEnabled()
@@ -320,7 +324,8 @@ public sealed class SecurityScanService
         IReadOnlyList<ObsoleteDriverInfo> drivers,
         IReadOnlyList<string> smart,
         IReadOnlyList<string> maliciousProcesses,
-        IReadOnlyList<string> keyloggerWarnings)
+        IReadOnlyList<string> keyloggerWarnings,
+        bool hasAntivirusConflict)
     {
         var score = 0;
         if (!firewall) score += 18;
@@ -330,6 +335,7 @@ public sealed class SecurityScanService
         score += Math.Min(20, smart.Count * 12);
         score += Math.Min(45, maliciousProcesses.Count * 30);
         score += Math.Min(35, keyloggerWarnings.Count * 18);
+        if (hasAntivirusConflict) score += 10;
         return Math.Clamp(score, 0, 100);
     }
 }

@@ -144,7 +144,11 @@ public sealed record AppSettings(
     int SmartRebootUptimeDays = 7,
     bool EnableAppWatchdog = false,
     bool EnableDiscordRichPresence = false,
-    string DiscordApplicationId = "");
+    string DiscordApplicationId = "",
+    bool EnableNtfyNotifications = false,
+    string NtfyTopic = "",
+    bool EnablePublicIpAlert = false,
+    bool GuestModeActive = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 
@@ -163,7 +167,9 @@ public sealed record SecurityReport(
     IReadOnlyList<ObsoleteDriverInfo> ObsoleteDrivers,
     IReadOnlyList<string> DiskSmartWarnings,
     IReadOnlyList<string> MaliciousProcessMatches,
-    IReadOnlyList<string> KeyloggerHookWarnings);
+    IReadOnlyList<string> KeyloggerHookWarnings,
+    IReadOnlyList<Application.AntivirusProductInfo> AntivirusProducts,
+    bool HasAntivirusConflict);
 
 public sealed record GameCompatScore(string GameName, int Score, string Verdict, IReadOnlyList<string> Issues);
 

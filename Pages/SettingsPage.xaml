@@ -27,6 +27,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -414,6 +417,38 @@
                     <TextBlock Text="Affiche vos stats (jeu en cours, CPU, FPS) dans votre statut Discord. Nécessite un Application ID : créez gratuitement une application sur discord.com/developers/applications, nommez-la (ex: « Zia Monitoring » — c'est ce nom qui s'affichera), puis collez son Application ID ci-dessous. Discord doit tourner sur ce PC." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Name="DiscordToggle" Header="Activer la Rich Presence" Toggled="Discord_Toggled" />
                     <TextBox x:Name="DiscordAppIdBox" PlaceholderText="Application ID Discord (ex: 1234567890123456789)" TextChanged="DiscordAppId_Changed" MaxWidth="420" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <!-- Notifications ntfy.sh -->
+            <Border x:Name="NtfyCard" Grid.Row="17" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Notification déportée sur téléphone (ntfy.sh)" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Reçoit un écran bleu, une surchauffe critique ou une fin de partie directement sur votre téléphone via ntfy.sh (gratuit, sans compte). Choisissez un nom de « topic » privé et non devinable, puis installez l'app ntfy et abonnez-vous au même nom." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="NtfyToggle" Header="Activer les notifications ntfy.sh" Toggled="Ntfy_Toggled" />
+                    <TextBox x:Name="NtfyTopicBox" PlaceholderText="Nom du topic (ex: zia-alertes-x7f2q)" TextChanged="NtfyTopic_Changed" MaxWidth="420" HorizontalAlignment="Left" />
+                    <Button Content="Envoyer un test" Click="TestNtfy_Click" />
+                    <TextBlock x:Name="NtfyStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Alerte IP publique -->
+            <Border x:Name="PublicIpAlertCard" Grid.Row="18" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Alerte changement d'IP publique" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Utile si un service perso (serveur de jeu, NAS, accès distant) est hébergé derrière cette connexion. Vérification toutes les 15 minutes maximum." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="PublicIpAlertToggle" Header="Activer la surveillance de l'IP publique" Toggled="PublicIpAlert_Toggled" />
+                    <Button Content="Vérifier maintenant" Click="CheckPublicIpNow_Click" />
+                    <TextBlock x:Name="PublicIpStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Mode invité -->
+            <Border x:Name="GuestModeCard" Grid.Row="19" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Mode invité" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Masque temporairement les champs sensibles de cette page (Application ID Discord, mot de passe OBS) pour prêter le PC sans les réexposer. Les valeurs réelles sont conservées et réapparaissent à la désactivation." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="GuestModeToggle" Header="Activer le mode invité" Toggled="GuestMode_Toggled" />
                 </StackPanel>
             </Border>
         </Grid>

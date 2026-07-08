@@ -70,6 +70,15 @@ public partial class App : Microsoft.UI.Xaml.Application
     {
         _services = ConfigureServices();
 
+        // Doit être appliqué avant InitializeComponent() : WinUI resout les
+        // ressources x:Uid a la lecture du XAML, pas dynamiquement ensuite.
+        try
+        {
+            var language = _services.GetRequiredService<Application.SettingsService>().Load().Language;
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = language;
+        }
+        catch { }
+
         this.UnhandledException += App_UnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;

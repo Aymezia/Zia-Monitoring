@@ -42,6 +42,7 @@
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem
+                    x:Uid="NavDashboard"
                     Content="Dashboard"
                     IsSelected="True"
                     Tag="dashboard">
@@ -49,57 +50,57 @@
                         <FontIcon Glyph="&#xE9D2;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Mapping PC" Tag="mapping">
+                <NavigationViewItem x:Uid="NavMapping" Content="Mapping PC" Tag="mapping">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xEC4A;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Sante" Tag="health">
+                <NavigationViewItem x:Uid="NavHealth" Content="Sante" Tag="health">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE915;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Recommandations" Tag="recommendations">
+                <NavigationViewItem x:Uid="NavRecommendations" Content="Recommandations" Tag="recommendations">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7BA;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Boost" Tag="boost">
+                <NavigationViewItem x:Uid="NavBoost" Content="Boost" Tag="boost">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE768;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Assistance" Tag="assistance">
+                <NavigationViewItem x:Uid="NavAssistance" Content="Assistance" Tag="assistance">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE706;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Gamer / Streamer" Tag="gamer-support">
+                <NavigationViewItem x:Uid="NavGamerSupport" Content="Gamer / Streamer" Tag="gamer-support">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7FC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Logs detailles" Tag="detailed-logs">
+                <NavigationViewItem x:Uid="NavDetailedLogs" Content="Logs detailles" Tag="detailed-logs">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE9D9;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Profils" Tag="profiles">
+                <NavigationViewItem x:Uid="NavProfiles" Content="Profils" Tag="profiles">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE734;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Securite" Tag="security">
+                <NavigationViewItem x:Uid="NavSecurity" Content="Securite" Tag="security">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE72E;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Reseau" Tag="network">
+                <NavigationViewItem x:Uid="NavNetwork" Content="Reseau" Tag="network">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE968;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Maintenance" Tag="maintenance">
+                <NavigationViewItem x:Uid="NavMaintenance" Content="Maintenance" Tag="maintenance">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE90F;" />
                     </NavigationViewItem.Icon>

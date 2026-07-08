@@ -137,7 +137,8 @@ public sealed record AppSettings(
     bool EnableHardwareSensors = false,
     bool EnableClipboardClearOnGameLaunch = false,
     bool EnableGameLaunchProfiles = false,
-    WidgetTheme WidgetTheme = WidgetTheme.Violet);
+    WidgetTheme WidgetTheme = WidgetTheme.Violet,
+    string Language = "fr-FR");
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

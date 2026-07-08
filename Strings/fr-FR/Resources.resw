@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NavDashboard.Content" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="NavMapping.Content" xml:space="preserve">
+    <value>Mapping PC</value>
+  </data>
+  <data name="NavHealth.Content" xml:space="preserve">
+    <value>Sante</value>
+  </data>
+  <data name="NavRecommendations.Content" xml:space="preserve">
+    <value>Recommandations</value>
+  </data>
+  <data name="NavBoost.Content" xml:space="preserve">
+    <value>Boost</value>
+  </data>
+  <data name="NavAssistance.Content" xml:space="preserve">
+    <value>Assistance</value>
+  </data>
+  <data name="NavGamerSupport.Content" xml:space="preserve">
+    <value>Gamer / Streamer</value>
+  </data>
+  <data name="NavDetailedLogs.Content" xml:space="preserve">
+    <value>Logs detailles</value>
+  </data>
+  <data name="NavProfiles.Content" xml:space="preserve">
+    <value>Profils</value>
+  </data>
+  <data name="NavSecurity.Content" xml:space="preserve">
+    <value>Securite</value>
+  </data>
+  <data name="NavNetwork.Content" xml:space="preserve">
+    <value>Reseau</value>
+  </data>
+  <data name="NavMaintenance.Content" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+</root>

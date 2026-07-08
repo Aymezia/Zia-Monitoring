@@ -75,6 +75,14 @@
             <Border x:Name="SystemCard" Grid.Row="2" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Systeme" Style="{StaticResource CardTitleTextStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Langue :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="120" />
+                        <ComboBox x:Name="LanguageCombo" Width="160" SelectionChanged="Language_Changed">
+                            <ComboBoxItem Content="Français" Tag="fr-FR" />
+                            <ComboBoxItem Content="English" Tag="en-US" />
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBlock Text="Redémarrage de l'application requis pour changer de langue. Traduction actuellement limitée au menu de navigation." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Name="SystrayToggle" Header="Icone systray avec tooltip CPU / GPU live" Toggled="Systray_Toggled" />
                     <ToggleSwitch x:Name="AutoStartToggle" Header="Demarrer automatiquement avec Windows" Toggled="AutoStart_Toggled" />
                     <ToggleSwitch x:Name="HotkeyToggle" Header="Raccourci global Ctrl+Shift+Z" Toggled="Hotkey_Toggled" />

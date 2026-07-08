@@ -30,6 +30,7 @@ public sealed partial class SettingsPage : Page
             RefreshValueLabel.Text = $"{_settings.RefreshIntervalSeconds}s";
             ToastToggle.IsOn = _settings.EnableToastAlerts;
             DailySummaryToggle.IsOn = _settings.EnableDailyHealthSummary;
+            LanguageCombo.SelectedIndex = _settings.Language == "en-US" ? 1 : 0;
             SystrayToggle.IsOn = _settings.ShowSystray;
             AutoStartToggle.IsOn = AutoStartManager.IsEnabled();
             HotkeyToggle.IsOn = _settings.EnableGlobalHotkey;
@@ -175,6 +176,15 @@ public sealed partial class SettingsPage : Page
             MiniOpacityValueLabel.Text = $"{e.NewValue:F0}%";
 
         _settings = _settings with { MiniWidgetOpacity = Math.Clamp(e.NewValue / 100.0, 0.35, 1.0) };
+        SaveSettings();
+    }
+
+    private void Language_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || LanguageCombo.SelectedItem is not ComboBoxItem { Tag: string tag })
+            return;
+
+        _settings = _settings with { Language = tag };
         SaveSettings();
     }
 

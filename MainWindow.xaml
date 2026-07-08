@@ -17,6 +17,9 @@
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="K" Modifiers="Control" Invoked="CommandPaletteAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
 
         <TitleBar
             x:Name="AppTitleBar"
@@ -104,5 +107,27 @@
             </NavigationView.MenuItems>
             <Frame x:Name="NavFrame" />
         </NavigationView>
+
+        <Grid x:Name="CommandPaletteOverlay" Grid.RowSpan="2" Background="#B0000000" Visibility="Collapsed"
+              Tapped="CommandPaletteOverlay_Tapped">
+            <Border MaxWidth="560" MaxHeight="420" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,90,0,0"
+                    Background="{StaticResource ZiaPanelBrush}" CornerRadius="10" BorderBrush="{StaticResource ZiaStrokeBrush}" BorderThickness="1" Tapped="CommandPalettePanel_Tapped">
+                <StackPanel Spacing="0">
+                    <TextBox x:Name="CommandPaletteBox" PlaceholderText="Rechercher une page ou une action… (Échap pour fermer)"
+                             BorderThickness="0" Background="Transparent" FontSize="16" Padding="16,14"
+                             TextChanged="CommandPaletteBox_TextChanged" KeyDown="CommandPaletteBox_KeyDown" />
+                    <ListView x:Name="CommandPaletteList" MaxHeight="340" SelectionMode="Single" IsItemClickEnabled="True" ItemClick="CommandPaletteList_ItemClick">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="10" Padding="16,10">
+                                    <TextBlock Text="{Binding Category}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="12" Width="90" />
+                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="14" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

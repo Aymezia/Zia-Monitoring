@@ -438,6 +438,116 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private sealed record PaletteCommand(string Category, string Title, Action Execute);
+
+    private List<PaletteCommand>? _paletteCommands;
+
+    private List<PaletteCommand> BuildPaletteCommands()
+    {
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+
+        (string, string, Type)[] pages =
+        [
+            ("Navigation", "Dashboard", typeof(DashboardPage)),
+            ("Navigation", "Mapping PC", typeof(MappingPage)),
+            ("Navigation", "Santé", typeof(HealthPage)),
+            ("Navigation", "Recommandations", typeof(RecommendationsPage)),
+            ("Navigation", "Boost", typeof(BoostPage)),
+            ("Navigation", "Assistance", typeof(AssistancePage)),
+            ("Navigation", "Gamer / Streamer", typeof(GamerSupportPage)),
+            ("Navigation", "Logs détaillés", typeof(DetailedLogsPage)),
+            ("Navigation", "Profils", typeof(ProfilesPage)),
+            ("Navigation", "Sécurité", typeof(SecurityPage)),
+            ("Navigation", "Réseau", typeof(NetworkPage)),
+            ("Navigation", "Maintenance", typeof(MaintenancePage)),
+            ("Navigation", "Paramètres", typeof(SettingsPage))
+        ];
+
+        var commands = pages
+            .Select(p => new PaletteCommand(p.Item1, p.Item2, () => NavFrame.Navigate(p.Item3)))
+            .ToList();
+
+        commands.Add(new PaletteCommand("Action", "Basculer le mode silencieux", () =>
+        {
+            var settings = app.SettingsService.Load();
+            app.SettingsService.Save(settings with { AutoSilentModeOnGame = !settings.AutoSilentModeOnGame });
+        }));
+        commands.Add(new PaletteCommand("Action", "Basculer le Game Booster automatique", () =>
+        {
+            var settings = app.SettingsService.Load();
+            app.SettingsService.Save(settings with { EnableGameBooster = !settings.EnableGameBooster });
+        }));
+        commands.Add(new PaletteCommand("Action", "Ouvrir le Gestionnaire des tâches", () =>
+        {
+            try { System.Diagnostics.Process.Start("taskmgr.exe"); } catch { }
+        }));
+        commands.Add(new PaletteCommand("Action", "Quitter Zia Monitoring", () => Microsoft.UI.Xaml.Application.Current.Exit()));
+
+        return commands;
+    }
+
+    private void CommandPaletteAccelerator_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        if (CommandPaletteOverlay.Visibility == Visibility.Visible)
+            CloseCommandPalette();
+        else
+            OpenCommandPalette();
+    }
+
+    private void OpenCommandPalette()
+    {
+        _paletteCommands ??= BuildPaletteCommands();
+        CommandPaletteBox.Text = string.Empty;
+        FilterPaletteCommands(string.Empty);
+        CommandPaletteOverlay.Visibility = Visibility.Visible;
+        CommandPaletteBox.Focus(FocusState.Programmatic);
+    }
+
+    private void CloseCommandPalette() => CommandPaletteOverlay.Visibility = Visibility.Collapsed;
+
+    private void FilterPaletteCommands(string query)
+    {
+        var commands = _paletteCommands ?? [];
+        CommandPaletteList.ItemsSource = string.IsNullOrWhiteSpace(query)
+            ? commands
+            : commands.Where(c => c.Title.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void CommandPaletteBox_TextChanged(object sender, TextChangedEventArgs e) => FilterPaletteCommands(CommandPaletteBox.Text);
+
+    private void CommandPaletteBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Escape)
+        {
+            CloseCommandPalette();
+            e.Handled = true;
+        }
+        else if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            var first = (CommandPaletteList.ItemsSource as IEnumerable<PaletteCommand>)?.FirstOrDefault();
+            if (first is not null)
+            {
+                first.Execute();
+                CloseCommandPalette();
+            }
+            e.Handled = true;
+        }
+    }
+
+    private void CommandPaletteList_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is PaletteCommand command)
+        {
+            command.Execute();
+            CloseCommandPalette();
+        }
+    }
+
+    private void CommandPaletteOverlay_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e) => CloseCommandPalette();
+
+    private void CommandPalettePanel_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e) => e.Handled = true;
+
     private nint WndProc(nint hwnd, uint message, nint wParam, nint lParam)
     {
         if (message == WmHotkey && wParam == HotkeyId)

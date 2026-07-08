@@ -14,6 +14,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -234,6 +236,87 @@
                             <TextBlock x:Name="WrappedLongestLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
                         </StackPanel>
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Lanceur unifie + inventaire anti-cheat -->
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Lanceur rapide" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBox x:Name="LauncherSearchBox" PlaceholderText="Rechercher un jeu…" TextChanged="LauncherSearch_Changed" />
+                        <ListView x:Name="LauncherList" MaxHeight="220" SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Platform}" Style="{StaticResource CaptionTextStyle}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="Lancer" Tag="{Binding}" Click="LaunchGame_Click" IsEnabled="{Binding HasLaunchUri}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="8">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Drivers anti-cheat détectés" Style="{StaticResource CardTitleTextStyle}" />
+                            <Button Grid.Column="1" Content="Analyser" Click="ScanAntiCheat_Click" />
+                        </Grid>
+                        <TextBlock Text="Détection best-effort (nom de fichier/service connu) — transparence sur les accès noyau tiers, pas un outil de contournement." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                        <ItemsControl x:Name="AntiCheatList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="10" Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                                            <TextBlock Text="{Binding Publisher}" Style="{StaticResource CaptionTextStyle}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Correlation chute de FPS -->
+            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Chutes de FPS récentes" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" Content="Actualiser" Click="RefreshFpsDrops_Click" />
+                    </Grid>
+                    <TextBlock Text="Détection en temps réel (pas d'historique permanent) : note le process le plus gourmand en CPU au moment d'une chute nette de FPS." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="FpsDropList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

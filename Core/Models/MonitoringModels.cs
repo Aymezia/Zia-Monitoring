@@ -79,6 +79,8 @@ public sealed record GameInstallation(
     public string PlayTimeLabel => PlayTime.TotalMinutes > 0
         ? $"{(int)PlayTime.TotalHours}h{PlayTime.Minutes:D2}m"
         : "N/A";
+
+    public bool HasLaunchUri => !string.IsNullOrWhiteSpace(LaunchUri);
 }
 
 public sealed record ActiveGameSession(

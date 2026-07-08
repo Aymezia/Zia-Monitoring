@@ -17,6 +17,45 @@ public sealed partial class GamerSupportPage : Page
         LoadSessions();
         LoadGraphicsPreset();
         InitializeWrappedYears();
+        RefreshLauncherList();
+        RefreshFpsDrops_Click(this, null!);
+    }
+
+    private void RefreshLauncherList(string filter = "")
+    {
+        var games = _app.State.InstalledGames.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(filter))
+            games = games.Where(g => g.Name.Contains(filter, StringComparison.OrdinalIgnoreCase));
+
+        LauncherList.ItemsSource = games.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private void LauncherSearch_Changed(object sender, TextChangedEventArgs e) => RefreshLauncherList(LauncherSearchBox.Text);
+
+    private void LaunchGame_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: ZiaMonitoring_App.Core.Models.GameInstallation game } || string.IsNullOrWhiteSpace(game.LaunchUri))
+            return;
+
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo(game.LaunchUri) { UseShellExecute = true };
+            System.Diagnostics.Process.Start(psi);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn($"Lancement du jeu impossible: {game.LaunchUri}", ex);
+        }
+    }
+
+    private void ScanAntiCheat_Click(object sender, RoutedEventArgs e)
+    {
+        AntiCheatList.ItemsSource = ZiaMonitoring_App.Application.AntiCheatInventoryService.Scan();
+    }
+
+    private void RefreshFpsDrops_Click(object sender, RoutedEventArgs e)
+    {
+        FpsDropList.ItemsSource = _app.MonitoringService.RecentFpsDrops;
     }
 
     private void InitializeWrappedYears()

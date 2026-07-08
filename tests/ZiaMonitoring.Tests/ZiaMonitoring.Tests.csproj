@@ -39,6 +39,7 @@
     <Compile Include="..\..\Application\DnsService.cs" Link="Linked\DnsService.cs" />
     <Compile Include="..\..\Application\DiskMaintenanceService.cs" Link="Linked\DiskMaintenanceService.cs" />
     <Compile Include="..\..\Application\SystemHealthService.cs" Link="Linked\SystemHealthService.cs" />
+    <Compile Include="..\..\Application\FpsDropCorrelator.cs" Link="Linked\FpsDropCorrelator.cs" />
     <Compile Include="..\..\Application\GeoIpService.cs" Link="Linked\GeoIpService.cs" />
     <Compile Include="..\..\Application\HibpService.cs" Link="Linked\HibpService.cs" />
     <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />

@@ -23,6 +23,24 @@ public sealed partial class MappingPage : Page
 
     private void RefreshControllers_Click(object sender, RoutedEventArgs e) => RefreshControllers();
 
+    private async void RefreshBattery_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshBatteryButton.IsEnabled = false;
+        BatteryStatusLabel.Text = "Génération du rapport batterie…";
+        try
+        {
+            var batteries = await Task.Run(ZiaMonitoring_App.Application.BatteryService.GetBatteryHealth);
+            BatteryList.ItemsSource = batteries;
+            BatteryStatusLabel.Text = batteries.Count == 0
+                ? "Aucune batterie détectée (PC fixe)."
+                : $"{batteries.Count} batterie(s) analysée(s).";
+        }
+        finally
+        {
+            RefreshBatteryButton.IsEnabled = true;
+        }
+    }
+
     private void RefreshControllers()
     {
         var controllers = ZiaMonitoring_App.Application.ControllerRadarService.Scan();

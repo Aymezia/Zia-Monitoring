@@ -67,6 +67,15 @@ public sealed partial class SettingsPage : Page
             ClipboardClearToggle.IsOn = _settings.EnableClipboardClearOnGameLaunch;
             RefreshSavedProfiles();
 
+            AutoPowerProfileToggle.IsOn = _settings.EnableAutoPowerProfile;
+            SmartRebootToggle.IsOn = _settings.EnableSmartReboot;
+            SmartRebootDaysSlider.Value = _settings.SmartRebootUptimeDays;
+            SmartRebootDaysLabel.Text = $"{_settings.SmartRebootUptimeDays} j";
+            WatchdogToggle.IsOn = _settings.EnableAppWatchdog;
+            RefreshWatchdogApps();
+            DiscordToggle.IsOn = _settings.EnableDiscordRichPresence;
+            DiscordAppIdBox.Text = _settings.DiscordApplicationId;
+
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
             CpuTempAlertSlider.Value = _settings.CpuTempAlertThresholdC;
@@ -359,6 +368,91 @@ public sealed partial class SettingsPage : Page
     private void RefreshSavedProfiles()
     {
         SavedProfilesList.ItemsSource = _app.GameLaunchProfiles.GetProfiles();
+    }
+
+    private void AutoPowerProfile_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableAutoPowerProfile = AutoPowerProfileToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void SmartReboot_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableSmartReboot = SmartRebootToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void SmartRebootDays_Changed(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (SmartRebootDaysLabel != null)
+            SmartRebootDaysLabel.Text = $"{e.NewValue:F0} j";
+
+        _settings = _settings with { SmartRebootUptimeDays = (int)e.NewValue };
+        SaveSettings();
+    }
+
+    private void ScheduleReboot_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = SmartRebootService.ScheduleNightlyReboot();
+        RebootStatusLabel.Text = message;
+    }
+
+    private void CancelReboot_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = SmartRebootService.CancelScheduledReboot();
+        RebootStatusLabel.Text = message;
+    }
+
+    private void Watchdog_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableAppWatchdog = WatchdogToggle.IsOn };
+        SaveSettings();
+    }
+
+    private async void AddWatchdogApp_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
+        };
+        picker.FileTypeFilter.Add(".exe");
+        InitializeExportPicker(picker);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+
+        _app.Watchdog.Add(file.Path);
+        RefreshWatchdogApps();
+    }
+
+    private void RemoveWatchdogApp_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string path })
+            return;
+
+        _app.Watchdog.Remove(path);
+        RefreshWatchdogApps();
+    }
+
+    private void RefreshWatchdogApps()
+    {
+        WatchdogAppsList.ItemsSource = _app.Watchdog.GetWatchedPaths();
+    }
+
+    private void Discord_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableDiscordRichPresence = DiscordToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void DiscordAppId_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (_loading)
+            return;
+
+        _settings = _settings with { DiscordApplicationId = DiscordAppIdBox.Text.Trim() };
+        SaveSettings();
     }
 
     private void RestorePoint_Toggled(object sender, RoutedEventArgs e)
@@ -704,7 +798,10 @@ public sealed partial class SettingsPage : Page
             (ObsCard, "obs websocket streaming scene bascule"),
             (HardwareSensorsCard, "capteurs materiels temperatures ventilateurs winring0 defender"),
             (GameLaunchProfilesCard, "profils de lancement par jeu companion presse-papiers kill process"),
-            (SettingsBackupCard, "sauvegarde complete des reglages export import migration")
+            (SettingsBackupCard, "sauvegarde complete des reglages export import migration"),
+            (PowerRebootCard, "alimentation batterie secteur plan redemarrage intelligent uptime planifier"),
+            (WatchdogCard, "watchdog relance automatique crash surveillance"),
+            (DiscordCard, "discord rich presence statut")
         };
 
         foreach (var (card, keywords) in cards)

@@ -43,6 +43,13 @@
     <Compile Include="..\..\Application\AchievementService.cs" Link="Linked\AchievementService.cs" />
     <Compile Include="..\..\Application\CrashDiagnosticsService.cs" Link="Linked\CrashDiagnosticsService.cs" />
     <Compile Include="..\..\Application\MemoryLeakDetector.cs" Link="Linked\MemoryLeakDetector.cs" />
+    <Compile Include="..\..\Application\BatteryService.cs" Link="Linked\BatteryService.cs" />
+    <Compile Include="..\..\Application\WindowsUpdateHistoryService.cs" Link="Linked\WindowsUpdateHistoryService.cs" />
+    <Compile Include="..\..\Application\FirewallKillSwitchService.cs" Link="Linked\FirewallKillSwitchService.cs" />
+    <Compile Include="..\..\Application\BrowserExtensionAuditService.cs" Link="Linked\BrowserExtensionAuditService.cs" />
+    <Compile Include="..\..\Application\AppWatchdogService.cs" Link="Linked\AppWatchdogService.cs" />
+    <Compile Include="..\..\Application\SmartRebootService.cs" Link="Linked\SmartRebootService.cs" />
+    <Compile Include="..\..\Application\DiscordRichPresenceService.cs" Link="Linked\DiscordRichPresenceService.cs" />
     <Compile Include="..\..\Application\GeoIpService.cs" Link="Linked\GeoIpService.cs" />
     <Compile Include="..\..\Application\HibpService.cs" Link="Linked\HibpService.cs" />
     <Compile Include="..\..\Application\PresentMonService.cs" Link="Linked\PresentMonService.cs" />

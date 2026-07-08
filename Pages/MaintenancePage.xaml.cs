@@ -265,6 +265,31 @@ public sealed partial class MaintenancePage : Page
             : string.Join(Environment.NewLine, drift);
     }
 
+    private async void RefreshUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshUpdatesButton.IsEnabled = false;
+        UpdatesStatusLabel.Text = "Lecture en cours…";
+        try
+        {
+            var updates = await Task.Run(() => _app.WindowsUpdates.GetInstalledUpdates());
+            UpdatesList.ItemsSource = updates;
+            UpdatesStatusLabel.Text = $"{updates.Count} mise(s) à jour installée(s), la plus récente en premier.";
+        }
+        finally
+        {
+            RefreshUpdatesButton.IsEnabled = true;
+        }
+    }
+
+    private void UninstallKb_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string hotFixId })
+            return;
+
+        var (_, message) = _app.WindowsUpdates.UninstallKb(hotFixId);
+        UpdatesStatusLabel.Text = message;
+    }
+
     private static void InitializePicker(object picker)
     {
         var window = ((App)Microsoft.UI.Xaml.Application.Current).MainWindowInstance;

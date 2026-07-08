@@ -27,6 +27,50 @@ public sealed partial class NetworkPage : Page
         var vpn = ZiaMonitoring_App.Application.DnsService.DetectVpn();
         VpnStatusLabel.Text = vpn.Label;
         DnsStatusLabel.Text = "Sélectionnez un fournisseur pour basculer le DNS de l'interface active.";
+
+        RefreshBlockedApps();
+    }
+
+    private void RefreshBlockedApps()
+    {
+        var blocked = _app.KillSwitch.GetBlockedApps();
+        BlockedAppsList.ItemsSource = blocked;
+        KillSwitchStatusLabel.Text = blocked.Count == 0
+            ? "Aucune application bloquée."
+            : $"{blocked.Count} application(s) bloquée(s).";
+    }
+
+    private async void PickBlockTarget_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
+        };
+        picker.FileTypeFilter.Add(".exe");
+        var window = _app.MainWindowInstance;
+        if (window is not null)
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+        }
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+
+        var (_, message) = await Task.Run(() => _app.KillSwitch.Block(file.Path));
+        KillSwitchStatusLabel.Text = message;
+        RefreshBlockedApps();
+    }
+
+    private async void UnblockApp_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string exePath })
+            return;
+
+        var (_, message) = await Task.Run(() => _app.KillSwitch.Unblock(exePath));
+        KillSwitchStatusLabel.Text = message;
+        RefreshBlockedApps();
     }
 
     private bool _dnsLoading = true;

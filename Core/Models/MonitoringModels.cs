@@ -138,7 +138,13 @@ public sealed record AppSettings(
     bool EnableClipboardClearOnGameLaunch = false,
     bool EnableGameLaunchProfiles = false,
     WidgetTheme WidgetTheme = WidgetTheme.Violet,
-    string Language = "fr-FR");
+    string Language = "fr-FR",
+    bool EnableAutoPowerProfile = false,
+    bool EnableSmartReboot = false,
+    int SmartRebootUptimeDays = 7,
+    bool EnableAppWatchdog = false,
+    bool EnableDiscordRichPresence = false,
+    string DiscordApplicationId = "");
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

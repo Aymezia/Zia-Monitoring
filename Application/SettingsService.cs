@@ -160,7 +160,9 @@ public sealed class SettingsService
             CpuTempAlertThresholdC = Math.Clamp(settings.CpuTempAlertThresholdC, 50, 105),
             GpuTempAlertThresholdC = Math.Clamp(settings.GpuTempAlertThresholdC, 50, 105),
             DiskFreeAlertGb = Math.Clamp(settings.DiskFreeAlertGb, 1, 100),
-            WeeklyPlaytimeGoalHours = Math.Clamp(settings.WeeklyPlaytimeGoalHours, 0, 100)
+            WeeklyPlaytimeGoalHours = Math.Clamp(settings.WeeklyPlaytimeGoalHours, 0, 100),
+            SmartRebootUptimeDays = Math.Clamp(settings.SmartRebootUptimeDays, 1, 60),
+            DiscordApplicationId = settings.DiscordApplicationId ?? string.Empty
         };
     }
 

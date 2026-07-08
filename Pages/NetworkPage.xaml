@@ -16,6 +16,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -266,6 +267,31 @@
                                             Visibility="{Binding IsBest, Converter={StaticResource BoolToVis}}">
                                         <TextBlock Text="Plus rapide" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" />
                                     </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Kill switch réseau par application" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Bloque tout le trafic sortant d'un exécutable via une règle de pare-feu Windows — réversible en un clic. L'application ciblée doit être relancée pour couper ses connexions déjà ouvertes." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="PickBlockTargetButton" Content="Choisir un exécutable à bloquer…" Click="PickBlockTarget_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </StackPanel>
+                    <TextBlock x:Name="KillSwitchStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="BlockedAppsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <Button Grid.Column="1" Content="Débloquer" Tag="{Binding ExePath}" Click="UnblockApp_Click" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

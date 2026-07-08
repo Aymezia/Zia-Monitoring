@@ -62,6 +62,13 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.GameLaunchProfileService GameLaunchProfiles => _services.GetRequiredService<Application.GameLaunchProfileService>();
     public Application.AchievementService Achievements => _services.GetRequiredService<Application.AchievementService>();
     public Application.CrashDiagnosticsService CrashDiagnostics => _services.GetRequiredService<Application.CrashDiagnosticsService>();
+    public Application.BatteryService Battery => _services.GetRequiredService<Application.BatteryService>();
+    public Application.WindowsUpdateHistoryService WindowsUpdates => _services.GetRequiredService<Application.WindowsUpdateHistoryService>();
+    public Application.FirewallKillSwitchService KillSwitch => _services.GetRequiredService<Application.FirewallKillSwitchService>();
+    public Application.BrowserExtensionAuditService BrowserExtensions => _services.GetRequiredService<Application.BrowserExtensionAuditService>();
+    public Application.AppWatchdogService Watchdog => _services.GetRequiredService<Application.AppWatchdogService>();
+    public Application.SmartRebootService SmartReboot => _services.GetRequiredService<Application.SmartRebootService>();
+    public Application.DiscordRichPresenceService DiscordPresence => _services.GetRequiredService<Application.DiscordRichPresenceService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -134,6 +141,13 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.GameLaunchProfileService>();
         services.AddSingleton<Application.AchievementService>();
         services.AddSingleton<Application.CrashDiagnosticsService>();
+        services.AddSingleton<Application.BatteryService>();
+        services.AddSingleton<Application.WindowsUpdateHistoryService>();
+        services.AddSingleton<Application.FirewallKillSwitchService>();
+        services.AddSingleton<Application.BrowserExtensionAuditService>();
+        services.AddSingleton<Application.AppWatchdogService>();
+        services.AddSingleton<Application.SmartRebootService>();
+        services.AddSingleton<Application.DiscordRichPresenceService>();
 
         return services.BuildServiceProvider();
     }

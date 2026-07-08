@@ -194,6 +194,48 @@ public sealed partial class MainWindow : Window
                     _lastClipboardClearGame = null;
                 }
 
+                // Plan d'alimentation selon la source (laptop uniquement — no-op sans batterie).
+                if (settings.EnableAutoPowerProfile)
+                {
+                    if (app.Battery.ApplyPowerSourceProfile() is { } powerMessage)
+                        ZiaMonitoring_App.Application.AlertNotificationService.SendToast("Zia Monitoring - Alimentation", powerMessage);
+                }
+                else
+                {
+                    app.Battery.ResetPowerSourceTracking();
+                }
+
+                // Watchdog : relance des apps surveillées disparues.
+                if (settings.EnableAppWatchdog)
+                {
+                    foreach (var restartedApp in app.Watchdog.Tick())
+                    {
+                        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                            "Zia Monitoring - Watchdog", $"{restartedApp} s'est arrêté de façon inattendue et a été relancé.");
+                    }
+                }
+
+                // Proposition de redémarrage si l'uptime dépasse le seuil (hors jeu).
+                if (settings.EnableSmartReboot
+                    && app.SmartReboot.Tick(frame.Profile.Uptime, activeGame is not null, settings.SmartRebootUptimeDays) is { } rebootMessage)
+                {
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Zia Monitoring - Redémarrage conseillé", rebootMessage);
+                }
+
+                // Discord Rich Presence (throttlé à 15 s côté service).
+                if (settings.EnableDiscordRichPresence && !string.IsNullOrWhiteSpace(settings.DiscordApplicationId))
+                {
+                    var presenceDetails = activeGame is not null ? $"Joue à {activeGame.GameName}" : "Surveille son PC";
+                    var presenceState = $"CPU {frame.Snapshot.CpuPercent:F0}% · {frame.Snapshot.EstimatedFps:F0} FPS";
+                    var sessionStart = activeGame is not null ? DateTime.UtcNow - activeGame.SessionDuration : (DateTime?)null;
+                    app.DiscordPresence.UpdatePresence(settings.DiscordApplicationId, presenceDetails, presenceState, sessionStart);
+                }
+                else
+                {
+                    app.DiscordPresence.ClearPresence();
+                }
+
                 if (settings.EnableObsAutoSceneSwitch)
                 {
                     var shouldShowGameScene = activeGame is not null;

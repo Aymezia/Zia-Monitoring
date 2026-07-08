@@ -21,6 +21,24 @@ public sealed partial class SecurityPage : Page
 
     private void RefreshDeviceAudit_Click(object sender, RoutedEventArgs e) => RefreshDeviceAudit();
 
+    private async void RefreshExtensions_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshExtensionsButton.IsEnabled = false;
+        ExtensionsStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var extensions = await Task.Run(() => _app.BrowserExtensions.ScanAll());
+            ExtensionsList.ItemsSource = extensions;
+            ExtensionsStatusLabel.Text = extensions.Count == 0
+                ? "Aucune extension détectée (ou navigateurs non installés)."
+                : $"{extensions.Count} extension(s) détectée(s).";
+        }
+        finally
+        {
+            RefreshExtensionsButton.IsEnabled = true;
+        }
+    }
+
     private void RefreshDeviceAudit()
     {
         try

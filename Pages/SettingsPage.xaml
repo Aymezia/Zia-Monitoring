@@ -24,6 +24,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -358,6 +361,59 @@
                         <Button Content="Importer des réglages…" Click="ImportSettings_Click" />
                     </StackPanel>
                     <TextBlock x:Name="SettingsBackupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Alimentation & redemarrage intelligent -->
+            <Border x:Name="PowerRebootCard" Grid.Row="14" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Alimentation et redémarrage intelligent" Style="{StaticResource CardTitleTextStyle}" />
+                    <ToggleSwitch x:Name="AutoPowerProfileToggle" Header="Plan d'alimentation automatique selon la source (laptop : secteur = performances, batterie = normal)" Toggled="AutoPowerProfile_Toggled" />
+                    <ToggleSwitch x:Name="SmartRebootToggle" Header="Proposer un redémarrage quand l'uptime dépasse le seuil (jamais pendant un jeu)" Toggled="SmartReboot_Toggled" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Seuil d'uptime (jours) :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="170" />
+                        <Slider x:Name="SmartRebootDaysSlider" Minimum="1" Maximum="30" StepFrequency="1" Width="200" ValueChanged="SmartRebootDays_Changed" />
+                        <TextBlock x:Name="SmartRebootDaysLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Planifier un redémarrage cette nuit (03:00)" Click="ScheduleReboot_Click" />
+                        <Button Content="Annuler le redémarrage planifié" Click="CancelReboot_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="RebootStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Watchdog -->
+            <Border x:Name="WatchdogCard" Grid.Row="15" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Watchdog d'applications" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Relance automatiquement une application surveillée si elle disparaît après avoir été vue en cours d'exécution (crash probable). Garde-fous : 60 s entre relances, 3 relances max par heure." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="WatchdogToggle" Header="Activer le watchdog" Toggled="Watchdog_Toggled" />
+                    <Button Content="Ajouter une application à surveiller…" Click="AddWatchdogApp_Click" />
+                    <ItemsControl x:Name="WatchdogAppsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="8" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                    <Button Grid.Column="1" Content="Retirer" Tag="{Binding}" Click="RemoveWatchdogApp_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Discord Rich Presence -->
+            <Border x:Name="DiscordCard" Grid.Row="16" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Discord Rich Presence" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Affiche vos stats (jeu en cours, CPU, FPS) dans votre statut Discord. Nécessite un Application ID : créez gratuitement une application sur discord.com/developers/applications, nommez-la (ex: « Zia Monitoring » — c'est ce nom qui s'affichera), puis collez son Application ID ci-dessous. Discord doit tourner sur ce PC." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="DiscordToggle" Header="Activer la Rich Presence" Toggled="Discord_Toggled" />
+                    <TextBox x:Name="DiscordAppIdBox" PlaceholderText="Application ID Discord (ex: 1234567890123456789)" TextChanged="DiscordAppId_Changed" MaxWidth="420" HorizontalAlignment="Left" />
                 </StackPanel>
             </Border>
         </Grid>

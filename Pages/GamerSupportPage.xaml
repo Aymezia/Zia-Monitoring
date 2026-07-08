@@ -16,6 +16,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -314,6 +315,37 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Succes -->
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Succès" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock x:Name="AchievementsSummaryLabel" Grid.Column="1" Foreground="{StaticResource ZiaVioletBrush}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </Grid>
+                    <ItemsControl x:Name="AchievementsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding ProgressLabel}" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                                </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

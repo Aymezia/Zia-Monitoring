@@ -119,6 +119,7 @@ public sealed partial class NetworkPage : Page
         {
             var hops = await Task.Run(() => TracerouteService.Trace(host));
             TracerouteResultsList.ItemsSource = hops;
+            _app.Achievements.Increment("network_probes");
 
             var destination = hops.FirstOrDefault(h => h.IsDestination);
             TracerouteStatusLabel.Text = destination is not null

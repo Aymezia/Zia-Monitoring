@@ -52,6 +52,7 @@ public sealed partial class MainWindow : Window
 
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         ConfigureHotkey(app.SettingsService.Load());
+        app.Achievements.Increment("app_launches");
 
         // La collecte (WMI, LibreHardwareMonitor, pings) tourne hors du thread UI ;
         // seul le report des résultats repasse par le DispatcherQueue.
@@ -273,6 +274,7 @@ public sealed partial class MainWindow : Window
                     {
                         app.State.Update(frame);
                         app.State.UpdateActiveGame(activeGame);
+                        app.Achievements.SetCounter("games_detected", frame.Profile.InstalledGames.Count);
                         if (hourlyCpu is not null && dailyCpu is not null)
                             app.State.UpdatePersistedCpuHistory(hourlyCpu, dailyCpu);
                         UpdateTitleBar(frame, settings);

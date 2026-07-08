@@ -97,6 +97,7 @@ public sealed partial class SecurityPage : Page
 
             var items = _app.Debloat.Scan();
             var (count, failures) = await Task.Run(() => _app.Debloat.CleanAll(items));
+            _app.Achievements.Increment("debloat_cleaned", count);
             DebloatStatusLabel.Text = failures.Count == 0
                 ? $"{count} élément(s) nettoyé(s)."
                 : $"{count} élément(s) nettoyé(s). Échec ({failures.Count}) : {string.Join(" · ", failures.Select(f => $"{f.Name} — {f.Reason}"))}";
@@ -176,6 +177,7 @@ public sealed partial class SecurityPage : Page
             var report = await Task.Run(() => _app.SecurityScanner.BuildReport());
             _latestReport = report;
             ExportSecurityButton.IsEnabled = true;
+            _app.Achievements.Increment("security_scans");
             RiskScoreLabel.Text = $"Score de risque global: {report.RiskScore}/100";
 
             FirewallLabel.Text = report.FirewallEnabled

@@ -37,6 +37,7 @@ public sealed partial class SettingsPage : Page
             MiniWidgetToggle.IsOn = _settings.EnableMiniWidget;
             MiniOpacitySlider.Value = _settings.MiniWidgetOpacity * 100;
             MiniOpacityValueLabel.Text = $"{MiniOpacitySlider.Value:F0}%";
+            WidgetThemeCombo.SelectedIndex = (int)_settings.WidgetTheme;
 
             foreach (var name in PerformanceOverlayWindow.GetMonitorNames())
                 OverlayMonitorCombo.Items.Add(new ComboBoxItem { Content = name });
@@ -175,6 +176,16 @@ public sealed partial class SettingsPage : Page
 
         _settings = _settings with { MiniWidgetOpacity = Math.Clamp(e.NewValue / 100.0, 0.35, 1.0) };
         SaveSettings();
+    }
+
+    private void WidgetTheme_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || WidgetThemeCombo.SelectedIndex < 0)
+            return;
+
+        _settings = _settings with { WidgetTheme = (WidgetTheme)WidgetThemeCombo.SelectedIndex };
+        SaveSettings();
+        _app.Achievements.Increment("widget_theme_changes");
     }
 
     private void CpuAlertSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -437,6 +448,7 @@ public sealed partial class SettingsPage : Page
         var action = Enum.Parse<ZiaMonitoring_App.Application.RuleAction>(actionTag);
 
         _app.CustomRules.AddRule(name, condition, threshold, minutes, action);
+        _app.Achievements.Increment("custom_rules_created");
         RuleNameBox.Text = string.Empty;
         RuleThresholdBox.Text = string.Empty;
         RuleMinutesBox.Text = string.Empty;
@@ -472,6 +484,7 @@ public sealed partial class SettingsPage : Page
         try
         {
             var result = await Task.Run(() => _app.SaveBackup.BackupNow());
+            _app.Achievements.Increment("save_backups");
             BackupStatusLabel.Text = result.Warnings.Count == 0
                 ? result.Summary
                 : $"{result.Summary} ({result.Warnings.Count} avertissement(s))";

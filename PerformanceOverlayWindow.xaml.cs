@@ -41,9 +41,23 @@ public sealed partial class PerformanceOverlayWindow : Window
     private const int OverlayWidth = 260;
     private const int OverlayHeight = 230;
 
+    private static readonly Dictionary<WidgetTheme, Windows.UI.Color> ThemeColors = new()
+    {
+        [WidgetTheme.Violet] = Windows.UI.Color.FromArgb(255, 0xD4, 0x78, 0xFF),
+        [WidgetTheme.Cyan] = Windows.UI.Color.FromArgb(255, 0x4D, 0xD9, 0xEC),
+        [WidgetTheme.Green] = Windows.UI.Color.FromArgb(255, 0x3D, 0xDC, 0x97),
+        [WidgetTheme.Amber] = Windows.UI.Color.FromArgb(255, 0xFF, 0xB4, 0x54),
+        [WidgetTheme.Rose] = Windows.UI.Color.FromArgb(255, 0xFF, 0x5C, 0x8A)
+    };
+
     public void ApplySettings(AppSettings settings)
     {
         Root.Opacity = Math.Clamp(settings.MiniWidgetOpacity, 0.35, 1.0);
+
+        var color = ThemeColors.TryGetValue(settings.WidgetTheme, out var c) ? c : ThemeColors[WidgetTheme.Violet];
+        var brush = new Microsoft.UI.Xaml.Media.SolidColorBrush(color);
+        AccentFpsLabel.Foreground = brush;
+        TitleLabel.Foreground = brush;
 
         var displays = DisplayArea.FindAll();
         var display = settings.OverlayMonitorIndex >= 0 && settings.OverlayMonitorIndex < displays.Count

@@ -86,6 +86,16 @@
                         <TextBlock x:Name="MiniOpacityValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Thème du widget:" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="120" />
+                        <ComboBox x:Name="WidgetThemeCombo" Width="160" SelectionChanged="WidgetTheme_Changed">
+                            <ComboBoxItem Content="Violet" Tag="Violet" />
+                            <ComboBoxItem Content="Cyan" Tag="Cyan" />
+                            <ComboBoxItem Content="Vert" Tag="Green" />
+                            <ComboBoxItem Content="Ambre" Tag="Amber" />
+                            <ComboBoxItem Content="Rose" Tag="Rose" />
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
                         <TextBlock Text="Écran de l'overlay:" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="120" />
                         <ComboBox x:Name="OverlayMonitorCombo" Width="220" SelectionChanged="OverlayPosition_Changed" />
                     </StackPanel>

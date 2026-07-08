@@ -19,6 +19,14 @@ public sealed partial class GamerSupportPage : Page
         InitializeWrappedYears();
         RefreshLauncherList();
         RefreshFpsDrops_Click(this, null!);
+        RefreshAchievements();
+    }
+
+    private void RefreshAchievements()
+    {
+        var achievements = _app.Achievements.GetAchievements();
+        AchievementsList.ItemsSource = achievements;
+        AchievementsSummaryLabel.Text = $"{achievements.Count(a => a.IsUnlocked)}/{achievements.Count}";
     }
 
     private void RefreshLauncherList(string filter = "")

@@ -4,6 +4,8 @@ namespace ZiaMonitoring_App.Core.Models;
 
 public enum OverlayCorner { TopLeft, TopRight, BottomLeft, BottomRight }
 
+public enum WidgetTheme { Violet, Cyan, Green, Amber, Rose }
+
 public sealed record ProcessInfo(int Pid, string Name, double CpuPercent, double MemoryMb)
 {
     public string MemoryLabel => $"{MemoryMb:F1} MB";
@@ -134,7 +136,8 @@ public sealed record AppSettings(
     string ObsIdleSceneName = "",
     bool EnableHardwareSensors = false,
     bool EnableClipboardClearOnGameLaunch = false,
-    bool EnableGameLaunchProfiles = false);
+    bool EnableGameLaunchProfiles = false,
+    WidgetTheme WidgetTheme = WidgetTheme.Violet);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

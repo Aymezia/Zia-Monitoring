@@ -11,7 +11,7 @@
         Padding="14"
         Background="{StaticResource ZiaPanelBrush}">
         <StackPanel Spacing="8">
-            <TextBlock Text="Zia Live" Style="{StaticResource CardTitleTextStyle}" />
+            <TextBlock x:Name="TitleLabel" Text="Zia Live" Style="{StaticResource CardTitleTextStyle}" />
 
             <Grid ColumnSpacing="10">
                 <Grid.ColumnDefinitions>
@@ -32,7 +32,7 @@
                 </StackPanel>
             </Grid>
 
-            <TextBlock Text="{Binding EstimatedFpsLabel}" FontSize="20" Foreground="{StaticResource ZiaVioletBrush}" />
+            <TextBlock x:Name="AccentFpsLabel" Text="{Binding EstimatedFpsLabel}" FontSize="20" Foreground="{StaticResource ZiaVioletBrush}" />
             <TextBlock Text="{Binding NetworkLabel}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
             <TextBlock Text="{Binding ActiveGameServerLabel}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
         </StackPanel>

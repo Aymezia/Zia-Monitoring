@@ -71,6 +71,7 @@ public sealed partial class BoostPage : Page
 
             await StepAsync(55, "Optimisation startup/services");
             var execution = await Task.Run(() => _app.BoostEngine.ExecuteSafeBoost());
+            _app.Achievements.Increment("boosts_applied");
 
             await StepAsync(82, "Verification rollback et securite");
 

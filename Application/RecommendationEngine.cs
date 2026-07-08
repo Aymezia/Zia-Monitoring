@@ -50,7 +50,7 @@ public sealed class RecommendationEngine
         {
             recommendations.Add(new Recommendation("Info", "Temperature source indisponible",
                 "Les compteurs ACPI WMI n'exposent pas les zones thermiques sur ce systeme.",
-                "Installez LibreHardwareMonitor et laissez-le tourner en tache de fond pour activer les temperatures."));
+                "Activez les capteurs materiels avances dans Reglages (necessite un driver bas niveau)."));
         }
         else if (snapshot.CpuTemperatureC > 90)
         {

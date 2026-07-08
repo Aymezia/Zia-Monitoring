@@ -20,12 +20,14 @@ public sealed class MonitoringService : IDisposable
     private readonly RecommendationEngine _engine = new();
     private readonly ThrottlingDetector _throttlingDetector = new();
     private readonly PresentMonService _presentMon;
+    private readonly SettingsService _settings;
 
     private PcProfile? _profileCache;
 
-    public MonitoringService(PresentMonService presentMon)
+    public MonitoringService(PresentMonService presentMon, SettingsService settings)
     {
         _presentMon = presentMon;
+        _settings = settings;
     }
 
     public MonitoringFrame CaptureFrame()
@@ -44,8 +46,19 @@ public sealed class MonitoringService : IDisposable
         var networkProcesses = _networkConnectionCollector.GetTopNetworkProcesses(activeConnections);
         var gameLatencies = _gameServerLatencyCollector.GetGameServerLatencies();
 
-        // Real hardware readings from LibreHardwareMonitor
-        var hw = _hardwareMonitor.Read();
+        // Real hardware readings from LibreHardwareMonitor.
+        // Opt-in uniquement : ouvrir le driver installe un composant kernel
+        // (WinRing0) que Defender supprime via son blocklist de drivers vulnérables.
+        HardwareReadings hw;
+        if (_settings.Load().EnableHardwareSensors)
+        {
+            _hardwareMonitor.EnableSensors();
+            hw = _hardwareMonitor.Read();
+        }
+        else
+        {
+            hw = new HardwareReadings(null, null, null, null, null, null);
+        }
 
         var snapshot = new SystemSnapshot(
             DateTime.Now, cpu, usedMb, totalMb,

@@ -129,7 +129,8 @@ public sealed record AppSettings(
     int ObsPort = 4455,
     string ObsPassword = "",
     string ObsGameSceneName = "",
-    string ObsIdleSceneName = "");
+    string ObsIdleSceneName = "",
+    bool EnableHardwareSensors = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

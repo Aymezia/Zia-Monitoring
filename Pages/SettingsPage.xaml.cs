@@ -57,6 +57,8 @@ public sealed partial class SettingsPage : Page
             ObsGameSceneBox.Text = _settings.ObsGameSceneName;
             ObsIdleSceneBox.Text = _settings.ObsIdleSceneName;
 
+            HardwareSensorsToggle.IsOn = _settings.EnableHardwareSensors;
+
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
             CpuTempAlertSlider.Value = _settings.CpuTempAlertThresholdC;
@@ -218,6 +220,12 @@ public sealed partial class SettingsPage : Page
     private void GameBooster_Toggled(object sender, RoutedEventArgs e)
     {
         _settings = _settings with { EnableGameBooster = GameBoosterToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void HardwareSensors_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableHardwareSensors = HardwareSensorsToggle.IsOn };
         SaveSettings();
     }
 

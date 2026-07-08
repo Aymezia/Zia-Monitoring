@@ -3,16 +3,27 @@ using LibreHardwareMonitor.Hardware;
 namespace ZiaMonitoring_App.Infrastructure.Collectors;
 
 /// <summary>
-/// Shared LibreHardwareMonitor computer instance.
+/// Shared LibreHardwareMonitor computer instance. Opt-in uniquement : l'ouverture
+/// installe un driver kernel (WinRing0) que le blocklist Microsoft des drivers
+/// vulnérables fait supprimer par Defender (CVE connues d'accès mémoire/MSR
+/// arbitraire, exploitées dans des attaques BYOVD). Ne jamais l'ouvrir sans
+/// consentement explicite de l'utilisateur (voir AppSettings.EnableHardwareSensors).
 /// Must be disposed when the application exits.
 /// </summary>
 public sealed class HardwareMonitor : IDisposable
 {
-    private readonly Computer _computer;
+    private Computer? _computer;
     private bool _disposed;
+    private bool _opened;
 
-    public HardwareMonitor()
+    public void EnableSensors()
     {
+        if (_opened || _disposed)
+        {
+            return;
+        }
+
+        _opened = true;
         _computer = new Computer
         {
             IsCpuEnabled = true,
@@ -36,6 +47,11 @@ public sealed class HardwareMonitor : IDisposable
 
     public HardwareReadings Read()
     {
+        if (_computer is null)
+        {
+            return new HardwareReadings(null, null, null, null, null, null);
+        }
+
         double? cpuTemp = null;
         double? gpuTemp = null;
         double? gpuUsage = null;
@@ -178,7 +194,7 @@ public sealed class HardwareMonitor : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        try { _computer.Close(); } catch { }
+        try { _computer?.Close(); } catch { }
     }
 }
 

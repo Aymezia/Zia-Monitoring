@@ -21,6 +21,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -249,6 +250,15 @@
                         <TextBox Grid.Column="1" x:Name="ObsIdleSceneBox" PlaceholderText="Scène 'Repos'" TextChanged="ObsFields_Changed" />
                     </Grid>
                     <TextBlock x:Name="ObsStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Capteurs materiels avances -->
+            <Border Grid.Row="11" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Capteurs materiels avances (temperatures / ventilateurs)" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Desactive par defaut. L'activation installe un driver bas niveau (LibreHardwareMonitor / WinRing0) pour lire les temperatures CPU/GPU et la vitesse des ventilateurs. Ce driver figure sur la liste des drivers vulnerables de Microsoft : Windows Defender peut le detecter et le supprimer automatiquement, ce qui desactivera de nouveau ces mesures. N'activez que si vous comprenez ce risque." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="HardwareSensorsToggle" Header="Activer les capteurs materiels avances" Toggled="HardwareSensors_Toggled" />
                 </StackPanel>
             </Border>
         </Grid>

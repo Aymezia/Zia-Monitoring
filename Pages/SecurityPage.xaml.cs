@@ -27,6 +27,9 @@ public sealed partial class SecurityPage : Page
         {
             var entries = _app.DeviceAccessAudit.ScanWebcamAccess()
                 .Concat(_app.DeviceAccessAudit.ScanMicrophoneAccess())
+                .Concat(_app.DeviceAccessAudit.ScanDocumentsAccess())
+                .Concat(_app.DeviceAccessAudit.ScanPicturesAccess())
+                .Concat(_app.DeviceAccessAudit.ScanBroadFileSystemAccess())
                 .OrderByDescending(entry => entry.IsCurrentlyActive)
                 .ThenByDescending(entry => entry.LastUsedStop ?? entry.LastUsedStart ?? DateTime.MinValue)
                 .Take(20)

@@ -28,6 +28,13 @@ public sealed class DeviceAccessAuditService
 
     public IReadOnlyList<DeviceAccessEntry> ScanMicrophoneAccess() => ScanDevice("microphone", "Microphone");
 
+    public IReadOnlyList<DeviceAccessEntry> ScanDocumentsAccess() => ScanDevice("documentsLibrary", "Documents");
+
+    public IReadOnlyList<DeviceAccessEntry> ScanPicturesAccess() => ScanDevice("picturesLibrary", "Images");
+
+    /// <summary>« Accès à l'ensemble de vos fichiers » dans Confidentialité Windows — le périmètre le plus large.</summary>
+    public IReadOnlyList<DeviceAccessEntry> ScanBroadFileSystemAccess() => ScanDevice("broadFileSystemAccess", "Tous les fichiers");
+
     private static IReadOnlyList<DeviceAccessEntry> ScanDevice(string registryDeviceKey, string deviceLabel)
     {
         var results = new List<DeviceAccessEntry>();

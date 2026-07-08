@@ -220,16 +220,16 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Audit webcam / microphone" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="Audit d'accès (webcam, micro, dossiers)" Style="{StaticResource CardTitleTextStyle}" />
                         <Button Grid.Column="1" x:Name="RefreshDeviceAuditButton" Content="Actualiser" Click="RefreshDeviceAudit_Click" />
                     </Grid>
-                    <TextBlock Text="Applications ayant récemment accédé à la caméra ou au micro (source : Windows lui-même, lecture seule)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="Applications ayant récemment accédé à la caméra, au micro, à Documents/Images ou à l'ensemble du système de fichiers (source : Windows lui-même, lecture seule)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ItemsControl x:Name="DeviceAuditList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnSpacing="10" Margin="0,3">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="110" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>

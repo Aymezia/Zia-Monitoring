@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
+using ZiaMonitoring_App.Application;
 using ZiaMonitoring_App.Core.Models;
 
 namespace ZiaMonitoring_App;
@@ -37,22 +38,38 @@ public sealed partial class PerformanceOverlayWindow : Window
         HideOverlay();
     }
 
+    private const int OverlayWidth = 260;
+    private const int OverlayHeight = 230;
+
     public void ApplySettings(AppSettings settings)
     {
         Root.Opacity = Math.Clamp(settings.MiniWidgetOpacity, 0.35, 1.0);
 
-        if (settings.EnableMiniWidget)
-        {
-            var display = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
-            var area = display.WorkArea;
-            AppWindow.Move(new Windows.Graphics.PointInt32(area.X + area.Width - 292, area.Y + 90));
-        }
-        else
-        {
-            AppWindow.Move(new Windows.Graphics.PointInt32(24, 80));
-        }
+        var displays = DisplayArea.FindAll();
+        var display = settings.OverlayMonitorIndex >= 0 && settings.OverlayMonitorIndex < displays.Count
+            ? displays[settings.OverlayMonitorIndex]
+            : DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary);
 
+        var workArea = display.WorkArea;
+        var monitorArea = new MonitorArea(workArea.X, workArea.Y, workArea.Width, workArea.Height);
+        var point = OverlayPositionCalculator.ComputeCornerPosition(monitorArea, settings.OverlayPosition, OverlayWidth, OverlayHeight);
+
+        AppWindow.Move(new Windows.Graphics.PointInt32(point.X, point.Y));
         SetTopMost();
+    }
+
+    /// <summary>Écrans disponibles pour le sélecteur de la page Paramètres.</summary>
+    public static IReadOnlyList<string> GetMonitorNames()
+    {
+        var displays = DisplayArea.FindAll();
+        var names = new List<string>();
+        for (var i = 0; i < displays.Count; i++)
+        {
+            var area = displays[i].WorkArea;
+            var primary = displays[i].DisplayId == DisplayArea.Primary.DisplayId ? " (principal)" : "";
+            names.Add($"Écran {i + 1} — {area.Width}×{area.Height}{primary}");
+        }
+        return names;
     }
 
     public void ShowOverlay()

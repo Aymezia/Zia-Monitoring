@@ -2,6 +2,8 @@ using ZiaMonitoring_App.Infrastructure.Collectors;
 
 namespace ZiaMonitoring_App.Core.Models;
 
+public enum OverlayCorner { TopLeft, TopRight, BottomLeft, BottomRight }
+
 public sealed record ProcessInfo(int Pid, string Name, double CpuPercent, double MemoryMb)
 {
     public string MemoryLabel => $"{MemoryMb:F1} MB";
@@ -119,7 +121,9 @@ public sealed record AppSettings(
     bool EnableGameBooster = false,
     bool EnableRestorePointBeforeRiskyActions = true,
     bool EnableScheduledSaveBackup = false,
-    bool EnablePrometheusExporter = false);
+    bool EnablePrometheusExporter = false,
+    int OverlayMonitorIndex = 0,
+    OverlayCorner OverlayPosition = OverlayCorner.TopRight);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

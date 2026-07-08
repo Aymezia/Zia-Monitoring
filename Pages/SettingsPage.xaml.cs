@@ -35,6 +35,11 @@ public sealed partial class SettingsPage : Page
             MiniWidgetToggle.IsOn = _settings.EnableMiniWidget;
             MiniOpacitySlider.Value = _settings.MiniWidgetOpacity * 100;
             MiniOpacityValueLabel.Text = $"{MiniOpacitySlider.Value:F0}%";
+
+            foreach (var name in PerformanceOverlayWindow.GetMonitorNames())
+                OverlayMonitorCombo.Items.Add(new ComboBoxItem { Content = name });
+            OverlayMonitorCombo.SelectedIndex = Math.Clamp(_settings.OverlayMonitorIndex, 0, Math.Max(0, OverlayMonitorCombo.Items.Count - 1));
+            OverlayCornerCombo.SelectedIndex = (int)_settings.OverlayPosition;
             GameBoosterToggle.IsOn = _settings.EnableGameBooster;
             RestorePointToggle.IsOn = _settings.EnableRestorePointBeforeRiskyActions;
             SilentModeToggle.IsOn = _settings.AutoSilentModeOnGame;
@@ -132,6 +137,19 @@ public sealed partial class SettingsPage : Page
     private void MiniWidget_Toggled(object sender, RoutedEventArgs e)
     {
         _settings = _settings with { EnableMiniWidget = MiniWidgetToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void OverlayPosition_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || OverlayMonitorCombo.SelectedIndex < 0 || OverlayCornerCombo.SelectedIndex < 0)
+            return;
+
+        _settings = _settings with
+        {
+            OverlayMonitorIndex = OverlayMonitorCombo.SelectedIndex,
+            OverlayPosition = (OverlayCorner)OverlayCornerCombo.SelectedIndex
+        };
         SaveSettings();
     }
 

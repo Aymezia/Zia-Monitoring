@@ -78,6 +78,19 @@
                         <Slider x:Name="MiniOpacitySlider" Minimum="35" Maximum="100" StepFrequency="5" Width="200" ValueChanged="MiniOpacitySlider_ValueChanged" />
                         <TextBlock x:Name="MiniOpacityValueLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Écran de l'overlay:" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="120" />
+                        <ComboBox x:Name="OverlayMonitorCombo" Width="220" SelectionChanged="OverlayPosition_Changed" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Position:" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="120" />
+                        <ComboBox x:Name="OverlayCornerCombo" Width="220" SelectionChanged="OverlayPosition_Changed">
+                            <ComboBoxItem Content="Haut gauche" Tag="TopLeft" />
+                            <ComboBoxItem Content="Haut droite" Tag="TopRight" />
+                            <ComboBoxItem Content="Bas gauche" Tag="BottomLeft" />
+                            <ComboBoxItem Content="Bas droite" Tag="BottomRight" />
+                        </ComboBox>
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

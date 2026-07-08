@@ -31,6 +31,7 @@ public sealed partial class MainWindow : Window
     private bool _hotkeyRegistered;
     private bool _mainWindowVisible = true;
     private bool _obsGameSceneActive;
+    private string? _lastClipboardClearGame;
 
     public MainWindow()
     {
@@ -156,6 +157,39 @@ public sealed partial class MainWindow : Window
                 else if (app.GameBooster.IsActive)
                 {
                     app.GameBooster.Deactivate();
+                }
+
+                if (settings.EnableGameLaunchProfiles)
+                {
+                    if (activeGame is not null && !app.GameLaunchProfiles.IsActive)
+                    {
+                        var actions = app.GameLaunchProfiles.Activate(activeGame.GameName);
+                        if (actions.Count > 0)
+                        {
+                            ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                                $"Profil de lancement — {activeGame.GameName}",
+                                string.Join(" · ", actions));
+                        }
+                    }
+                    else if (activeGame is null && app.GameLaunchProfiles.IsActive)
+                    {
+                        app.GameLaunchProfiles.Deactivate();
+                    }
+                }
+                else if (app.GameLaunchProfiles.IsActive)
+                {
+                    app.GameLaunchProfiles.Deactivate();
+                }
+
+                if (settings.EnableClipboardClearOnGameLaunch && activeGame is not null && activeGame.GameName != _lastClipboardClearGame)
+                {
+                    _lastClipboardClearGame = activeGame.GameName;
+                    try { Windows.ApplicationModel.DataTransfer.Clipboard.Clear(); }
+                    catch (Exception ex) { AppLog.Warn("Vidage du presse-papiers au lancement du jeu impossible", ex); }
+                }
+                else if (activeGame is null)
+                {
+                    _lastClipboardClearGame = null;
                 }
 
                 if (settings.EnableObsAutoSceneSwitch)

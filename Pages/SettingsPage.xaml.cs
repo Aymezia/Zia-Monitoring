@@ -14,6 +14,8 @@ public sealed partial class SettingsPage : Page
     private readonly App _app;
     private AppSettings _settings = new(1, true, true, false, false, TimeSpan.FromHours(3), "dark", true, true);
     private bool _loading = true;
+    private readonly List<string> _pendingCompanionApps = [];
+    private readonly List<string> _pendingKillList = [];
 
     public SettingsPage()
     {
@@ -58,6 +60,10 @@ public sealed partial class SettingsPage : Page
             ObsIdleSceneBox.Text = _settings.ObsIdleSceneName;
 
             HardwareSensorsToggle.IsOn = _settings.EnableHardwareSensors;
+
+            GameLaunchProfilesToggle.IsOn = _settings.EnableGameLaunchProfiles;
+            ClipboardClearToggle.IsOn = _settings.EnableClipboardClearOnGameLaunch;
+            RefreshSavedProfiles();
 
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
@@ -227,6 +233,111 @@ public sealed partial class SettingsPage : Page
     {
         _settings = _settings with { EnableHardwareSensors = HardwareSensorsToggle.IsOn };
         SaveSettings();
+    }
+
+    private void GameLaunchProfiles_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableGameLaunchProfiles = GameLaunchProfilesToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void ClipboardClear_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableClipboardClearOnGameLaunch = ClipboardClearToggle.IsOn };
+        SaveSettings();
+    }
+
+    private async void AddCompanionApp_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop
+        };
+        picker.FileTypeFilter.Add(".exe");
+        var window = _app.MainWindowInstance;
+        if (window is not null)
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+        }
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+
+        _pendingCompanionApps.Add(file.Path);
+        PendingCompanionAppsList.ItemsSource = null;
+        PendingCompanionAppsList.ItemsSource = _pendingCompanionApps.ToList();
+    }
+
+    private void RemoveCompanionApp_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string path })
+            _pendingCompanionApps.Remove(path);
+
+        PendingCompanionAppsList.ItemsSource = null;
+        PendingCompanionAppsList.ItemsSource = _pendingCompanionApps.ToList();
+    }
+
+    private void AddKillProcess_Click(object sender, RoutedEventArgs e)
+    {
+        var name = KillProcessBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        _pendingKillList.Add(name);
+        KillProcessBox.Text = string.Empty;
+        PendingKillList.ItemsSource = null;
+        PendingKillList.ItemsSource = _pendingKillList.ToList();
+    }
+
+    private void RemoveKillProcess_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string name })
+            _pendingKillList.Remove(name);
+
+        PendingKillList.ItemsSource = null;
+        PendingKillList.ItemsSource = _pendingKillList.ToList();
+    }
+
+    private void SaveGameProfile_Click(object sender, RoutedEventArgs e)
+    {
+        var gameName = ProfileGameNameBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(gameName))
+        {
+            GameProfileStatusLabel.Text = "Entrez le nom du process du jeu.";
+            return;
+        }
+
+        if (_pendingCompanionApps.Count == 0 && _pendingKillList.Count == 0)
+        {
+            GameProfileStatusLabel.Text = "Ajoutez au moins une appli compagnon ou un process à tuer.";
+            return;
+        }
+
+        _app.GameLaunchProfiles.SaveProfile(new GameLaunchProfile(gameName, _pendingCompanionApps.ToList(), _pendingKillList.ToList()));
+
+        ProfileGameNameBox.Text = string.Empty;
+        _pendingCompanionApps.Clear();
+        _pendingKillList.Clear();
+        PendingCompanionAppsList.ItemsSource = null;
+        PendingKillList.ItemsSource = null;
+        GameProfileStatusLabel.Text = $"Profil '{gameName}' enregistré.";
+        RefreshSavedProfiles();
+    }
+
+    private void DeleteGameProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string gameName })
+            return;
+
+        _app.GameLaunchProfiles.DeleteProfile(gameName);
+        RefreshSavedProfiles();
+    }
+
+    private void RefreshSavedProfiles()
+    {
+        SavedProfilesList.ItemsSource = _app.GameLaunchProfiles.GetProfiles();
     }
 
     private void RestorePoint_Toggled(object sender, RoutedEventArgs e)

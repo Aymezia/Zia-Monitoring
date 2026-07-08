@@ -22,6 +22,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -259,6 +260,69 @@
                     <TextBlock Text="Capteurs materiels avances (temperatures / ventilateurs)" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Desactive par defaut. L'activation installe un driver bas niveau (LibreHardwareMonitor / WinRing0) pour lire les temperatures CPU/GPU et la vitesse des ventilateurs. Ce driver figure sur la liste des drivers vulnerables de Microsoft : Windows Defender peut le detecter et le supprimer automatiquement, ce qui desactivera de nouveau ces mesures. N'activez que si vous comprenez ce risque." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Name="HardwareSensorsToggle" Header="Activer les capteurs materiels avances" Toggled="HardwareSensors_Toggled" />
+                </StackPanel>
+            </Border>
+
+            <!-- Profils de lancement par jeu -->
+            <Border Grid.Row="12" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Profils de lancement par jeu" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Au demarrage d'un jeu configure : lance des applications compagnon (Discord, OBS...) et arrete des process indesirables, une seule fois (pas de surveillance continue)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="GameLaunchProfilesToggle" Header="Activer les profils de lancement" Toggled="GameLaunchProfiles_Toggled" />
+                    <ToggleSwitch x:Name="ClipboardClearToggle" Header="Vider le presse-papiers au lancement d'un jeu" Toggled="ClipboardClear_Toggled" />
+
+                    <TextBox x:Name="ProfileGameNameBox" PlaceholderText="Nom du process du jeu (ex: VALORANT-Win64-Shipping)" Margin="0,8,0,0" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Ajouter appli compagnon…" Click="AddCompanionApp_Click" />
+                        <TextBox x:Name="KillProcessBox" Width="180" PlaceholderText="Process a tuer (ex: chrome)" />
+                        <Button Content="Ajouter" Click="AddKillProcess_Click" />
+                    </StackPanel>
+                    <ItemsControl x:Name="PendingCompanionAppsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="8" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <Button Grid.Column="1" Content="×" Tag="{Binding}" Click="RemoveCompanionApp_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ItemsControl x:Name="PendingKillList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="8" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" />
+                                    <Button Grid.Column="1" Content="×" Tag="{Binding}" Click="RemoveKillProcess_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="Enregistrer le profil" Click="SaveGameProfile_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <TextBlock x:Name="GameProfileStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+
+                    <TextBlock Text="Profils enregistrés" Style="{StaticResource CardTitleTextStyle}" Margin="0,8,0,0" />
+                    <ItemsControl x:Name="SavedProfilesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="8" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                                    <Button Grid.Column="1" Content="Supprimer" Tag="{Binding GameProcessName}" Click="DeleteGameProfile_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

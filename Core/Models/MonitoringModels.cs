@@ -132,7 +132,9 @@ public sealed record AppSettings(
     string ObsPassword = "",
     string ObsGameSceneName = "",
     string ObsIdleSceneName = "",
-    bool EnableHardwareSensors = false);
+    bool EnableHardwareSensors = false,
+    bool EnableClipboardClearOnGameLaunch = false,
+    bool EnableGameLaunchProfiles = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

@@ -397,6 +397,9 @@ public sealed partial class MainWindow : Window
                 case "network":
                     NavFrame.Navigate(typeof(NetworkPage));
                     break;
+                case "maintenance":
+                    NavFrame.Navigate(typeof(MaintenancePage));
+                    break;
             }
         }
     }

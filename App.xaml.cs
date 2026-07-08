@@ -58,6 +58,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.PrometheusExporterService PrometheusExporter => _services.GetRequiredService<Application.PrometheusExporterService>();
     public Application.ObsWebSocketService ObsWebSocket => _services.GetRequiredService<Application.ObsWebSocketService>();
     public Application.DnsService Dns => _services.GetRequiredService<Application.DnsService>();
+    public Application.SystemHealthService SystemHealth => _services.GetRequiredService<Application.SystemHealthService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -117,6 +118,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.PrometheusExporterService>();
         services.AddSingleton<Application.ObsWebSocketService>();
         services.AddSingleton<Application.DnsService>();
+        services.AddSingleton<Application.SystemHealthService>();
 
         return services.BuildServiceProvider();
     }

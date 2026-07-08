@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ZiaMonitoring_App.Pages.MaintenancePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="Maintenance" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+                <TextBlock Text="Espace disque, caches, fichier d'échange, doublons et santé système." Style="{StaticResource CaptionTextStyle}" />
+            </StackPanel>
+
+            <!-- Prevision espace disque -->
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Prévision d'espace disque" Style="{StaticResource CardTitleTextStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <ComboBox x:Name="ForecastDriveCombo" Width="120" SelectionChanged="Forecast_Changed" />
+                        <TextBlock Text="Taille moyenne d'un jeu AAA (Go) :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" />
+                        <Slider x:Name="AverageGameSizeSlider" Minimum="20" Maximum="150" StepFrequency="5" Width="160" ValueChanged="Forecast_Changed" />
+                        <TextBlock x:Name="AverageGameSizeLabel" Foreground="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock x:Name="ForecastLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Cache shaders -->
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Cache shaders (Steam / NVIDIA / AMD / Intel)" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="ScanShaderCacheButton" Content="Analyser" Click="ScanShaderCache_Click" />
+                    </Grid>
+                    <TextBlock Text="Le pilote et les jeux régénèrent ces caches automatiquement : les vider est sans risque, juste un peu plus lent au prochain lancement." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="ShaderCacheList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding SizeLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" />
+                                    <Button Grid.Column="2" Content="Vider" Tag="{Binding}" Click="CleanShaderCache_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="ShaderCacheStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Fichier d'echange -->
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Fichier d'échange (page file)" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="AnalyzePageFileButton" Content="Analyser" Click="AnalyzePageFile_Click" />
+                    </Grid>
+                    <TextBlock x:Name="PageFileLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Doublons et gros fichiers -->
+            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Doublons et gros fichiers" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Analyse un dossier choisi (récursif, plafonné pour rester rapide)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="PickFolderButton" Content="Choisir un dossier…" Click="PickFolder_Click" />
+                        <TextBlock x:Name="SelectedFolderLabel" Foreground="{StaticResource ZiaMutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="FindDuplicatesButton" Content="Chercher les doublons" Click="FindDuplicates_Click" Style="{StaticResource AccentButtonStyle}" IsEnabled="False" />
+                        <Button x:Name="FindLargestButton" Content="Chercher les plus gros" Click="FindLargest_Click" Style="{StaticResource AccentButtonStyle}" IsEnabled="False" />
+                    </StackPanel>
+                    <TextBlock x:Name="FilesStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="FilesResultsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="110" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Primary}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Secondary}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Sante systeme -->
+            <Border Grid.Row="5" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Vérification santé Windows (DISM + SFC)" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RunHealthCheckButton" Content="Lancer (plusieurs minutes)" Click="RunHealthCheck_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock x:Name="HealthCheckStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ScrollViewer Height="160" Background="{StaticResource ZiaPanelAltBrush}">
+                        <TextBlock x:Name="HealthCheckLog" Foreground="{StaticResource ZiaMutedBrush}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap" Margin="8" />
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- Dependances de services + tendance boot -->
+            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Dépendances de service" Style="{StaticResource CardTitleTextStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBox x:Name="ServiceNameBox" Width="200" PlaceholderText="Nom du service (ex: wuauserv)" />
+                        <Button Content="Inspecter" Click="InspectService_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="ServiceDependencyLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+
+                    <TextBlock Text="Tendance du temps de démarrage" Style="{StaticResource CardTitleTextStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Mesuré par Windows lui-même à chaque démarrage (journal Diagnostics-Performance) — aucune trace spéciale à activer." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Button x:Name="RefreshBootHistoryButton" Content="Actualiser" Click="RefreshBootHistory_Click" />
+                    <ItemsControl x:Name="BootHistoryList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding BootAt}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="1" Text="{Binding DurationLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

@@ -10,6 +10,7 @@ public sealed partial class MappingPage : Page
         InitializeComponent();
         DataContext = ((App)Microsoft.UI.Xaml.Application.Current).State;
         RefreshDisplays();
+        RefreshControllers();
     }
 
     private void RefreshDisplays_Click(object sender, RoutedEventArgs e) => RefreshDisplays();
@@ -17,6 +18,18 @@ public sealed partial class MappingPage : Page
     private void RefreshDisplays()
     {
         DisplaysList.ItemsSource = Infrastructure.Collectors.RefreshRateDetector.DetectAll();
+        MonitorDetailsList.ItemsSource = Infrastructure.Collectors.MonitorInfoCollector.DetectAll();
+    }
+
+    private void RefreshControllers_Click(object sender, RoutedEventArgs e) => RefreshControllers();
+
+    private void RefreshControllers()
+    {
+        var controllers = ZiaMonitoring_App.Application.ControllerRadarService.Scan();
+        ControllersList.ItemsSource = controllers;
+        ControllersStatusLabel.Text = controllers.Count == 0
+            ? "Aucune manette détectée."
+            : $"{controllers.Count} manette(s) détectée(s).";
     }
 
     private void LaunchGame_Click(object sender, RoutedEventArgs e)

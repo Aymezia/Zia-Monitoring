@@ -42,28 +42,77 @@ public sealed class PcProfileCollector
 
     private static string ReadCpuModel()
     {
-        var value = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER");
-        if (!string.IsNullOrWhiteSpace(value))
+        try
         {
-            return value.Trim();
+            using var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_Processor");
+            foreach (var item in searcher.Get().Cast<ManagementObject>())
+            {
+                var name = item["Name"]?.ToString();
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    return CleanCpuName(name);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn("Lecture WMI du nom CPU impossible, repli sur PROCESSOR_IDENTIFIER", ex);
+        }
+
+        // Repli : identifiant CPUID générique (ex: "AMD64 Family 25 Model 80..."),
+        // moins lisible que le nom commercial mais toujours mieux que rien.
+        var fallback = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER");
+        if (!string.IsNullOrWhiteSpace(fallback))
+        {
+            return fallback.Trim();
         }
 
         return $"Unknown CPU ({RuntimeInformation.ProcessArchitecture})";
     }
+
+    /// <summary>Le nom WMI est souvent complété par des espaces de padding fixes.</summary>
+    internal static string CleanCpuName(string rawName) =>
+        System.Text.RegularExpressions.Regex.Replace(rawName.Trim(), @"\s{2,}", " ");
+
+    private static readonly string[] VirtualGpuPatterns =
+    [
+        "parsec", "microsoft basic render", "microsoft basic display", "remote desktop",
+        "teamviewer", "virtual display", "indirect display", "meta virtual monitor", "virtual monitor"
+    ];
+
+    private static readonly string[] RealGpuVendorPatterns =
+    [
+        "nvidia", "geforce", "rtx", "gtx", "radeon", "amd", "intel", "arc", "iris"
+    ];
 
     private static string ReadGpuModel()
     {
         try
         {
             using var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_VideoController");
+            var candidates = new List<string>();
+
             foreach (var item in searcher.Get().Cast<ManagementObject>())
             {
-                var name = item["Name"]?.ToString();
+                var name = item["Name"]?.ToString()?.Trim();
                 if (!string.IsNullOrWhiteSpace(name))
                 {
-                    return name.Trim();
+                    candidates.Add(name);
                 }
             }
+
+            // 1) Priorité au GPU physique d'une marque reconnue, non virtuel
+            //    (Parsec/TeamViewer/RDP ajoutent leur propre "adaptateur" qui
+            //    peut apparaître avant le vrai GPU dans l'énumération WMI).
+            var best = candidates.FirstOrDefault(n => !IsVirtualAdapter(n) && IsKnownGpuVendor(n));
+            if (best is not null) return best;
+
+            // 2) À défaut, le premier non-virtuel (carte physique au nom non reconnu).
+            best = candidates.FirstOrDefault(n => !IsVirtualAdapter(n));
+            if (best is not null) return best;
+
+            // 3) Dernier recours (ex: VM sans GPU dédié) : le premier résultat trouvé.
+            if (candidates.Count > 0) return candidates[0];
         }
         catch (Exception ex)
         {
@@ -73,6 +122,12 @@ public sealed class PcProfileCollector
 
         return "Unknown GPU";
     }
+
+    internal static bool IsVirtualAdapter(string name) =>
+        VirtualGpuPatterns.Any(p => name.Contains(p, StringComparison.OrdinalIgnoreCase));
+
+    internal static bool IsKnownGpuVendor(string name) =>
+        RealGpuVendorPatterns.Any(p => name.Contains(p, StringComparison.OrdinalIgnoreCase));
 
     private static string ReadMotherboard()
     {

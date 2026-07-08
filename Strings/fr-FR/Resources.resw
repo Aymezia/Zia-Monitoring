@@ -27,9 +27,6 @@
   <data name="NavBoost.Content" xml:space="preserve">
     <value>Boost</value>
   </data>
-  <data name="NavAssistance.Content" xml:space="preserve">
-    <value>Assistance</value>
-  </data>
   <data name="NavGamerSupport.Content" xml:space="preserve">
     <value>Gamer / Streamer</value>
   </data>

@@ -9,6 +9,10 @@ public sealed partial class SecurityPage : Page
     private readonly App _app;
     private SecurityReport? _latestReport;
     private IReadOnlyList<ZiaMonitoring_App.Application.DebloatItem> _allDebloatItems = [];
+    // Le SelectedIndex="0" du XAML déclenche SelectionChanged pendant InitializeComponent,
+    // avant que DebloatList/DebloatStatusLabel ne soient connectés : ce garde-fou évite le
+    // NullReferenceException qui bloquait l'ouverture de la page.
+    private bool _debloatFilterLoading = true;
 
     public SecurityPage()
     {
@@ -93,7 +97,16 @@ public sealed partial class SecurityPage : Page
             : $"{toClean} élément(s) encore actif(s) sur {items.Count} (dans cette catégorie).";
     }
 
-    private void DebloatCategoryFilter_Changed(object sender, SelectionChangedEventArgs e) => ApplyDebloatFilter();
+    private void DebloatCategoryFilter_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_debloatFilterLoading)
+        {
+            _debloatFilterLoading = false;
+            return;
+        }
+
+        ApplyDebloatFilter();
+    }
 
     private void RefreshDebloat_Click(object sender, RoutedEventArgs e) => RefreshDebloat();
 

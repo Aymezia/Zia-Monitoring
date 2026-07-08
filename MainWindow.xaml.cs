@@ -508,9 +508,6 @@ public sealed partial class MainWindow : Window
                 case "boost":
                     NavFrame.Navigate(typeof(BoostPage));
                     break;
-                case "assistance":
-                    NavFrame.Navigate(typeof(AssistancePage));
-                    break;
                 case "gamer-support":
                     NavFrame.Navigate(typeof(GamerSupportPage));
                     break;
@@ -548,7 +545,6 @@ public sealed partial class MainWindow : Window
             ("Navigation", "Santé", typeof(HealthPage)),
             ("Navigation", "Recommandations", typeof(RecommendationsPage)),
             ("Navigation", "Boost", typeof(BoostPage)),
-            ("Navigation", "Assistance", typeof(AssistancePage)),
             ("Navigation", "Gamer / Streamer", typeof(GamerSupportPage)),
             ("Navigation", "Logs détaillés", typeof(DetailedLogsPage)),
             ("Navigation", "Profils", typeof(ProfilesPage)),

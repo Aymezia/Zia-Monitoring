@@ -70,11 +70,6 @@
                         <FontIcon Glyph="&#xE768;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavAssistance" Content="Assistance" Tag="assistance">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE706;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavGamerSupport" Content="Gamer / Streamer" Tag="gamer-support">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7FC;" />

@@ -105,15 +105,19 @@ public sealed class DebloatService
                     return (true, $"{key} désactivé.");
 
                 case DebloatCategory.ScheduledTask:
-                    RunCaptureOutput("schtasks.exe", $"/Change /TN \"{key}\" /Disable");
+                    var (taskExitCode, taskOut, taskErr) = RunProcess("schtasks.exe", $"/Change /TN \"{key}\" /Disable");
+                    if (taskExitCode != 0)
+                        return (false, $"Échec de la désactivation de '{key}': {FirstNonEmpty(taskErr, taskOut)}");
                     return (true, $"Tâche '{key}' désactivée.");
 
                 case DebloatCategory.BloatwareApp:
                     var fullName = GetInstalledPackageFullName(key);
                     if (fullName is null)
                         return (true, "Déjà absent.");
-                    RunCaptureOutput("powershell.exe",
+                    var (appExitCode, appOut, appErr) = RunProcess("powershell.exe",
                         $"-NoProfile -NonInteractive -Command \"Remove-AppxPackage -Package '{fullName}'\"");
+                    if (appExitCode != 0)
+                        return (false, $"Échec de la suppression de '{key}': {FirstNonEmpty(appErr, appOut)}");
                     return (true, $"'{key}' supprimé pour cet utilisateur.");
 
                 default:
@@ -159,16 +163,22 @@ public sealed class DebloatService
         }
     }
 
-    /// <summary>Nettoie tous les éléments non encore traités. Retourne le nombre réussi.</summary>
-    public int CleanAll(IEnumerable<DebloatItem> items)
+    /// <summary>Nettoie tous les éléments non encore traités. Certaines tâches planifiées
+    /// protégées par ACL système refusent la désactivation même en administrateur ;
+    /// ces échecs sont retournés individuellement plutôt que masqués dans le compte.</summary>
+    public (int SuccessCount, IReadOnlyList<(string Name, string Reason)> Failures) CleanAll(IEnumerable<DebloatItem> items)
     {
         var count = 0;
+        var failures = new List<(string Name, string Reason)>();
         foreach (var item in items.Where(i => !i.IsClean))
         {
-            var (success, _) = Clean(item.Category, item.Key);
-            if (success) count++;
+            var (success, message) = Clean(item.Category, item.Key);
+            if (success)
+                count++;
+            else
+                failures.Add((item.Name, message));
         }
-        return count;
+        return (count, failures);
     }
 
     private static int GetServiceStartType(string serviceName)
@@ -225,6 +235,11 @@ public sealed class DebloatService
     }
 
     private static string RunCaptureOutput(string fileName, string arguments, int timeoutMs = 8000)
+        => RunProcess(fileName, arguments, timeoutMs).StdOut;
+
+    /// <summary>Code de sortie : schtasks/powershell peuvent "réussir" sans effet
+    /// (ex: tâche protégée par ACL) ; seul le code de sortie le révèle de façon fiable.</summary>
+    private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, int timeoutMs = 8000)
     {
         var psi = new ProcessStartInfo(fileName, arguments)
         {
@@ -235,8 +250,15 @@ public sealed class DebloatService
         };
         using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Impossible de démarrer {fileName}.");
         var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd();
         process.WaitForExit(timeoutMs);
-        return output;
+        return (process.ExitCode, output, error);
+    }
+
+    private static string FirstNonEmpty(string primary, string fallback)
+    {
+        var trimmed = primary.Trim();
+        return trimmed.Length > 0 ? trimmed : (fallback.Trim() is { Length: > 0 } f ? f : "erreur inconnue.");
     }
 
     private void LoadState()

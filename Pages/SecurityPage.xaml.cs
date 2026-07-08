@@ -93,8 +93,10 @@ public sealed partial class SecurityPage : Page
             }
 
             var items = _app.Debloat.Scan();
-            var count = await Task.Run(() => _app.Debloat.CleanAll(items));
-            DebloatStatusLabel.Text = $"{count} élément(s) nettoyé(s).";
+            var (count, failures) = await Task.Run(() => _app.Debloat.CleanAll(items));
+            DebloatStatusLabel.Text = failures.Count == 0
+                ? $"{count} élément(s) nettoyé(s)."
+                : $"{count} élément(s) nettoyé(s). Échec ({failures.Count}) : {string.Join(" · ", failures.Select(f => $"{f.Name} — {f.Reason}"))}";
             RefreshDebloat();
         }
         finally
@@ -177,15 +179,15 @@ public sealed partial class SecurityPage : Page
                 ? "Pare-feu Windows: ACTIF"
                 : "Pare-feu Windows: DESACTIVE (risque !)";
             FirewallLabel.Foreground = report.FirewallEnabled
-                ? Resources["ZiaVioletBrush"] as Microsoft.UI.Xaml.Media.Brush
-                : Resources["ZiaRedBrush"] as Microsoft.UI.Xaml.Media.Brush;
+                ? Microsoft.UI.Xaml.Application.Current.Resources["ZiaVioletBrush"] as Microsoft.UI.Xaml.Media.Brush
+                : Microsoft.UI.Xaml.Application.Current.Resources["ZiaRedBrush"] as Microsoft.UI.Xaml.Media.Brush;
 
             UacLabel.Text = report.UacEnabled
                 ? "UAC (controle de compte): ACTIF"
                 : "UAC: DESACTIVE (risque eleve !)";
             UacLabel.Foreground = report.UacEnabled
-                ? Resources["ZiaVioletBrush"] as Microsoft.UI.Xaml.Media.Brush
-                : Resources["ZiaRedBrush"] as Microsoft.UI.Xaml.Media.Brush;
+                ? Microsoft.UI.Xaml.Application.Current.Resources["ZiaVioletBrush"] as Microsoft.UI.Xaml.Media.Brush
+                : Microsoft.UI.Xaml.Application.Current.Resources["ZiaRedBrush"] as Microsoft.UI.Xaml.Media.Brush;
 
             OpenPortsList.ItemsSource = report.OpenPorts;
             OpenPortsStatusLabel.Text = report.OpenPorts.Count == 0

@@ -15,6 +15,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -231,6 +232,40 @@
                                     <TextBlock Text="{Binding HopNumber}" Style="{StaticResource CaptionTextStyle}" />
                                     <TextBlock Grid.Column="1" Text="{Binding AddressLabel}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
                                     <TextBlock Grid.Column="2" Text="{Binding RttLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="DNS et VPN" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock x:Name="VpnStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <ComboBox x:Name="DnsProviderCombo" Width="220" SelectionChanged="DnsProvider_Changed" />
+                        <ToggleSwitch x:Name="DohToggle" Header="DNS-over-HTTPS" Toggled="Doh_Toggled" />
+                    </StackPanel>
+                    <TextBlock x:Name="DnsStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <Button x:Name="MeasureDnsButton" Content="Comparer la latence des fournisseurs" Click="MeasureDns_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <ItemsControl x:Name="DnsLatencyList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Ip}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="13" />
+                                    <TextBlock Grid.Column="2" Text="{Binding RttLabel}" Foreground="{StaticResource ZiaVioletBrush}" HorizontalAlignment="Right" FontWeight="SemiBold" />
+                                    <Border Grid.Column="3" Style="{StaticResource BadgeStyle}" Background="{StaticResource ZiaGreenBrush}"
+                                            Visibility="{Binding IsBest, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="Plus rapide" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" />
+                                    </Border>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

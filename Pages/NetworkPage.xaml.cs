@@ -19,6 +19,83 @@ public sealed partial class NetworkPage : Page
         RegionStatusLabel.Text = "Cliquez sur 'Mesurer les régions' pour lancer le test (8 mesures en parallèle).";
         PacketLossStatusLabel.Text = "Mesure à la demande (10 pings par cible, ~1 s).";
         TracerouteStatusLabel.Text = "Sélectionnez une cible et cliquez sur 'Tracer'.";
+
+        foreach (var option in DnsService.Providers)
+            DnsProviderCombo.Items.Add(new ComboBoxItem { Content = option.Label, Tag = option.Provider });
+        DnsProviderCombo.SelectedIndex = 0;
+
+        var vpn = ZiaMonitoring_App.Application.DnsService.DetectVpn();
+        VpnStatusLabel.Text = vpn.Label;
+        DnsStatusLabel.Text = "Sélectionnez un fournisseur pour basculer le DNS de l'interface active.";
+    }
+
+    private bool _dnsLoading = true;
+
+    private async void DnsProvider_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_dnsLoading)
+        {
+            _dnsLoading = false;
+            return;
+        }
+
+        if (DnsProviderCombo.SelectedItem is not ComboBoxItem { Tag: DnsProvider provider })
+            return;
+
+        DnsProviderCombo.IsEnabled = false;
+        DnsStatusLabel.Text = "Application en cours…";
+        try
+        {
+            var (success, message) = await Task.Run(() => _app.Dns.SetProvider(provider));
+            DnsStatusLabel.Text = message;
+            if (!success)
+                Infrastructure.AppLog.Warn($"Bascule DNS vers '{provider}' en échec: {message}");
+        }
+        finally
+        {
+            DnsProviderCombo.IsEnabled = true;
+        }
+    }
+
+    private async void Doh_Toggled(object sender, RoutedEventArgs e)
+    {
+        DohToggle.IsEnabled = false;
+        try
+        {
+            var (success, message) = await Task.Run(() => _app.Dns.SetDnsOverHttps(DohToggle.IsOn));
+            DnsStatusLabel.Text = message;
+            if (!success)
+                DohToggle.IsOn = !DohToggle.IsOn;
+        }
+        finally
+        {
+            DohToggle.IsEnabled = true;
+        }
+    }
+
+    private async void MeasureDns_Click(object sender, RoutedEventArgs e)
+    {
+        MeasureDnsButton.IsEnabled = false;
+        DnsStatusLabel.Text = "Mesure en cours…";
+        try
+        {
+            var results = await Task.Run(ZiaMonitoring_App.Application.DnsService.MeasureLatencies);
+            DnsLatencyList.ItemsSource = results;
+
+            var best = results.FirstOrDefault(r => r.IsBest);
+            DnsStatusLabel.Text = best is not null
+                ? $"Le plus rapide : {best.Label} ({best.RttLabel})."
+                : "Aucun fournisseur n'a répondu (hors ligne ?).";
+        }
+        catch (Exception ex)
+        {
+            DnsStatusLabel.Text = "Mesure impossible (hors ligne ?).";
+            Infrastructure.AppLog.Warn("Comparaison de latence DNS en échec", ex);
+        }
+        finally
+        {
+            MeasureDnsButton.IsEnabled = true;
+        }
     }
 
     private static readonly Dictionary<string, string> TracerouteHosts = new(StringComparer.OrdinalIgnoreCase)

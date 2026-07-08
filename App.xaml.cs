@@ -57,6 +57,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.CustomRuleEngine CustomRules => _services.GetRequiredService<Application.CustomRuleEngine>();
     public Application.PrometheusExporterService PrometheusExporter => _services.GetRequiredService<Application.PrometheusExporterService>();
     public Application.ObsWebSocketService ObsWebSocket => _services.GetRequiredService<Application.ObsWebSocketService>();
+    public Application.DnsService Dns => _services.GetRequiredService<Application.DnsService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -115,6 +116,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.CustomRuleEngine>();
         services.AddSingleton<Application.PrometheusExporterService>();
         services.AddSingleton<Application.ObsWebSocketService>();
+        services.AddSingleton<Application.DnsService>();
 
         return services.BuildServiceProvider();
     }

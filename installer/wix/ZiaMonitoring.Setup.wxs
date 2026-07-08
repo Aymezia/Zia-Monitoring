@@ -3,13 +3,13 @@
   <Package
     Name="Zia Monitoring"
     Manufacturer="Zia Monitoring"
-    Version="1.0.0"
+    Version="1.1.0"
     UpgradeCode="E0C42E13-45F7-4D4A-BD26-44DF74EF1AB8"
     Scope="perUser"
     Language="1036">
 
     <MajorUpgrade DowngradeErrorMessage="Une version plus recente de Zia Monitoring est deja installee." />
-    <MediaTemplate />
+    <MediaTemplate EmbedCab="yes" />
 
     <StandardDirectory Id="LocalAppDataFolder">
       <Directory Id="ZIAFOLDER" Name="ZiaMonitoring">

@@ -123,4 +123,38 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Equal(1, settings.RefreshIntervalSeconds);
     }
+
+    [Fact]
+    public void ExportEtImport_RoundTrip_ConserveLesValeursEtDechiffreLaCle()
+    {
+        const string apiKey = "ma-cle-secrete-steamgriddb";
+        var service = new SettingsService(_dir);
+        service.Save(BaseSettings with { RefreshIntervalSeconds = 6, SteamGridDbApiKey = apiKey });
+
+        var exportPath = Path.Combine(_dir, "export.json");
+        service.ExportToFile(exportPath);
+
+        var importDir = Path.Combine(_dir, "import-target");
+        var importService = new SettingsService(importDir);
+        var imported = importService.ImportFromFile(exportPath);
+
+        Assert.Equal(6, imported.RefreshIntervalSeconds);
+        Assert.Equal(apiKey, imported.SteamGridDbApiKey);
+        Assert.Equal(6, importService.Load().RefreshIntervalSeconds);
+    }
+
+    [Fact]
+    public void ExportToFile_ChiffreLaCleApiDansLeFichierExporte()
+    {
+        const string apiKey = "ma-cle-secrete-steamgriddb";
+        var service = new SettingsService(_dir);
+        service.Save(BaseSettings with { SteamGridDbApiKey = apiKey });
+
+        var exportPath = Path.Combine(_dir, "export.json");
+        service.ExportToFile(exportPath);
+
+        var raw = File.ReadAllText(exportPath);
+        Assert.DoesNotContain(apiKey, raw);
+        Assert.Contains("dpapi:", raw);
+    }
 }

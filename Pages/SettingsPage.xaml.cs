@@ -613,6 +613,85 @@ public sealed partial class SettingsPage : Page
         }
     }
 
+    private async void ExportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                SuggestedFileName = $"zia-reglages-{DateTime.Now:yyyy-MM-dd}"
+            };
+            picker.FileTypeChoices.Add("Réglages Zia Monitoring (JSON)", [".json"]);
+            InitializeExportPicker(picker);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file is null)
+                return;
+
+            _app.SettingsService.ExportToFile(file.Path);
+            SettingsBackupStatusLabel.Text = $"Réglages exportés vers {file.Path}";
+        }
+        catch (Exception ex)
+        {
+            SettingsBackupStatusLabel.Text = $"Export impossible : {ex.Message}";
+            AppLog.Warn("Export complet des réglages en échec", ex);
+        }
+    }
+
+    private async void ImportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop
+            };
+            picker.FileTypeFilter.Add(".json");
+            InitializeExportPicker(picker);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file is null)
+                return;
+
+            _app.SettingsService.ImportFromFile(file.Path);
+            SettingsBackupStatusLabel.Text = "Réglages importés. Redémarrez l'application pour les appliquer partout.";
+        }
+        catch (Exception ex)
+        {
+            SettingsBackupStatusLabel.Text = $"Import impossible : {ex.Message}";
+            AppLog.Warn("Import complet des réglages en échec", ex);
+        }
+    }
+
+    private void SettingsSearch_Changed(object sender, TextChangedEventArgs e)
+    {
+        var query = SettingsSearchBox.Text.Trim();
+        var cards = new (Border Card, string Keywords)[]
+        {
+            (MonitoringCard, "monitoring intervalle rafraichissement alertes toast resume sante quotidien seuils cpu temperature gpu disque playtime temps de jeu"),
+            (SystemCard, "systeme systray demarrage automatique raccourci hotkey overlay widget transparence ecran"),
+            (GamesOptimizationCard, "jeux optimisation game booster point de restauration mode silencieux nettoyage temp planifie sauvegarde saves animations"),
+            (ExportCard, "export rapport html"),
+            (BoostHistoryCard, "historique des optimisations boost"),
+            (MetricsExportCard, "export historique metriques csv json"),
+            (SaveBackupCard, "sauvegarde saves de jeux my games saved games"),
+            (CustomRulesCard, "regles personnalisees automatisation condition action"),
+            (PrometheusCard, "export prometheus grafana metrics"),
+            (ObsCard, "obs websocket streaming scene bascule"),
+            (HardwareSensorsCard, "capteurs materiels temperatures ventilateurs winring0 defender"),
+            (GameLaunchProfilesCard, "profils de lancement par jeu companion presse-papiers kill process"),
+            (SettingsBackupCard, "sauvegarde complete des reglages export import migration")
+        };
+
+        foreach (var (card, keywords) in cards)
+        {
+            card.Visibility = string.IsNullOrWhiteSpace(query) || keywords.Contains(query, StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+    }
+
     private static string BuildHtmlReport(ZiaMonitoring_App.ViewModels.AppStateViewModel state)
     {
         var sb = new System.Text.StringBuilder();

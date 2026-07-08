@@ -73,6 +73,36 @@ public sealed class SettingsService
         }
     }
 
+    /// <summary>Exporte tous les réglages (clé API/mot de passe OBS chiffrés DPAPI, comme sur disque).</summary>
+    public void ExportToFile(string path)
+    {
+        lock (_gate)
+        {
+            var current = _cached ?? LoadFromDisk();
+            var exported = current with
+            {
+                SteamGridDbApiKey = Protect(current.SteamGridDbApiKey),
+                ObsPassword = Protect(current.ObsPassword)
+            };
+            File.WriteAllText(path, JsonSerializer.Serialize(exported, new JsonSerializerOptions { WriteIndented = true }));
+        }
+    }
+
+    /// <summary>Importe des réglages exportés et les applique immédiatement (déchiffrement DPAPI, mêmes bornes que Save).</summary>
+    public AppSettings ImportFromFile(string path)
+    {
+        var json = File.ReadAllText(path);
+        var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
+        settings = settings with
+        {
+            SteamGridDbApiKey = Unprotect(settings.SteamGridDbApiKey ?? string.Empty),
+            ObsPassword = Unprotect(settings.ObsPassword ?? string.Empty)
+        };
+        settings = Clamp(settings);
+        Save(settings);
+        return settings;
+    }
+
     private AppSettings LoadFromDisk()
     {
         try

@@ -23,12 +23,16 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+            <StackPanel>
+                <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+                <TextBox x:Name="SettingsSearchBox" PlaceholderText="Rechercher un réglage…" TextChanged="SettingsSearch_Changed" Margin="0,8,0,0" MaxWidth="420" HorizontalAlignment="Left" />
+            </StackPanel>
 
             <!-- Monitoring -->
-            <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <Border x:Name="MonitoringCard" Grid.Row="1" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Monitoring" Style="{StaticResource CardTitleTextStyle}" />
                     <StackPanel Orientation="Horizontal" Spacing="12">
@@ -68,7 +72,7 @@
             </Border>
 
             <!-- Systeme -->
-            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+            <Border x:Name="SystemCard" Grid.Row="2" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Systeme" Style="{StaticResource CardTitleTextStyle}" />
                     <ToggleSwitch x:Name="SystrayToggle" Header="Icone systray avec tooltip CPU / GPU live" Toggled="Systray_Toggled" />
@@ -98,7 +102,7 @@
             </Border>
 
             <!-- Jeux & Optimisation -->
-            <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <Border x:Name="GamesOptimizationCard" Grid.Row="3" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Jeux et optimisation" Style="{StaticResource CardTitleTextStyle}" />
                     <ToggleSwitch x:Name="GameBoosterToggle" Header="Game Booster automatique (priorités + plan d'alimentation performances, restaurés en fin de partie)" Toggled="GameBooster_Toggled" />
@@ -112,7 +116,7 @@
             </Border>
 
             <!-- Export -->
-            <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+            <Border x:Name="ExportCard" Grid.Row="4" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Export et rapports" Style="{StaticResource CardTitleTextStyle}" />
                     <Button x:Name="ExportPdfButton" Content="Exporter rapport HTML (ouvrir dans navigateur)" Click="ExportHtml_Click" Style="{StaticResource AccentButtonStyle}" />
@@ -121,7 +125,7 @@
             </Border>
 
             <!-- Historique Boost -->
-            <Border Grid.Row="5" Style="{StaticResource CardStyle}">
+            <Border x:Name="BoostHistoryCard" Grid.Row="5" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Historique des optimisations" Style="{StaticResource CardTitleTextStyle}" />
                     <Button Content="Rafraichir l'historique" Click="RefreshHistory_Click" />
@@ -147,7 +151,7 @@
             </Border>
 
             <!-- Export historique -->
-            <Border Grid.Row="6" Style="{StaticResource CardStyle}">
+            <Border x:Name="MetricsExportCard" Grid.Row="6" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Export de l'historique des métriques" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Échantillons bruts (CPU, RAM, températures) des 8 derniers jours, pour analyse externe (Excel, Python...)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -160,7 +164,7 @@
             </Border>
 
             <!-- Sauvegarde des saves de jeux -->
-            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+            <Border x:Name="SaveBackupCard" Grid.Row="7" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Sauvegarde des saves de jeux" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Zip de Documents\My Games et %USERPROFILE%\Saved Games — les deux conventions les plus répandues. 7 dernières sauvegardes conservées." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -170,7 +174,7 @@
             </Border>
 
             <!-- Règles personnalisées -->
-            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+            <Border x:Name="CustomRulesCard" Grid.Row="8" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Règles personnalisées" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Ex : CPU au-dessus de 90% pendant 10 min → nettoyage temp. Une alerte au maximum toutes les 15 min par règle." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -211,7 +215,7 @@
             </Border>
 
             <!-- Export Prometheus -->
-            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+            <Border x:Name="PrometheusCard" Grid.Row="9" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Export Prometheus" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Expose les métriques courantes sur http://localhost:9877/metrics pour un Grafana local. Accessible uniquement depuis cette machine." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -221,7 +225,7 @@
             </Border>
 
             <!-- OBS WebSocket -->
-            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+            <Border x:Name="ObsCard" Grid.Row="10" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Bascule de scène OBS automatique" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Nécessite OBS Studio 28+ avec le serveur WebSocket activé (Outils → Paramètres du serveur WebSocket). Bascule vers la scène 'Jeu' à la détection d'un jeu, vers 'Repos' à sa fermeture." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -255,7 +259,7 @@
             </Border>
 
             <!-- Capteurs materiels avances -->
-            <Border Grid.Row="11" Style="{StaticResource CardStyle}">
+            <Border x:Name="HardwareSensorsCard" Grid.Row="11" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Capteurs materiels avances (temperatures / ventilateurs)" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Desactive par defaut. L'activation installe un driver bas niveau (LibreHardwareMonitor / WinRing0) pour lire les temperatures CPU/GPU et la vitesse des ventilateurs. Ce driver figure sur la liste des drivers vulnerables de Microsoft : Windows Defender peut le detecter et le supprimer automatiquement, ce qui desactivera de nouveau ces mesures. N'activez que si vous comprenez ce risque." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -264,7 +268,7 @@
             </Border>
 
             <!-- Profils de lancement par jeu -->
-            <Border Grid.Row="12" Style="{StaticResource CardStyle}">
+            <Border x:Name="GameLaunchProfilesCard" Grid.Row="12" Style="{StaticResource CardStyle}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Profils de lancement par jeu" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Au demarrage d'un jeu configure : lance des applications compagnon (Discord, OBS...) et arrete des process indesirables, une seule fois (pas de surveillance continue)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
@@ -323,6 +327,19 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Sauvegarde complete des reglages -->
+            <Border x:Name="SettingsBackupCard" Grid.Row="13" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Sauvegarde complète des réglages" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Exporte ou restaure tous les paramètres de l'application (pas seulement les profils Boost) — utile pour revenir en arrière après un essai, ou dupliquer la config sur ce même compte Windows. La clé API et le mot de passe OBS restent chiffrés (DPAPI, lié à ce compte Windows) : ils ne seront pas restaurés si le fichier est importé sur une autre machine ou un autre compte." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Exporter les réglages…" Click="ExportSettings_Click" Style="{StaticResource AccentButtonStyle}" />
+                        <Button Content="Importer des réglages…" Click="ImportSettings_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="SettingsBackupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

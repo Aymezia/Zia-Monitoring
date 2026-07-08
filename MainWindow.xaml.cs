@@ -77,6 +77,7 @@ public sealed partial class MainWindow : Window
     {
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         var lastHistoryPush = DateTime.MinValue;
+        var lastThermalDriftCheck = DateTime.MinValue;
 
         while (!ct.IsCancellationRequested)
         {
@@ -245,6 +246,17 @@ public sealed partial class MainWindow : Window
                     {
                         ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
                             "Zia Monitoring - Disque en dégradation", smartWarning.Label);
+                    }
+                }
+
+                // Dérive thermique long terme, une fois par jour.
+                if (DateTime.UtcNow - lastThermalDriftCheck >= TimeSpan.FromHours(24))
+                {
+                    lastThermalDriftCheck = DateTime.UtcNow;
+                    foreach (var driftWarning in app.MetricsHistory.GetThermalDriftWarnings())
+                    {
+                        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                            "Zia Monitoring - Dérive thermique", driftWarning);
                     }
                 }
 

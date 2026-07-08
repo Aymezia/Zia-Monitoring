@@ -54,6 +54,12 @@ public sealed class MetricsHistoryService : IDisposable
                     gpu_temp REAL NULL,
                     gpu_usage REAL NULL);
                 CREATE INDEX IF NOT EXISTS ix_metric_samples_timestamp ON metric_samples(timestamp);
+                CREATE TABLE IF NOT EXISTS thermal_daily(
+                    day INTEGER NOT NULL,
+                    bucket INTEGER NOT NULL,
+                    avg_temp REAL NOT NULL,
+                    samples INTEGER NOT NULL,
+                    PRIMARY KEY(day, bucket));
                 """;
             command.ExecuteNonQuery();
         }
@@ -89,11 +95,113 @@ public sealed class MetricsHistoryService : IDisposable
             command.ExecuteNonQuery();
 
             PruneIfDue();
+            RollupThermalDailyIfDue();
         }
         catch (Exception ex)
         {
             Infrastructure.AppLog.Warn("Écriture de l'échantillon de métriques impossible", ex);
         }
+    }
+
+    private DateTime _lastThermalRollup = DateTime.MinValue;
+
+    /// <summary>
+    /// Agrège une fois par heure les températures CPU de la veille par palier
+    /// de charge (0-30 %, 30-70 %, 70-100 %) dans thermal_daily. Contrairement
+    /// aux échantillons bruts (purgés à 8 jours), ces agrégats sont conservés
+    /// longtemps : c'est ce qui permet de détecter une dérive sur des semaines.
+    /// </summary>
+    internal void RollupThermalDailyIfDue()
+    {
+        if (_connection is null || DateTime.UtcNow - _lastThermalRollup < TimeSpan.FromHours(1))
+            return;
+
+        _lastThermalRollup = DateTime.UtcNow;
+
+        try
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = """
+                INSERT OR REPLACE INTO thermal_daily(day, bucket, avg_temp, samples)
+                SELECT timestamp / 86400,
+                       CASE WHEN cpu < 30 THEN 0 WHEN cpu < 70 THEN 1 ELSE 2 END AS bucket,
+                       AVG(cpu_temp),
+                       COUNT(*)
+                FROM metric_samples
+                WHERE cpu_temp IS NOT NULL
+                  AND timestamp / 86400 < $today
+                  AND timestamp / 86400 NOT IN (SELECT DISTINCT day FROM thermal_daily)
+                GROUP BY timestamp / 86400, bucket
+                """;
+            command.Parameters.AddWithValue("$today", DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 86400);
+            command.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Agrégation thermique quotidienne impossible", ex);
+        }
+    }
+
+    private static readonly string[] LoadBucketLabels = ["charge faible (0-30 %)", "charge moyenne (30-70 %)", "charge forte (70-100 %)"];
+
+    /// <summary>
+    /// Compare la température moyenne récente (7 derniers jours) à la référence
+    /// (agrégats d'au moins 21 jours d'ancienneté) à charge comparable.
+    /// </summary>
+    public IReadOnlyList<string> GetThermalDriftWarnings()
+    {
+        if (_connection is null)
+            return [];
+
+        try
+        {
+            var rows = new List<(long Day, int Bucket, double AvgTemp, int Samples)>();
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = "SELECT day, bucket, avg_temp, samples FROM thermal_daily";
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                    rows.Add((reader.GetInt64(0), reader.GetInt32(1), reader.GetDouble(2), reader.GetInt32(3)));
+            }
+
+            return ComputeThermalDrift(rows, DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 86400);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Analyse de dérive thermique impossible", ex);
+            return [];
+        }
+    }
+
+    /// <summary>Calcul pur, testable sans base : dérive = récent (≤7 j) vs référence (≥21 j), ≥3 jours de données de chaque côté.</summary>
+    internal static IReadOnlyList<string> ComputeThermalDrift(
+        IReadOnlyList<(long Day, int Bucket, double AvgTemp, int Samples)> rows, long todayDayNumber)
+    {
+        const double DriftThresholdC = 5;
+        const int MinDaysEachSide = 3;
+
+        var warnings = new List<string>();
+
+        foreach (var bucket in rows.GroupBy(r => r.Bucket).OrderBy(g => g.Key))
+        {
+            var recent = bucket.Where(r => todayDayNumber - r.Day <= 7).ToList();
+            var baseline = bucket.Where(r => todayDayNumber - r.Day >= 21).ToList();
+            if (recent.Count < MinDaysEachSide || baseline.Count < MinDaysEachSide)
+                continue;
+
+            var recentAvg = recent.Average(r => r.AvgTemp);
+            var baselineAvg = baseline.Average(r => r.AvgTemp);
+            var delta = recentAvg - baselineAvg;
+
+            if (delta >= DriftThresholdC && bucket.Key is >= 0 and <= 2)
+            {
+                warnings.Add(
+                    $"CPU en {LoadBucketLabels[bucket.Key]} : {recentAvg:F1}°C en moyenne cette semaine contre {baselineAvg:F1}°C il y a plus de 3 semaines (+{delta:F1}°C). "
+                    + "Pâte thermique fatiguée ou radiateur encrassé probables.");
+            }
+        }
+
+        return warnings;
     }
 
     /// <summary>Moyennes CPU par heure sur les dernières 24 h (heures sans données omises).</summary>

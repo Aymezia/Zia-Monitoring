@@ -20,6 +20,9 @@ public sealed class ActiveGameDetector
         "dota", "hearthstone", "starcraft", "diablo"
     };
 
+    /// <summary>Vrai si ce nom de process correspond à un jeu connu (partagé avec les diagnostics de crash).</summary>
+    internal static bool IsKnownGameProcess(string processName) => KnownGameProcessNames.Contains(processName);
+
     private readonly GameServerLatencyCollector _latencyCollector = new();
     private DateTime? _sessionStart;
     private string? _activeGame;

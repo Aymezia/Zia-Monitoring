@@ -224,6 +224,47 @@ public sealed partial class MaintenancePage : Page
         BootHistoryList.ItemsSource = SystemHealthService.GetBootTimeHistory();
     }
 
+    private async void RefreshStability_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshStabilityButton.IsEnabled = false;
+        BsodLabel.Text = "Analyse des journaux Windows en cours…";
+        try
+        {
+            var diag = _app.CrashDiagnostics;
+            var (crashes, whea, bsod, memDiag) = await Task.Run(() =>
+                (diag.GetRecentAppCrashes(), diag.GetWheaSummary(), diag.GetLastBsod(), diag.GetLastMemoryDiagnosticResult()));
+
+            BsodLabel.Text = bsod?.Label ?? "Aucun écran bleu journalisé.";
+            WheaLabel.Text = whea.Label;
+            CrashGroupsList.ItemsSource = crashes;
+            MemDiagLabel.Text = memDiag ?? "Aucun diagnostic mémoire exécuté (le verdict apparaît ici après le test).";
+        }
+        finally
+        {
+            RefreshStabilityButton.IsEnabled = true;
+        }
+    }
+
+    private void LaunchMemDiag_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = CrashDiagnosticsService.LaunchMemoryDiagnostic();
+        MemDiagLabel.Text = message;
+    }
+
+    private void RefreshLeaks_Click(object sender, RoutedEventArgs e)
+    {
+        var suspects = _app.MonitoringService.MemoryLeakSuspects;
+        LeaksList.ItemsSource = suspects;
+        LeaksStatusLabel.Text = suspects.Count == 0
+            ? "Aucune fuite suspectée pour l'instant (au moins 1 h d'observation nécessaire)."
+            : $"{suspects.Count} process suspect(s).";
+
+        var drift = _app.MetricsHistory.GetThermalDriftWarnings();
+        ThermalDriftLabel.Text = drift.Count == 0
+            ? "Dérive thermique : rien à signaler (ou pas encore assez d'historique)."
+            : string.Join(Environment.NewLine, drift);
+    }
+
     private static void InitializePicker(object picker)
     {
         var window = ((App)Microsoft.UI.Xaml.Application.Current).MainWindowInstance;

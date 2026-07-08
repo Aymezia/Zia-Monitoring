@@ -20,12 +20,15 @@ public sealed class MonitoringService : IDisposable
     private readonly RecommendationEngine _engine = new();
     private readonly ThrottlingDetector _throttlingDetector = new();
     private readonly FpsDropCorrelator _fpsDropCorrelator = new();
+    private readonly MemoryLeakDetector _memoryLeakDetector = new();
     private readonly PresentMonService _presentMon;
     private readonly SettingsService _settings;
 
     private PcProfile? _profileCache;
 
     public IReadOnlyList<FpsDropEvent> RecentFpsDrops => _fpsDropCorrelator.RecentEvents;
+
+    public IReadOnlyList<LeakSuspect> MemoryLeakSuspects => _memoryLeakDetector.Suspects;
 
     public MonitoringService(PresentMonService presentMon, SettingsService settings)
     {
@@ -49,6 +52,7 @@ public sealed class MonitoringService : IDisposable
         var networkProcesses = _networkConnectionCollector.GetTopNetworkProcesses(activeConnections);
         var gameLatencies = _gameServerLatencyCollector.GetGameServerLatencies();
         _fpsDropCorrelator.Observe(estimatedFps, processes);
+        _memoryLeakDetector.MaybeCapture();
 
         // Real hardware readings from LibreHardwareMonitor.
         // Opt-in uniquement : ouvrir le driver installe un composant kernel

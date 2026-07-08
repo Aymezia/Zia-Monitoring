@@ -17,6 +17,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -161,6 +163,58 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Stabilite : crashs, WHEA, BSOD, diagnostic memoire -->
+            <Border Grid.Row="7" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Stabilité (crashs, matériel, écrans bleus)" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshStabilityButton" Content="Analyser" Click="RefreshStability_Click" Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                    <TextBlock Text="Lecture seule des journaux que Windows tient déjà : crashs d'applications sur 30 jours (module fautif inclus — souvent un driver GPU ou un overlay), erreurs matérielles corrigées WHEA (signal précoce d'un OC RAM/CPU instable) et dernier écran bleu." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="BsodLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="WheaLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="CrashGroupsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Lancer le diagnostic mémoire Windows" Click="LaunchMemDiag_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="MemDiagLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Fuites memoire + derive thermique -->
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Fuites mémoire et dérive thermique" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshLeaksButton" Content="Actualiser" Click="RefreshLeaks_Click" />
+                    </Grid>
+                    <TextBlock Text="Fuites : process dont la RAM grimpe en continu depuis au moins 1 h sans jamais redescendre (échantillonnage automatique toutes les 5 min). Dérive thermique : température moyenne à charge comparable, cette semaine vs il y a plus de 3 semaines — nécessite les capteurs matériels activés et quelques semaines d'historique." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="LeaksStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="LeaksList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaAmberBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="ThermalDriftLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

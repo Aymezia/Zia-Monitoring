@@ -61,6 +61,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.SystemHealthService SystemHealth => _services.GetRequiredService<Application.SystemHealthService>();
     public Application.GameLaunchProfileService GameLaunchProfiles => _services.GetRequiredService<Application.GameLaunchProfileService>();
     public Application.AchievementService Achievements => _services.GetRequiredService<Application.AchievementService>();
+    public Application.CrashDiagnosticsService CrashDiagnostics => _services.GetRequiredService<Application.CrashDiagnosticsService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -132,6 +133,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.SystemHealthService>();
         services.AddSingleton<Application.GameLaunchProfileService>();
         services.AddSingleton<Application.AchievementService>();
+        services.AddSingleton<Application.CrashDiagnosticsService>();
 
         return services.BuildServiceProvider();
     }

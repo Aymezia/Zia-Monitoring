@@ -83,15 +83,19 @@ Zia Monitoring est un logiciel de monitoring système complet pour Windows 10/11
 
 ## Installation
 
-### Option 1 — Portable (recommandé, sans installation)
-Téléchargez `ZiaMonitoring.App.exe` depuis les [Releases](../../releases) et lancez directement.
+L'application ne nécessite pas les droits administrateur pour démarrer ;
+seules certaines actions (débloat télémétrie/tâches, kill switch, DNS,
+DISM/SFC, capteurs matériel) proposent une relance élevée au moment où
+elles sont utilisées.
 
-### Option 2 — Installateur MSI
-Téléchargez `ZiaMonitoring-Setup.msi` et exécutez-le.  
-L'app s'installe dans `%LOCALAPPDATA%\ZiaMonitoring\app` sans droits administrateur.
+### Option 1 — Portable (aucune installation)
+Téléchargez le dossier portable depuis les [Releases](../../releases),
+extrayez-le où vous voulez et lancez `ZiaMonitoring.App.exe`.
 
-### Option 3 — Bootstrap Setup.exe
-Téléchargez `ZiaMonitoring-SetupBootstrap.exe` **et** `ZiaMonitoring-Setup.msi` dans le même dossier, puis lancez le `.exe`.
+### Option 2 — Installateur (recommandé)
+Téléchargez `ZiaMonitoring-Setup.exe` et exécutez-le.
+Installation par utilisateur (pas d'invite UAC), avec entrée standard
+dans "Applications installées" et désinstallation automatique.
 
 ---
 
@@ -103,7 +107,7 @@ Téléchargez `ZiaMonitoring-SetupBootstrap.exe` **et** `ZiaMonitoring-Setup.msi
 git clone https://github.com/Aymezia/Zia-Monitoring.git
 cd "Zia-Monitoring/ZiaMonitoring.App"
 
-# Build debug (solution complète : app + bootstrapper + tests)
+# Build debug (solution complète : app + tests)
 dotnet build ZiaMonitoring.sln
 
 # Tests unitaires
@@ -112,8 +116,8 @@ dotnet test tests/ZiaMonitoring.Tests/ZiaMonitoring.Tests.csproj
 # Build portable (release)
 powershell -ExecutionPolicy Bypass -File .\installer\Build-Portable.ps1
 
-# Build MSI
-powershell -ExecutionPolicy Bypass -File .\installer\Build-Msi.ps1
+# Build installeur (necessite Inno Setup 6 : https://jrsoftware.org/isdl.php)
+powershell -ExecutionPolicy Bypass -File .\installer\Build-InnoSetup.ps1
 ```
 
 La CI GitHub Actions (`.github/workflows/ci.yml`) build l'app et exécute les

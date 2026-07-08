@@ -30,6 +30,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -449,6 +450,16 @@
                     <TextBlock Text="Mode invité" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Masque temporairement les champs sensibles de cette page (Application ID Discord, mot de passe OBS) pour prêter le PC sans les réexposer. Les valeurs réelles sont conservées et réapparaissent à la désactivation." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Name="GuestModeToggle" Header="Activer le mode invité" Toggled="GuestMode_Toggled" />
+                </StackPanel>
+            </Border>
+
+            <!-- Droits administrateur -->
+            <Border x:Name="AdminModeCard" Grid.Row="20" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Droits administrateur" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Zia Monitoring démarre sans élévation. Une relance en administrateur est proposée automatiquement quand une action en a besoin (débloat, kill switch, DNS, DISM/SFC, capteurs matériel)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AdminModeStatusLabel" Foreground="{StaticResource ZiaTextBrush}" FontWeight="SemiBold" />
+                    <Button x:Name="RelaunchAdminButton" Content="Relancer en administrateur" Click="RelaunchAdmin_Click" />
                 </StackPanel>
             </Border>
         </Grid>

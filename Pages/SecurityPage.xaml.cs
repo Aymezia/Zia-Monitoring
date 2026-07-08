@@ -97,34 +97,48 @@ public sealed partial class SecurityPage : Page
 
     private void RefreshDebloat_Click(object sender, RoutedEventArgs e) => RefreshDebloat();
 
-    private void CleanDebloat_Click(object sender, RoutedEventArgs e)
+    private static bool RequiresElevation(ZiaMonitoring_App.Application.DebloatCategory category) =>
+        category is ZiaMonitoring_App.Application.DebloatCategory.Telemetry or ZiaMonitoring_App.Application.DebloatCategory.ScheduledTask;
+
+    private async void CleanDebloat_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
-        {
-            var (success, message) = _app.Debloat.Clean(item.Category, item.Key);
-            DebloatStatusLabel.Text = message;
-            if (success)
-                RefreshDebloat();
-        }
+        if (sender is not Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
+            return;
+
+        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage de cet élément"))
+            return;
+
+        var (success, message) = _app.Debloat.Clean(item.Category, item.Key);
+        DebloatStatusLabel.Text = message;
+        if (success)
+            RefreshDebloat();
     }
 
-    private void UndoDebloat_Click(object sender, RoutedEventArgs e)
+    private async void UndoDebloat_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
-        {
-            var (success, message) = _app.Debloat.Undo(item.Category, item.Key);
-            DebloatStatusLabel.Text = message;
-            if (success)
-                RefreshDebloat();
-        }
+        if (sender is not Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
+            return;
+
+        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La restauration de cet élément"))
+            return;
+
+        var (success, message) = _app.Debloat.Undo(item.Category, item.Key);
+        DebloatStatusLabel.Text = message;
+        if (success)
+            RefreshDebloat();
     }
 
     private async void CleanAllDebloat_Click(object sender, RoutedEventArgs e)
     {
+        var settings = _app.SettingsService.Load();
+        var needsElevation = _allDebloatItems.Any(i => !i.IsClean && RequiresElevation(i.Category)) || settings.EnableRestorePointBeforeRiskyActions;
+        if (needsElevation && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage complet du débloat"))
+            return;
+
         CleanAllDebloatButton.IsEnabled = false;
         try
         {
-            if (_app.SettingsService.Load().EnableRestorePointBeforeRiskyActions)
+            if (settings.EnableRestorePointBeforeRiskyActions)
             {
                 DebloatStatusLabel.Text = "Création d'un point de restauration…";
                 await Task.Run(() => _app.RestorePoint.CreateRestorePoint("Zia Monitoring - avant Débloat"));

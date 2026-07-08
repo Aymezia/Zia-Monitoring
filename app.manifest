@@ -2,11 +2,17 @@
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="ZiaMonitoring.App.app"/>
 
-  <!-- Request admin elevation so LibreHardwareMonitor can read hardware sensors (temps, fans) -->
+  <!--
+    Démarrage sans élévation : la plupart des fonctionnalités (monitoring,
+    jeux, réseau en lecture seule...) n'ont pas besoin d'administrateur.
+    Les actions qui en ont réellement besoin (débloat télémétrie/tâches,
+    kill switch, changement de DNS, DISM/SFC, capteurs matériel) proposent
+    une relance élevée à la demande — voir AdminElevation/AdminElevationPrompt.
+  -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>
-        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>

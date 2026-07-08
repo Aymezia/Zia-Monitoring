@@ -43,6 +43,9 @@ public sealed partial class NetworkPage : Page
 
     private async void PickBlockTarget_Click(object sender, RoutedEventArgs e)
     {
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le kill switch réseau"))
+            return;
+
         var picker = new Windows.Storage.Pickers.FileOpenPicker
         {
             SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
@@ -69,6 +72,9 @@ public sealed partial class NetworkPage : Page
         if (sender is not Button { Tag: string exePath })
             return;
 
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le kill switch réseau"))
+            return;
+
         var (_, message) = await Task.Run(() => _app.KillSwitch.Unblock(exePath));
         KillSwitchStatusLabel.Text = message;
         RefreshBlockedApps();
@@ -87,6 +93,9 @@ public sealed partial class NetworkPage : Page
         if (DnsProviderCombo.SelectedItem is not ComboBoxItem { Tag: DnsProvider provider })
             return;
 
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le changement de DNS"))
+            return;
+
         DnsProviderCombo.IsEnabled = false;
         DnsStatusLabel.Text = "Application en cours…";
         try
@@ -102,15 +111,32 @@ public sealed partial class NetworkPage : Page
         }
     }
 
+    private bool _dohReverting;
+
     private async void Doh_Toggled(object sender, RoutedEventArgs e)
     {
+        if (_dohReverting)
+            return;
+
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le DNS-over-HTTPS"))
+        {
+            _dohReverting = true;
+            DohToggle.IsOn = !DohToggle.IsOn;
+            _dohReverting = false;
+            return;
+        }
+
         DohToggle.IsEnabled = false;
         try
         {
             var (success, message) = await Task.Run(() => _app.Dns.SetDnsOverHttps(DohToggle.IsOn));
             DnsStatusLabel.Text = message;
             if (!success)
+            {
+                _dohReverting = true;
                 DohToggle.IsOn = !DohToggle.IsOn;
+                _dohReverting = false;
+            }
         }
         finally
         {

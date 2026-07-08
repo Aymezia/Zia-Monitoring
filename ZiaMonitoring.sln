@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiaMonitoring.Tests", "test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installer", "installer", "{78158CF5-9D33-4001-BA64-FDC37602988F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZiaMonitoring.SetupBootstrapper", "installer\bootstrapper\ZiaMonitoring.SetupBootstrapper.csproj", "{5AAEF8B4-07EF-4418-A39B-938C21E096DA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,25 +58,8 @@ Global
 		{E692CF5D-A497-49D4-9B6D-A66DEFA28B10}.Release|x86.Build.0 = Release|Any CPU
 		{E692CF5D-A497-49D4-9B6D-A66DEFA28B10}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{E692CF5D-A497-49D4-9B6D-A66DEFA28B10}.Release|ARM64.Build.0 = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|x64.Build.0 = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|x86.Build.0 = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|x64.ActiveCfg = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|x64.Build.0 = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|x86.ActiveCfg = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|x86.Build.0 = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E692CF5D-A497-49D4-9B6D-A66DEFA28B10} = {B5E15049-E4E6-4B66-AE06-5194B7A4E251}
-		{5AAEF8B4-07EF-4418-A39B-938C21E096DA} = {78158CF5-9D33-4001-BA64-FDC37602988F}
 	EndGlobalSection
 EndGlobal

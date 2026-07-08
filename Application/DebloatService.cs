@@ -26,8 +26,11 @@ public sealed record DebloatItem(DebloatCategory Category, string Key, string Na
 /// l'utilisateur courant et réinstallables depuis le Microsoft Store si la
 /// restauration automatique échoue (Windows ne garantit pas la
 /// réinstallation via Add-AppxPackage une fois le paquet purgé du cache).
-/// L'app tourne déjà en administrateur (app.manifest), donc les écritures
-/// HKLM et schtasks n'ont pas besoin d'élévation supplémentaire.
+/// Les écritures HKLM (Telemetry) et schtasks (ScheduledTask) nécessitent
+/// des droits administrateur : la relance élevée est proposée à la demande
+/// côté UI (voir AdminElevationPrompt) avant d'appeler Clean/Undo/CleanAll
+/// pour ces catégories — pas pour BloatwareApp, qui ne le nécessite pas
+/// (suppression per-utilisateur via Remove-AppxPackage).
 /// </summary>
 public sealed class DebloatService
 {

@@ -83,6 +83,11 @@ public sealed partial class SettingsPage : Page
             GuestModeToggle.IsOn = _settings.GuestModeActive;
             ApplyGuestModeMasking();
 
+            AdminModeStatusLabel.Text = Infrastructure.AdminElevation.IsElevated
+                ? "Mode actuel : Administrateur"
+                : "Mode actuel : Standard (sans élévation)";
+            RelaunchAdminButton.IsEnabled = !Infrastructure.AdminElevation.IsElevated;
+
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
             CpuTempAlertSlider.Value = _settings.CpuTempAlertThresholdC;
@@ -266,8 +271,21 @@ public sealed partial class SettingsPage : Page
         SaveSettings();
     }
 
-    private void HardwareSensors_Toggled(object sender, RoutedEventArgs e)
+    private bool _hardwareSensorsReverting;
+
+    private async void HardwareSensors_Toggled(object sender, RoutedEventArgs e)
     {
+        if (_hardwareSensorsReverting)
+            return;
+
+        if (HardwareSensorsToggle.IsOn && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La lecture des capteurs matériel"))
+        {
+            _hardwareSensorsReverting = true;
+            HardwareSensorsToggle.IsOn = false;
+            _hardwareSensorsReverting = false;
+            return;
+        }
+
         _settings = _settings with { EnableHardwareSensors = HardwareSensorsToggle.IsOn };
         SaveSettings();
     }
@@ -531,6 +549,12 @@ public sealed partial class SettingsPage : Page
         {
             _applyingGuestMask = false;
         }
+    }
+
+    private void RelaunchAdmin_Click(object sender, RoutedEventArgs e)
+    {
+        if (Infrastructure.AdminElevation.RelaunchElevated())
+            Microsoft.UI.Xaml.Application.Current.Exit();
     }
 
     private void RestorePoint_Toggled(object sender, RoutedEventArgs e)
@@ -882,7 +906,8 @@ public sealed partial class SettingsPage : Page
             (DiscordCard, "discord rich presence statut"),
             (NtfyCard, "ntfy notification telephone bsod ecran bleu surchauffe fin de partie push"),
             (PublicIpAlertCard, "ip publique adresse changement alerte reseau"),
-            (GuestModeCard, "mode invite masquer confidentiel preter pc")
+            (GuestModeCard, "mode invite masquer confidentiel preter pc"),
+            (AdminModeCard, "administrateur elevation uac droits relancer")
         };
 
         foreach (var (card, keywords) in cards)

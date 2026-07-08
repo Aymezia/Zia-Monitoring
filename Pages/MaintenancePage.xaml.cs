@@ -182,9 +182,12 @@ public sealed partial class MaintenancePage : Page
             return;
         }
 
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "L'analyse DISM/SFC"))
+            return;
+
         _healthCheckCts = new CancellationTokenSource();
         RunHealthCheckButton.Content = "Annuler";
-        HealthCheckStatusLabel.Text = "Analyse en cours (fenêtre UAC possible pour DISM/SFC)…";
+        HealthCheckStatusLabel.Text = "Analyse en cours…";
         var log = new StringBuilder();
         var dispatcher = DispatcherQueue;
 

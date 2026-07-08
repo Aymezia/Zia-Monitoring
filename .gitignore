@@ -53,15 +53,8 @@ _ReSharper*/
 Generated\ Files/
 *_wpftmp.csproj
 
-# WiX build artifacts
-installer/wix/*.wixobj
-installer/wix/*.wixpdb
-installer/wix/*.cab
-installer/bootstrapper/bin/
-installer/bootstrapper/obj/
-
-# Zia Monitoring runtime data (user-specific, not source)
-installer/bootstrapper/publish/
+# Inno Setup build artifacts
+installer/inno/*.iss.bak
 
 # OS
 .DS_Store

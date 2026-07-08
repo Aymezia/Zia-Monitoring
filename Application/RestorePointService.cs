@@ -9,7 +9,8 @@ namespace ZiaMonitoring_App.Application;
 /// un appel rapproché retourne succès sans rien créer de nouveau, ce qui
 /// est un comportement normal de l'OS, pas une erreur de cette méthode.
 /// Nécessite la Protection du système activée sur le disque système et des
-/// droits administrateur (déjà requis par l'app via app.manifest).
+/// droits administrateur — l'appelant (Débloat "Tout nettoyer") doit
+/// s'assurer de l'élévation avant d'invoquer cette méthode.
 /// </summary>
 public sealed class RestorePointService
 {

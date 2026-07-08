@@ -22,8 +22,6 @@ au moment de la préparation (l'installation nécessite une action manuelle).
      `net8.0-windows10.0.26100.0` → `net10.0-windows10.0.26100.0`
    - `tests/ZiaMonitoring.Tests/ZiaMonitoring.Tests.csproj` :
      `net8.0-windows` → `net10.0-windows`
-   - `installer/bootstrapper/ZiaMonitoring.SetupBootstrapper.csproj` :
-     `net8.0-windows` → `net10.0-windows`
 
 3. **CI** : dans `.github/workflows/ci.yml`, passer `dotnet-version: 8.0.x`
    à `10.0.x`.

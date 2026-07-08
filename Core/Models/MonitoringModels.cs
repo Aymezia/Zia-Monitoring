@@ -123,7 +123,13 @@ public sealed record AppSettings(
     bool EnableScheduledSaveBackup = false,
     bool EnablePrometheusExporter = false,
     int OverlayMonitorIndex = 0,
-    OverlayCorner OverlayPosition = OverlayCorner.TopRight);
+    OverlayCorner OverlayPosition = OverlayCorner.TopRight,
+    bool EnableObsAutoSceneSwitch = false,
+    string ObsHost = "localhost",
+    int ObsPort = 4455,
+    string ObsPassword = "",
+    string ObsGameSceneName = "",
+    string ObsIdleSceneName = "");
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

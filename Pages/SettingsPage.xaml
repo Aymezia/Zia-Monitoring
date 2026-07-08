@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Parametres" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -214,6 +215,40 @@
                     <TextBlock Text="Expose les métriques courantes sur http://localhost:9877/metrics pour un Grafana local. Accessible uniquement depuis cette machine." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                     <ToggleSwitch x:Name="PrometheusToggle" Header="Activer l'export Prometheus" Toggled="Prometheus_Toggled" />
                     <TextBlock x:Name="PrometheusStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- OBS WebSocket -->
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Bascule de scène OBS automatique" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Nécessite OBS Studio 28+ avec le serveur WebSocket activé (Outils → Paramètres du serveur WebSocket). Bascule vers la scène 'Jeu' à la détection d'un jeu, vers 'Repos' à sa fermeture." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="ObsToggle" Header="Activer la bascule automatique" Toggled="Obs_Toggled" />
+                    <Grid ColumnSpacing="10" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBox x:Name="ObsHostBox" PlaceholderText="Hôte (localhost)" TextChanged="ObsFields_Changed" />
+                        <TextBox Grid.Column="1" x:Name="ObsPortBox" PlaceholderText="Port (4455)" TextChanged="ObsFields_Changed" />
+                        <PasswordBox Grid.Row="1" x:Name="ObsPasswordBox" PlaceholderText="Mot de passe (si activé dans OBS)" PasswordChanged="ObsPassword_Changed" />
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <Button Content="Tester la connexion" Click="TestObsConnection_Click" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="ObsGameSceneBox" PlaceholderText="Scène 'Jeu'" TextChanged="ObsFields_Changed" />
+                        <TextBox Grid.Column="1" x:Name="ObsIdleSceneBox" PlaceholderText="Scène 'Repos'" TextChanged="ObsFields_Changed" />
+                    </Grid>
+                    <TextBlock x:Name="ObsStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

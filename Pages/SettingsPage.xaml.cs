@@ -50,6 +50,13 @@ public sealed partial class SettingsPage : Page
                 ? $"Actif : http://localhost:{_app.PrometheusExporter.Port}/metrics"
                 : "Inactif.";
 
+            ObsToggle.IsOn = _settings.EnableObsAutoSceneSwitch;
+            ObsHostBox.Text = _settings.ObsHost;
+            ObsPortBox.Text = _settings.ObsPort.ToString();
+            ObsPasswordBox.Password = _settings.ObsPassword;
+            ObsGameSceneBox.Text = _settings.ObsGameSceneName;
+            ObsIdleSceneBox.Text = _settings.ObsIdleSceneName;
+
             CpuAlertSlider.Value = _settings.CpuAlertThresholdPercent;
             CpuAlertValueLabel.Text = $"{_settings.CpuAlertThresholdPercent:F0}%";
             CpuTempAlertSlider.Value = _settings.CpuTempAlertThresholdC;
@@ -240,6 +247,50 @@ public sealed partial class SettingsPage : Page
         {
             _app.PrometheusExporter.Stop();
             PrometheusStatusLabel.Text = "Inactif.";
+        }
+    }
+
+    private void Obs_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableObsAutoSceneSwitch = ObsToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void ObsFields_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (_loading) return;
+
+        _ = int.TryParse(ObsPortBox.Text, out var port);
+        _settings = _settings with
+        {
+            ObsHost = string.IsNullOrWhiteSpace(ObsHostBox.Text) ? "localhost" : ObsHostBox.Text.Trim(),
+            ObsPort = port > 0 ? port : 4455,
+            ObsGameSceneName = ObsGameSceneBox.Text.Trim(),
+            ObsIdleSceneName = ObsIdleSceneBox.Text.Trim()
+        };
+        SaveSettings();
+    }
+
+    private void ObsPassword_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+
+        _settings = _settings with { ObsPassword = ObsPasswordBox.Password };
+        SaveSettings();
+    }
+
+    private async void TestObsConnection_Click(object sender, RoutedEventArgs e)
+    {
+        ObsStatusLabel.Text = "Connexion en cours…";
+        try
+        {
+            var (success, message) = await _app.ObsWebSocket.ConnectAsync(_settings.ObsHost, _settings.ObsPort, _settings.ObsPassword);
+            ObsStatusLabel.Text = message;
+        }
+        catch (Exception ex)
+        {
+            ObsStatusLabel.Text = $"Échec : {ex.Message}";
+            AppLog.Warn("Test de connexion OBS en échec", ex);
         }
     }
 

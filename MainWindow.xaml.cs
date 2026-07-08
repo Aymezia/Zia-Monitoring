@@ -30,6 +30,7 @@ public sealed partial class MainWindow : Window
     private PerformanceOverlayWindow? _overlayWindow;
     private bool _hotkeyRegistered;
     private bool _mainWindowVisible = true;
+    private bool _obsGameSceneActive;
 
     public MainWindow()
     {
@@ -155,6 +156,26 @@ public sealed partial class MainWindow : Window
                 else if (app.GameBooster.IsActive)
                 {
                     app.GameBooster.Deactivate();
+                }
+
+                if (settings.EnableObsAutoSceneSwitch)
+                {
+                    var shouldShowGameScene = activeGame is not null;
+                    if (shouldShowGameScene != _obsGameSceneActive)
+                    {
+                        _obsGameSceneActive = shouldShowGameScene;
+                        var targetScene = shouldShowGameScene ? settings.ObsGameSceneName : settings.ObsIdleSceneName;
+
+                        if (!string.IsNullOrWhiteSpace(targetScene))
+                        {
+                            if (!app.ObsWebSocket.IsConnected)
+                                await app.ObsWebSocket.ConnectAsync(settings.ObsHost, settings.ObsPort, settings.ObsPassword, ct);
+
+                            var (success, message) = await app.ObsWebSocket.SetSceneAsync(targetScene, ct);
+                            if (!success)
+                                AppLog.Warn($"Bascule de scène OBS automatique en échec : {message}");
+                        }
+                    }
                 }
 
                 app.AlertNotificationService.CheckAndNotify(frame, settings);

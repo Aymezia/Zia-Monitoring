@@ -57,8 +57,12 @@ public sealed class SettingsService
             _cached = Clamp(settings);
             try
             {
-                // La clé API n'est jamais écrite en clair sur disque.
-                var persisted = _cached with { SteamGridDbApiKey = Protect(_cached.SteamGridDbApiKey) };
+                // La clé API et le mot de passe OBS ne sont jamais écrits en clair sur disque.
+                var persisted = _cached with
+                {
+                    SteamGridDbApiKey = Protect(_cached.SteamGridDbApiKey),
+                    ObsPassword = Protect(_cached.ObsPassword)
+                };
                 var json = JsonSerializer.Serialize(persisted, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_settingsFile, json);
             }
@@ -78,7 +82,11 @@ public sealed class SettingsService
 
             var json = File.ReadAllText(_settingsFile);
             var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? Default;
-            settings = settings with { SteamGridDbApiKey = Unprotect(settings.SteamGridDbApiKey ?? string.Empty) };
+            settings = settings with
+            {
+                SteamGridDbApiKey = Unprotect(settings.SteamGridDbApiKey ?? string.Empty),
+                ObsPassword = Unprotect(settings.ObsPassword ?? string.Empty)
+            };
             return Normalize(settings, json);
         }
         catch (Exception ex)
@@ -115,6 +123,9 @@ public sealed class SettingsService
             RefreshIntervalSeconds = Math.Clamp(settings.RefreshIntervalSeconds, 1, 10),
             MiniWidgetOpacity = Math.Clamp(settings.MiniWidgetOpacity, 0.35, 1.0),
             SteamGridDbApiKey = settings.SteamGridDbApiKey ?? string.Empty,
+            ObsPassword = settings.ObsPassword ?? string.Empty,
+            ObsHost = string.IsNullOrWhiteSpace(settings.ObsHost) ? "localhost" : settings.ObsHost,
+            ObsPort = settings.ObsPort <= 0 ? 4455 : settings.ObsPort,
             CpuAlertThresholdPercent = Math.Clamp(settings.CpuAlertThresholdPercent, 50, 100),
             CpuTempAlertThresholdC = Math.Clamp(settings.CpuTempAlertThresholdC, 50, 105),
             GpuTempAlertThresholdC = Math.Clamp(settings.GpuTempAlertThresholdC, 50, 105),

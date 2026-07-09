@@ -70,6 +70,11 @@
     <Compile Include="..\..\Application\UpdateCheckService.cs" Link="Linked\UpdateCheckService.cs" />
     <Compile Include="..\..\Application\SelfUpdateService.cs" Link="Linked\SelfUpdateService.cs" />
     <Compile Include="..\..\Application\PcAuditService.cs" Link="Linked\PcAuditService.cs" />
+    <Compile Include="..\..\Application\TrimStatusService.cs" Link="Linked\TrimStatusService.cs" />
+    <Compile Include="..\..\Application\DiskOptimizationAuditService.cs" Link="Linked\DiskOptimizationAuditService.cs" />
+    <Compile Include="..\..\Application\InstalledSoftwareAuditService.cs" Link="Linked\InstalledSoftwareAuditService.cs" />
+    <Compile Include="..\..\Application\KnownIssueService.cs" Link="Linked\KnownIssueService.cs" />
+    <Compile Include="..\..\Application\PcHealthReportService.cs" Link="Linked\PcHealthReportService.cs" />
     <Compile Include="..\..\Application\PrivacyScanService.cs" Link="Linked\PrivacyScanService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />

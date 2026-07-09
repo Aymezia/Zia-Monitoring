@@ -24,6 +24,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -299,6 +300,44 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" />
                                     <TextBlock Grid.Column="1" Text="{Binding EnabledLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="14" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Logiciels installés : doublons et essais" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshSoftwareAuditButton" Content="Analyser" Click="RefreshSoftwareAudit_Click" />
+                    </Grid>
+                    <TextBlock Text="Détecte les logiciels installés à plusieurs emplacements distincts (souvent une réinstallation oubliée) et les logiciels d'essai encore présents. Les redistribuables (Visual C++, .NET, DirectX…) sont exclus des doublons : plusieurs versions y sont normales." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="SoftwareAuditStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock Text="Installations dupliquées" Style="{StaticResource CardTitleTextStyle}" FontSize="13" Margin="0,4,0,0" />
+                    <ItemsControl x:Name="DuplicateSoftwareList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Logiciels d'essai détectés" Style="{StaticResource CardTitleTextStyle}" FontSize="13" Margin="0,4,0,0" />
+                    <ItemsControl x:Name="TrialSoftwareList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Version}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="12" HorizontalAlignment="Right" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -255,6 +256,40 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Optimisation disque : TRIM + MediaType + tâche planifiée -->
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Optimisation disque (TRIM / défragmentation)" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshDiskOptimizationButton" Content="Analyser" Click="RefreshDiskOptimization_Click" />
+                        <Button Grid.Column="2" x:Name="ExportWarrantyReportButton" Content="Exporter l'historique (CSV)" Click="ExportWarrantyReport_Click" />
+                    </Grid>
+                    <TextBlock Text="TRIM mal désactivé (souvent par un outil d'optimisation tiers) dégrade durée de vie et performances des SSD dans le temps. L'export CSV reprend la tendance de température CPU et l'usure des SSD au fil des semaines, utile pour un dossier de garantie." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="TrimStatusLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                    <TextBlock x:Name="ScheduledOptimizationLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="DiskMediaTypeList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding MediaTypeLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="WarrantyExportStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

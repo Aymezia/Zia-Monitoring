@@ -297,6 +297,55 @@ public sealed partial class MaintenancePage : Page
         UpdatesStatusLabel.Text = message;
     }
 
+    private async void RefreshDiskOptimization_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshDiskOptimizationButton.IsEnabled = false;
+        TrimStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var (trim, scheduledEnabled, disks) = await Task.Run(() =>
+                (TrimStatusService.GetStatus(), DiskOptimizationAuditService.IsScheduledOptimizationEnabled(), DiskOptimizationAuditService.GetDiskMediaTypes()));
+
+            TrimStatusLabel.Text = trim?.Label ?? "Statut TRIM illisible sur ce système.";
+            ScheduledOptimizationLabel.Text = scheduledEnabled
+                ? "Optimisation planifiée Windows (TRIM + défrag) : active."
+                : "Optimisation planifiée Windows désactivée : ni TRIM ni défragmentation ne s'exécutent automatiquement.";
+            DiskMediaTypeList.ItemsSource = disks;
+        }
+        finally
+        {
+            RefreshDiskOptimizationButton.IsEnabled = true;
+        }
+    }
+
+    private async void ExportWarrantyReport_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop,
+                SuggestedFileName = $"zia-historique-garantie-{DateTime.Now:yyyy-MM-dd}"
+            };
+            picker.FileTypeChoices.Add("CSV", [".csv"]);
+            InitializePicker(picker);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file is null)
+                return;
+
+            var rowCount = await Task.Run(() => _app.MetricsHistory.ExportWarrantyReportToCsv(file.Path));
+            WarrantyExportStatusLabel.Text = rowCount == 0
+                ? $"Export terminé, mais aucune donnée disponible pour l'instant (revenez après quelques jours d'utilisation) : {file.Path}"
+                : $"{rowCount} ligne(s) exportée(s) vers {file.Path}";
+        }
+        catch (Exception ex)
+        {
+            WarrantyExportStatusLabel.Text = $"Export impossible : {ex.Message}";
+            Infrastructure.AppLog.Warn("Export de l'historique garantie en échec", ex);
+        }
+    }
+
     private static void InitializePicker(object picker)
     {
         var window = ((App)Microsoft.UI.Xaml.Application.Current).MainWindowInstance;

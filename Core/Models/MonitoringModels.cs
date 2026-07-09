@@ -149,7 +149,8 @@ public sealed record AppSettings(
     string NtfyTopic = "",
     bool EnablePublicIpAlert = false,
     bool GuestModeActive = false,
-    bool EnableAutoUpdateInstall = false);
+    bool EnableAutoUpdateInstall = false,
+    bool EnableWeeklyHealthReport = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

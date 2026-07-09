@@ -292,9 +292,14 @@ public sealed class PcAuditService
         if (crashes.Count > 0)
         {
             var worst = crashes[0];
+            var moduleIssue = KnownIssueService.MatchFaultingModule(worst.MostCommonModule);
+            var crashRecommendation = "Vérifiez les mises à jour du pilote/de l'application concernée (page Maintenance pour le détail).";
+            if (moduleIssue is not null)
+                crashRecommendation += $" Piste probable : {moduleIssue.Explanation} → {moduleIssue.Url}";
+
             findings.Add(new PcAuditFinding(AuditSeverity.Warning, AuditCategory.Stabilite, "Crashs d'applications récents",
                 $"{worst.AppName} a crashé {worst.Count} fois cette semaine (module : {worst.MostCommonModule}).",
-                "Vérifiez les mises à jour du pilote/de l'application concernée (page Maintenance pour le détail)."));
+                crashRecommendation));
         }
 
         if (whea.CorrectedErrorCount > 0)
@@ -303,9 +308,15 @@ public sealed class PcAuditService
                 "Signal précoce d'un overclock RAM/CPU instable : baissez XMP/EXPO ou l'OC si récemment modifié."));
 
         if (bsod is not null && DateTime.Now - bsod.OccurredAt <= TimeSpan.FromDays(7))
+        {
+            var bugcheckIssue = KnownIssueService.MatchBugcheck(bsod.BugcheckText);
+            var bsodRecommendation = bugcheckIssue is not null
+                ? $"{bugcheckIssue.Explanation} Référence Microsoft : {bugcheckIssue.Url}"
+                : "Lancez le diagnostic mémoire Windows (page Maintenance) et vérifiez les pilotes récemment installés.";
+
             findings.Add(new PcAuditFinding(AuditSeverity.Critical, AuditCategory.Stabilite, "Écran bleu récent",
-                bsod.Label,
-                "Lancez le diagnostic mémoire Windows (page Maintenance) et vérifiez les pilotes récemment installés."));
+                bsod.Label, bsodRecommendation));
+        }
 
         foreach (var loop in serviceCrashLoops)
             findings.Add(new PcAuditFinding(AuditSeverity.Warning, AuditCategory.Stabilite, "Service Windows instable",

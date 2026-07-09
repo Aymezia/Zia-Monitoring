@@ -8,12 +8,16 @@ public sealed partial class RecommendationsPage : Page
 {
     private readonly App _app;
     private PcAuditReport? _latestReport;
+    private bool _loading = true;
 
     public RecommendationsPage()
     {
         InitializeComponent();
         _app = (App)Microsoft.UI.Xaml.Application.Current;
         AuditStatusLabel.Text = "Cliquez sur 'Lancer l'audit complet' pour analyser sécurité, confidentialité, stabilité et matériel en une passe.";
+
+        WeeklyReportToggle.IsOn = _app.SettingsService.Load().EnableWeeklyHealthReport;
+        _loading = false;
     }
 
     private async void RunAudit_Click(object sender, RoutedEventArgs e)
@@ -41,6 +45,7 @@ public sealed partial class RecommendationsPage : Page
             SummaryLabel.Text = report.SummaryLabel;
             AuditStatusLabel.Text = $"Audit terminé à {report.GeneratedAt:HH:mm:ss}.";
             _app.Achievements.Increment("pc_audits_run");
+            _app.HealthReport.RecordAuditResult(report);
 
             ApplyCategoryFilter();
         }
@@ -52,6 +57,42 @@ public sealed partial class RecommendationsPage : Page
         finally
         {
             RunAuditButton.IsEnabled = true;
+        }
+    }
+
+    private void WeeklyReportToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading)
+            return;
+
+        var settings = _app.SettingsService.Load();
+        _app.SettingsService.Save(settings with { EnableWeeklyHealthReport = WeeklyReportToggle.IsOn });
+    }
+
+    private async void GenerateWeeklyReport_Click(object sender, RoutedEventArgs e)
+    {
+        GenerateWeeklyReportButton.IsEnabled = false;
+        WeeklyReportStatusLabel.Text = "Génération en cours (analyse complète puis export)…";
+        try
+        {
+            var (htmlPath, pdfPath) = await Task.Run(() =>
+            {
+                var frame = _app.MonitoringService.CaptureFrame();
+                var report = _app.PcAudit.RunFullAudit(frame.Snapshot, frame.Profile, _app.MonitoringService.MemoryLeakSuspects);
+                _app.HealthReport.RecordAuditResult(report);
+                return _app.HealthReport.GenerateWeeklyReport(report);
+            });
+
+            WeeklyReportStatusLabel.Text = $"Rapport généré : {htmlPath} · {pdfPath}";
+        }
+        catch (Exception ex)
+        {
+            WeeklyReportStatusLabel.Text = $"Génération impossible : {ex.Message}";
+            Infrastructure.AppLog.Warn("Génération manuelle du rapport hebdomadaire en échec", ex);
+        }
+        finally
+        {
+            GenerateWeeklyReportButton.IsEnabled = true;
         }
     }
 

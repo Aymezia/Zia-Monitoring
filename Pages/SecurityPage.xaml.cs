@@ -44,6 +44,26 @@ public sealed partial class SecurityPage : Page
         }
     }
 
+    private async void RefreshSoftwareAudit_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshSoftwareAuditButton.IsEnabled = false;
+        SoftwareAuditStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var (duplicates, trials) = await Task.Run(() =>
+                (ZiaMonitoring_App.Application.InstalledSoftwareAuditService.ScanDuplicates(),
+                 ZiaMonitoring_App.Application.InstalledSoftwareAuditService.ScanTrialSoftware()));
+
+            DuplicateSoftwareList.ItemsSource = duplicates;
+            TrialSoftwareList.ItemsSource = trials;
+            SoftwareAuditStatusLabel.Text = $"{duplicates.Count} installation(s) dupliquée(s), {trials.Count} logiciel(s) d'essai détecté(s).";
+        }
+        finally
+        {
+            RefreshSoftwareAuditButton.IsEnabled = true;
+        }
+    }
+
     private void RefreshDeviceAudit()
     {
         try

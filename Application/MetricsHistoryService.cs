@@ -60,6 +60,11 @@ public sealed class MetricsHistoryService : IDisposable
                     avg_temp REAL NOT NULL,
                     samples INTEGER NOT NULL,
                     PRIMARY KEY(day, bucket));
+                CREATE TABLE IF NOT EXISTS disk_wear_daily(
+                    day INTEGER NOT NULL,
+                    disk_name TEXT NOT NULL,
+                    wear_percent INTEGER NOT NULL,
+                    PRIMARY KEY(day, disk_name));
                 """;
             command.ExecuteNonQuery();
         }
@@ -96,10 +101,51 @@ public sealed class MetricsHistoryService : IDisposable
 
             PruneIfDue();
             RollupThermalDailyIfDue();
+            RecordDiskWearIfDue();
         }
         catch (Exception ex)
         {
             Infrastructure.AppLog.Warn("Écriture de l'échantillon de métriques impossible", ex);
+        }
+    }
+
+    private DateTime _lastDiskWearSnapshot = DateTime.MinValue;
+
+    /// <summary>
+    /// Enregistre une fois par jour l'usure de chaque SSD/SCM détecté, pour
+    /// constituer un historique exploitable dans un dossier de garantie
+    /// (contrairement à SsdWearService.Analyze(), qui n'expose qu'un
+    /// instantané courant sans mémoire du passé).
+    /// </summary>
+    internal void RecordDiskWearIfDue()
+    {
+        if (_connection is null || DateTime.UtcNow - _lastDiskWearSnapshot < TimeSpan.FromHours(24))
+            return;
+
+        _lastDiskWearSnapshot = DateTime.UtcNow;
+
+        try
+        {
+            var today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 86400;
+            foreach (var disk in SsdWearService.Analyze())
+            {
+                if (disk.WearPercent is not { } wear)
+                    continue;
+
+                using var command = _connection.CreateCommand();
+                command.CommandText = """
+                    INSERT OR REPLACE INTO disk_wear_daily(day, disk_name, wear_percent)
+                    VALUES ($day, $name, $wear)
+                    """;
+                command.Parameters.AddWithValue("$day", today);
+                command.Parameters.AddWithValue("$name", disk.Name);
+                command.Parameters.AddWithValue("$wear", wear);
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Enregistrement quotidien de l'usure disque impossible", ex);
         }
     }
 
@@ -297,6 +343,80 @@ public sealed class MetricsHistoryService : IDisposable
         File.WriteAllText(filePath, JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true }), Encoding.UTF8);
         return rows.Count;
     }
+
+    /// <summary>
+    /// Exporte l'historique long terme (température CPU par palier de charge
+    /// + usure des disques) en CSV — utile pour un dossier de garantie,
+    /// contrairement à ExportToCsv qui se limite aux 8 jours de rétention
+    /// des échantillons bruts.
+    /// </summary>
+    public int ExportWarrantyReportToCsv(string filePath)
+    {
+        if (_connection is null)
+        {
+            File.WriteAllText(filePath, BuildWarrantyCsv([], []), Encoding.UTF8);
+            return 0;
+        }
+
+        var thermalRows = new List<(long Day, int Bucket, double AvgTemp, int Samples)>();
+        try
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "SELECT day, bucket, avg_temp, samples FROM thermal_daily";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+                thermalRows.Add((reader.GetInt64(0), reader.GetInt32(1), reader.GetDouble(2), reader.GetInt32(3)));
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture de l'historique thermique pour export impossible", ex);
+        }
+
+        var diskWearRows = new List<(long Day, string DiskName, int WearPercent)>();
+        try
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = "SELECT day, disk_name, wear_percent FROM disk_wear_daily";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+                diskWearRows.Add((reader.GetInt64(0), reader.GetString(1), reader.GetInt32(2)));
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture de l'historique d'usure disque pour export impossible", ex);
+        }
+
+        var csv = BuildWarrantyCsv(thermalRows, diskWearRows);
+        File.WriteAllText(filePath, csv, Encoding.UTF8);
+        return thermalRows.Count + diskWearRows.Count;
+    }
+
+    internal static string BuildWarrantyCsv(
+        IReadOnlyList<(long Day, int Bucket, double AvgTemp, int Samples)> thermalRows,
+        IReadOnlyList<(long Day, string DiskName, int WearPercent)> diskWearRows)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Date,Categorie,Detail,Valeur");
+
+        foreach (var row in thermalRows.OrderBy(r => r.Day).ThenBy(r => r.Bucket))
+        {
+            var date = DateTimeOffset.FromUnixTimeSeconds(row.Day * 86400).UtcDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            sb.AppendLine($"{date},Temperature CPU (C),{LoadBucketLabels[row.Bucket]},{row.AvgTemp.ToString("F1", CultureInfo.InvariantCulture)}");
+        }
+
+        foreach (var row in diskWearRows.OrderBy(r => r.Day).ThenBy(r => r.DiskName))
+        {
+            var date = DateTimeOffset.FromUnixTimeSeconds(row.Day * 86400).UtcDateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            sb.AppendLine($"{date},Usure disque (%),{EscapeCsvField(row.DiskName)},{row.WearPercent.ToString(CultureInfo.InvariantCulture)}");
+        }
+
+        return sb.ToString();
+    }
+
+    private static string EscapeCsvField(string value) =>
+        value.Contains(',') || value.Contains('"')
+            ? "\"" + value.Replace("\"", "\"\"") + "\""
+            : value;
 
     internal static string BuildCsv(IReadOnlyList<MetricSampleRow> rows)
     {

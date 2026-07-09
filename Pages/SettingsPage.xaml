@@ -193,7 +193,10 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="Sauvegarde des saves de jeux" Style="{StaticResource CardTitleTextStyle}" />
                     <TextBlock Text="Zip de Documents\My Games et %USERPROFILE%\Saved Games — les deux conventions les plus répandues. 7 dernières sauvegardes conservées." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
-                    <Button x:Name="BackupNowButton" Content="Sauvegarder maintenant" Click="BackupNow_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="BackupNowButton" Content="Sauvegarder maintenant" Click="BackupNow_Click" Style="{StaticResource AccentButtonStyle}" />
+                        <Button x:Name="TestRestoreButton" Content="Tester la restauration" Click="TestRestore_Click" />
+                    </StackPanel>
                     <TextBlock x:Name="BackupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>

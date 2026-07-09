@@ -382,6 +382,16 @@ public sealed partial class MainWindow : Window
                     }
                 }
 
+                // Rapport de santé hebdomadaire (le service se limite lui-même à 7 jours).
+                if (settings.EnableWeeklyHealthReport && app.HealthReport.IsWeeklyReportDue(true))
+                {
+                    var auditReport = app.PcAudit.RunFullAudit(frame.Snapshot, frame.Profile, app.MonitoringService.MemoryLeakSuspects);
+                    app.HealthReport.RecordAuditResult(auditReport);
+                    var (htmlPath, _) = app.HealthReport.GenerateWeeklyReport(auditReport);
+                    ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                        "Zia Monitoring - Rapport hebdomadaire prêt", $"Score actuel : {auditReport.ScoreLabel}. Rapport enregistré sur le Bureau : {htmlPath}");
+                }
+
                 // Alerte de changement d'IP publique (le service se limite lui-même à 15 min).
                 if (settings.EnablePublicIpAlert
                     && await app.PublicIpMonitor.CheckForChangeAsync(ct) is { } newPublicIp)

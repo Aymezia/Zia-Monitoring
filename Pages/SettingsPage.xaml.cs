@@ -706,6 +706,26 @@ public sealed partial class SettingsPage : Page
         }
     }
 
+    private async void TestRestore_Click(object sender, RoutedEventArgs e)
+    {
+        TestRestoreButton.IsEnabled = false;
+        BackupStatusLabel.Text = "Test de restauration en cours…";
+        try
+        {
+            var result = await Task.Run(() => _app.SaveBackup.TestRestoreLatestBackup());
+            BackupStatusLabel.Text = result.Message;
+        }
+        catch (Exception ex)
+        {
+            BackupStatusLabel.Text = $"Test de restauration impossible : {ex.Message}";
+            AppLog.Warn("Test de restauration manuel en échec", ex);
+        }
+        finally
+        {
+            TestRestoreButton.IsEnabled = true;
+        }
+    }
+
     private void DisableAnimations_Click(object sender, RoutedEventArgs e)
     {
         try

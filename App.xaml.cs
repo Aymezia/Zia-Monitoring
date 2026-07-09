@@ -73,6 +73,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.WakeOnLanService WakeOnLan => _services.GetRequiredService<Application.WakeOnLanService>();
     public Application.SelfUpdateService SelfUpdater => _services.GetRequiredService<Application.SelfUpdateService>();
     public Application.PcAuditService PcAudit => _services.GetRequiredService<Application.PcAuditService>();
+    public Application.PcHealthReportService HealthReport => _services.GetRequiredService<Application.PcHealthReportService>();
 
     /// <summary>
     /// Action de débloat interrompue par une relance élevée (voir
@@ -167,6 +168,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.WakeOnLanService>();
         services.AddSingleton<Application.SelfUpdateService>();
         services.AddSingleton<Application.PcAuditService>();
+        services.AddSingleton<Application.PcHealthReportService>();
 
         return services.BuildServiceProvider();
     }

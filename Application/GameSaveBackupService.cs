@@ -7,6 +7,8 @@ public sealed record SaveBackupResult(string ZipPath, int FileCount, long TotalB
     public string Summary => $"{FileCount} fichier(s), {TotalBytes / 1024.0 / 1024.0:F1} Mo → {ZipPath}";
 }
 
+public sealed record RestoreTestResult(bool Success, string Message);
+
 /// <summary>
 /// Sauvegarde en zip les dossiers de sauvegardes de jeux génériques les
 /// plus répandus : Documents\My Games (convention historique très utilisée)
@@ -84,6 +86,73 @@ public sealed class GameSaveBackupService
 
         PruneOldBackups(destDir);
         return new SaveBackupResult(zipPath, fileCount, totalBytes, warnings);
+    }
+
+    /// <summary>
+    /// Extrait la sauvegarde la plus récente dans un dossier temporaire pour
+    /// vérifier qu'elle n'est pas corrompue, avant d'en avoir réellement
+    /// besoin. Le dossier temporaire est toujours supprimé après coup —
+    /// c'est un test d'intégrité, pas une vraie restauration.
+    /// </summary>
+    public RestoreTestResult TestRestoreLatestBackup(string? backupDirectory = null)
+    {
+        var destDir = backupDirectory ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ZiaMonitoring", "SaveBackups");
+
+        FileInfo? latest;
+        try
+        {
+            latest = new DirectoryInfo(destDir).GetFiles("saves-*.zip").OrderByDescending(f => f.CreationTimeUtc).FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            return new RestoreTestResult(false, $"Impossible d'accéder au dossier de sauvegardes : {ex.Message}");
+        }
+
+        if (latest is null)
+            return new RestoreTestResult(false, "Aucune sauvegarde trouvée — lancez d'abord une sauvegarde.");
+
+        var tempDir = Path.Combine(Path.GetTempPath(), $"ZiaMonitoringRestoreTest-{Guid.NewGuid():N}");
+        try
+        {
+            Directory.CreateDirectory(tempDir);
+
+            var count = 0;
+            using (var archive = ZipFile.OpenRead(latest.FullName))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    if (string.IsNullOrEmpty(entry.Name))
+                        continue; // entrée de dossier, rien à extraire.
+
+                    var destPath = Path.Combine(tempDir, entry.FullName);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
+                    entry.ExtractToFile(destPath, overwrite: true);
+                    count++;
+                }
+            }
+
+            return new RestoreTestResult(true,
+                $"Sauvegarde '{latest.Name}' restaurée avec succès dans un dossier temporaire : {count} fichier(s) extrait(s) sans erreur, aucune corruption détectée.");
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn($"Test de restauration de '{latest.Name}' en échec", ex);
+            return new RestoreTestResult(false, $"La sauvegarde '{latest.Name}' semble corrompue : {ex.Message}");
+        }
+        finally
+        {
+            try
+            {
+                if (Directory.Exists(tempDir))
+                    Directory.Delete(tempDir, recursive: true);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.AppLog.Warn("Nettoyage du dossier de test de restauration impossible", ex);
+            }
+        }
     }
 
     internal static IEnumerable<(string Label, string Path)> GetCandidateFolders()

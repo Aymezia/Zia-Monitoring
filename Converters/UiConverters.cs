@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
+using ZiaMonitoring_App.Application;
 
 namespace ZiaMonitoring_App.Converters;
 
@@ -44,6 +45,27 @@ public sealed class RiskLevelToBrushConverter : IValueConverter
             "medium" => "ZiaAmberBrush",
             _ => "ZiaRedBrush"
         };
+
+        return (Brush)Microsoft.UI.Xaml.Application.Current.Resources[key];
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotSupportedException();
+}
+
+/// <summary>Critical → rouge, Warning → ambre, Info → violet (constats d'audit PC).</summary>
+public sealed class AuditSeverityToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var key = value is AuditSeverity severity
+            ? severity switch
+            {
+                AuditSeverity.Critical => "ZiaRedBrush",
+                AuditSeverity.Warning => "ZiaAmberBrush",
+                _ => "ZiaVioletBrush"
+            }
+            : "ZiaMutedBrush";
 
         return (Brush)Microsoft.UI.Xaml.Application.Current.Resources[key];
     }

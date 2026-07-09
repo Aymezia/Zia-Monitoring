@@ -4,28 +4,84 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Padding="24" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer>
+        <Grid Padding="24" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <TextBlock Text="Recommandations Upgrade" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
+            <TextBlock Text="Audit et recommandations" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Recommendations}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Priority}" Foreground="{StaticResource ZiaRedBrush}" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="18" />
-                            <TextBlock Text="{Binding WhyLabel}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding SuggestionLabel}" Foreground="{StaticResource ZiaVioletBrush}" TextWrapping="Wrap" />
-                            <TextBlock Text="Impact estime: Moyen/Eleve | Cout estime: a confirmer" Foreground="{StaticResource ZiaMutedBrush}" />
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+            <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center" Width="140">
+                        <TextBlock x:Name="ScoreValueLabel" Text="—" FontSize="40" FontWeight="Bold" Foreground="{StaticResource ZiaTextBrush}" />
+                        <TextBlock x:Name="ScoreQualifierLabel" Foreground="{StaticResource ZiaMutedBrush}" />
+                    </StackPanel>
+
+                    <StackPanel VerticalAlignment="Center" Spacing="4">
+                        <TextBlock Text="Audit complet du PC" Style="{StaticResource CardTitleTextStyle}" />
+                        <TextBlock Text="Agrège en une passe la sécurité, la confidentialité, le débloat, le démarrage, la stabilité et le matériel — et vous dit précisément quoi corriger en priorité." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="SummaryLabel" Foreground="{StaticResource ZiaVioletBrush}" FontWeight="SemiBold" />
+                        <TextBlock x:Name="AuditStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <Button Grid.Column="2" x:Name="RunAuditButton" Content="Lancer l'audit complet"
+                            Style="{StaticResource AccentButtonStyle}" Click="RunAudit_Click" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Passez la souris sur une carte pour voir la recommandation associée." Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="1" x:Name="CategoryFilterCombo" Width="200" SelectionChanged="CategoryFilter_Changed" SelectedIndex="0">
+                    <ComboBoxItem Content="Toutes les catégories" />
+                    <ComboBoxItem Content="Sécurité" />
+                    <ComboBoxItem Content="Confidentialité" />
+                    <ComboBoxItem Content="Stabilité" />
+                    <ComboBoxItem Content="Matériel" />
+                    <ComboBoxItem Content="Performance" />
+                    <ComboBoxItem Content="Réseau" />
+                </ComboBox>
+            </Grid>
+
+            <ItemsControl Grid.Row="3" x:Name="FindingsList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource BadgeStyle}" Background="{Binding Severity, Converter={StaticResource AuditSeverityToBrush}}" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding SeverityLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding CategoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="16" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Detail}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Recommendation}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" FontStyle="Italic" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
 </Page>

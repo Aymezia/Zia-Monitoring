@@ -6,6 +6,8 @@ namespace ZiaMonitoring_App.Application;
 
 public enum DebloatCategory { Telemetry, ScheduledTask, BloatwareApp }
 
+public sealed record DebloatResumeAction(bool IsCleanAll, DebloatCategory? Category, string? Key, bool IsUndo);
+
 public sealed record DebloatItem(DebloatCategory Category, string Key, string Name, string Description, bool IsClean)
 {
     public string StatusLabel => IsClean ? "Nettoyé" : "Actif";
@@ -211,6 +213,48 @@ public sealed class DebloatService
                 failures.Add((item.Name, message));
         }
         return (count, failures);
+    }
+
+    private const string ResumeFlag = "--resume-debloat";
+
+    /// <summary>
+    /// Args de relance à passer à AdminElevation.RelaunchElevated pour que
+    /// l'instance élevée termine automatiquement l'action interrompue par
+    /// le redémarrage, plutôt que d'obliger l'utilisateur à recliquer.
+    /// </summary>
+    internal static string[] BuildResumeArgs(DebloatCategory category, string key, bool isUndo) =>
+        [ResumeFlag, isUndo ? "undo" : "clean", category.ToString(), key];
+
+    internal static string[] BuildResumeAllArgs() => [ResumeFlag, "cleanall"];
+
+    /// <summary>Parse les arguments de ligne de commande du process courant ; null si aucune reprise en attente.</summary>
+    internal static DebloatResumeAction? TryParseResumeArgs(IReadOnlyList<string> args)
+    {
+        var flagIndex = -1;
+        for (var i = 0; i < args.Count; i++)
+        {
+            if (args[i].Equals(ResumeFlag, StringComparison.Ordinal))
+            {
+                flagIndex = i;
+                break;
+            }
+        }
+
+        if (flagIndex < 0 || flagIndex + 1 >= args.Count)
+            return null;
+
+        var mode = args[flagIndex + 1];
+        if (mode.Equals("cleanall", StringComparison.Ordinal))
+            return new DebloatResumeAction(true, null, null, false);
+
+        if ((mode.Equals("clean", StringComparison.Ordinal) || mode.Equals("undo", StringComparison.Ordinal))
+            && flagIndex + 3 < args.Count
+            && Enum.TryParse<DebloatCategory>(args[flagIndex + 2], out var category))
+        {
+            return new DebloatResumeAction(false, category, args[flagIndex + 3], mode.Equals("undo", StringComparison.Ordinal));
+        }
+
+        return null;
     }
 
     private static int GetServiceStartType(string serviceName)

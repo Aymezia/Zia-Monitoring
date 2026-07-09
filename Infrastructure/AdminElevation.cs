@@ -28,7 +28,13 @@ public static class AdminElevation
     /// annulé l'invite UAC ou si la relance a échoué — dans ce cas le
     /// processus courant continue de tourner normalement.
     /// </summary>
-    public static bool RelaunchElevated()
+    /// <param name="resumeArgs">
+    /// Arguments de ligne de commande transmis à l'instance élevée (voir
+    /// App.PendingDebloatResume) pour qu'elle termine automatiquement
+    /// l'action interrompue par le redémarrage, plutôt que d'obliger
+    /// l'utilisateur à recliquer une fois relancé.
+    /// </param>
+    public static bool RelaunchElevated(IEnumerable<string>? resumeArgs = null)
     {
         try
         {
@@ -36,11 +42,17 @@ public static class AdminElevation
             if (string.IsNullOrEmpty(exePath))
                 return false;
 
-            Process.Start(new ProcessStartInfo(exePath)
+            var psi = new ProcessStartInfo(exePath)
             {
                 UseShellExecute = true,
                 Verb = "runas"
-            });
+            };
+
+            if (resumeArgs is not null)
+                foreach (var arg in resumeArgs)
+                    psi.ArgumentList.Add(arg);
+
+            Process.Start(psi);
             return true;
         }
         catch (Win32Exception ex)

@@ -59,6 +59,38 @@ public sealed partial class MainWindow : Window
         _monitoringLoop = Task.Run(() => MonitoringLoopAsync(_monitoringCts.Token));
 
         _ = Task.Run(NotifyIfUpdateAvailableAsync);
+
+        if (app.PendingDebloatResume is { } resume)
+            _ = Task.Run(() => ResumeDebloatActionAsync(app, resume));
+    }
+
+    /// <summary>
+    /// Termine automatiquement l'action de débloat interrompue par une
+    /// relance élevée (voir AdminElevationPrompt) : sans ça, l'utilisateur
+    /// devrait rouvrir Sécurité et recliquer manuellement une fois relancé.
+    /// </summary>
+    private static async Task ResumeDebloatActionAsync(App app, ZiaMonitoring_App.Application.DebloatResumeAction resume)
+    {
+        await Task.Delay(500); // laisse la fenêtre finir de s'initialiser avant le toast.
+
+        if (resume.IsCleanAll)
+        {
+            var items = app.Debloat.Scan();
+            var (count, failures) = app.Debloat.CleanAll(items);
+            ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                "Zia Monitoring - Débloat",
+                failures.Count == 0
+                    ? $"{count} élément(s) nettoyé(s) après relance administrateur."
+                    : $"{count} élément(s) nettoyé(s), {failures.Count} échec(s) après relance administrateur.");
+            return;
+        }
+
+        var (success, message) = resume.IsUndo
+            ? app.Debloat.Undo(resume.Category!.Value, resume.Key!)
+            : app.Debloat.Clean(resume.Category!.Value, resume.Key!);
+
+        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+            success ? "Zia Monitoring - Débloat" : "Zia Monitoring - Débloat (échec)", message);
     }
 
     private static async Task NotifyIfUpdateAvailableAsync()

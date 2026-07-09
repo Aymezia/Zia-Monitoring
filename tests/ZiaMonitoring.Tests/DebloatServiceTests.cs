@@ -26,4 +26,57 @@ public sealed class DebloatServiceTests
     {
         Assert.False(DebloatService.ParseTaskEnabledFromCsv(string.Empty));
     }
+
+    [Fact]
+    public void ResumeArgs_AllerRetour_Clean()
+    {
+        var args = DebloatService.BuildResumeArgs(DebloatCategory.Telemetry, "DiagTrack", isUndo: false);
+
+        var parsed = DebloatService.TryParseResumeArgs(["ZiaMonitoring.App.exe", .. args]);
+
+        Assert.NotNull(parsed);
+        Assert.False(parsed!.IsCleanAll);
+        Assert.False(parsed.IsUndo);
+        Assert.Equal(DebloatCategory.Telemetry, parsed.Category);
+        Assert.Equal("DiagTrack", parsed.Key);
+    }
+
+    [Fact]
+    public void ResumeArgs_AllerRetour_UndoAvecCleContenantEspacesEtAntislashs()
+    {
+        const string key = @"\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser";
+        var args = DebloatService.BuildResumeArgs(DebloatCategory.ScheduledTask, key, isUndo: true);
+
+        var parsed = DebloatService.TryParseResumeArgs(["ZiaMonitoring.App.exe", .. args]);
+
+        Assert.NotNull(parsed);
+        Assert.True(parsed!.IsUndo);
+        Assert.Equal(DebloatCategory.ScheduledTask, parsed.Category);
+        Assert.Equal(key, parsed.Key);
+    }
+
+    [Fact]
+    public void ResumeArgs_AllerRetour_CleanAll()
+    {
+        var args = DebloatService.BuildResumeAllArgs();
+
+        var parsed = DebloatService.TryParseResumeArgs(["ZiaMonitoring.App.exe", .. args]);
+
+        Assert.NotNull(parsed);
+        Assert.True(parsed!.IsCleanAll);
+        Assert.Null(parsed.Category);
+        Assert.Null(parsed.Key);
+    }
+
+    [Fact]
+    public void TryParseResumeArgs_AucunFlag_RetourneNull()
+    {
+        Assert.Null(DebloatService.TryParseResumeArgs(["ZiaMonitoring.App.exe"]));
+    }
+
+    [Fact]
+    public void TryParseResumeArgs_FlagIncomplet_RetourneNull()
+    {
+        Assert.Null(DebloatService.TryParseResumeArgs(["ZiaMonitoring.App.exe", "--resume-debloat", "clean", "Telemetry"]));
+    }
 }

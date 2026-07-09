@@ -13,7 +13,14 @@ namespace ZiaMonitoring_App.Pages;
 /// </summary>
 internal static class AdminElevationPrompt
 {
-    public static async Task<bool> EnsureElevatedAsync(XamlRoot xamlRoot, string actionDescription)
+    /// <param name="resumeArgs">
+    /// Arguments transmis à l'instance élevée pour qu'elle termine
+    /// automatiquement l'action interrompue par le redémarrage (voir
+    /// App.PendingDebloatResume) — sans ça, l'utilisateur devrait recliquer
+    /// l'action une fois l'app relancée, ce qui donne l'impression qu'elle
+    /// "ne marche pas".
+    /// </param>
+    public static async Task<bool> EnsureElevatedAsync(XamlRoot xamlRoot, string actionDescription, IEnumerable<string>? resumeArgs = null)
     {
         if (AdminElevation.IsElevated)
             return true;
@@ -32,7 +39,7 @@ internal static class AdminElevationPrompt
         if (result != ContentDialogResult.Primary)
             return false;
 
-        if (AdminElevation.RelaunchElevated())
+        if (AdminElevation.RelaunchElevated(resumeArgs))
         {
             Microsoft.UI.Xaml.Application.Current.Exit();
         }

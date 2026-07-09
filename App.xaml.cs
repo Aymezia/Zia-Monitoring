@@ -72,6 +72,16 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.PublicIpMonitorService PublicIpMonitor => _services.GetRequiredService<Application.PublicIpMonitorService>();
     public Application.WakeOnLanService WakeOnLan => _services.GetRequiredService<Application.WakeOnLanService>();
     public Application.SelfUpdateService SelfUpdater => _services.GetRequiredService<Application.SelfUpdateService>();
+    public Application.PcAuditService PcAudit => _services.GetRequiredService<Application.PcAuditService>();
+
+    /// <summary>
+    /// Action de débloat interrompue par une relance élevée (voir
+    /// AdminElevationPrompt), à terminer automatiquement au démarrage de
+    /// cette instance — sinon l'utilisateur devrait recliquer manuellement
+    /// une fois l'app relancée, ce qui donnait l'impression que le débloat
+    /// "ne marchait pas".
+    /// </summary>
+    public Application.DebloatResumeAction? PendingDebloatResume { get; private set; }
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -80,6 +90,8 @@ public partial class App : Microsoft.UI.Xaml.Application
     public App()
     {
         _services = ConfigureServices();
+
+        PendingDebloatResume = Application.DebloatService.TryParseResumeArgs(Environment.GetCommandLineArgs());
 
         // Doit être appliqué avant InitializeComponent() : WinUI resout les
         // ressources x:Uid a la lecture du XAML, pas dynamiquement ensuite.
@@ -154,6 +166,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.PublicIpMonitorService>();
         services.AddSingleton<Application.WakeOnLanService>();
         services.AddSingleton<Application.SelfUpdateService>();
+        services.AddSingleton<Application.PcAuditService>();
 
         return services.BuildServiceProvider();
     }

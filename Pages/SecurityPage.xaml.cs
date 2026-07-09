@@ -118,7 +118,8 @@ public sealed partial class SecurityPage : Page
         if (sender is not Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
             return;
 
-        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage de cet élément"))
+        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage de cet élément",
+                ZiaMonitoring_App.Application.DebloatService.BuildResumeArgs(item.Category, item.Key, isUndo: false)))
             return;
 
         var (success, message) = _app.Debloat.Clean(item.Category, item.Key);
@@ -132,7 +133,8 @@ public sealed partial class SecurityPage : Page
         if (sender is not Button { Tag: ZiaMonitoring_App.Application.DebloatItem item })
             return;
 
-        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La restauration de cet élément"))
+        if (RequiresElevation(item.Category) && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La restauration de cet élément",
+                ZiaMonitoring_App.Application.DebloatService.BuildResumeArgs(item.Category, item.Key, isUndo: true)))
             return;
 
         var (success, message) = _app.Debloat.Undo(item.Category, item.Key);
@@ -145,7 +147,8 @@ public sealed partial class SecurityPage : Page
     {
         var settings = _app.SettingsService.Load();
         var needsElevation = _allDebloatItems.Any(i => !i.IsClean && RequiresElevation(i.Category)) || settings.EnableRestorePointBeforeRiskyActions;
-        if (needsElevation && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage complet du débloat"))
+        if (needsElevation && !await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage complet du débloat",
+                ZiaMonitoring_App.Application.DebloatService.BuildResumeAllArgs()))
             return;
 
         CleanAllDebloatButton.IsEnabled = false;

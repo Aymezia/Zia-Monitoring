@@ -5,26 +5,62 @@ namespace ZiaMonitoring.Tests;
 
 public sealed class DebloatServiceTests
 {
-    [Fact]
-    public void ParseTaskEnabledFromCsv_TacheDesactivee_RetourneFalse()
-    {
-        const string csv = "\"\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser\",\"N/A\",\"Disabled\"";
+    // schtasks /Query /FO CSV renvoie un statut localisé ("Désactivé" en
+    // français) : comparer au seul mot anglais "Disabled" faisait paraître
+    // TOUTE tâche désactivée comme "encore active" sur une machine non
+    // anglophone. /XML expose <Enabled>true|false</Enabled>, structurel et
+    // indépendant de la langue d'affichage — capture réelle sur une tâche
+    // française désactivée (Microsoft-Windows-DiskDiagnosticDataCollector).
+    private const string RealDisabledTaskXml = """
+        <?xml version="1.0" encoding="UTF-16"?>
+        <Task version="1.6" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+          <RegistrationInfo>
+            <URI>\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector</URI>
+          </RegistrationInfo>
+          <Settings>
+            <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+            <Enabled>false</Enabled>
+            <Hidden>true</Hidden>
+          </Settings>
+          <Triggers />
+          <Actions Context="LocalSystem">
+            <Exec>
+              <Command>%windir%\system32\rundll32.exe</Command>
+            </Exec>
+          </Actions>
+        </Task>
+        """;
 
-        Assert.False(DebloatService.ParseTaskEnabledFromCsv(csv));
+    [Fact]
+    public void ParseTaskEnabledFromXml_TacheReelleDesactivee_RetourneFalse()
+    {
+        Assert.False(DebloatService.ParseTaskEnabledFromXml(RealDisabledTaskXml));
     }
 
-    [Theory]
-    [InlineData("\"MonTask\",\"01/01/2026 03:00:00\",\"Ready\"")]
-    [InlineData("\"MonTask\",\"N/A\",\"Running\"")]
-    public void ParseTaskEnabledFromCsv_TacheActive_RetourneTrue(string csv)
+    [Fact]
+    public void ParseTaskEnabledFromXml_TacheActivee_RetourneTrue()
     {
-        Assert.True(DebloatService.ParseTaskEnabledFromCsv(csv));
+        const string xml = "<Task><Settings><Enabled>true</Enabled></Settings></Task>";
+        Assert.True(DebloatService.ParseTaskEnabledFromXml(xml));
     }
 
     [Fact]
-    public void ParseTaskEnabledFromCsv_LigneVide_RetourneFalse()
+    public void ParseTaskEnabledFromXml_EnabledAbsentDuBlocSettings_ConsidereActiveParDefaut()
     {
-        Assert.False(DebloatService.ParseTaskEnabledFromCsv(string.Empty));
+        const string xml = "<Task><Settings><Hidden>true</Hidden></Settings></Task>";
+        Assert.True(DebloatService.ParseTaskEnabledFromXml(xml));
+    }
+
+    [Fact]
+    public void ParseTaskEnabledFromXml_XmlVide_TacheAbsenteConsidereeClean()
+    {
+        Assert.False(DebloatService.ParseTaskEnabledFromXml(string.Empty));
+    }
+
+    [Fact]
+    public void ParseTaskEnabledFromXml_PasDeBlocSettings_ConsidereActiveParPrudence()
+    {
+        Assert.True(DebloatService.ParseTaskEnabledFromXml("<Task><Triggers /></Task>"));
     }
 
     [Fact]

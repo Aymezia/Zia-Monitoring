@@ -277,12 +277,20 @@ public sealed class DebloatService
         key.SetValue("Start", startType, RegistryValueKind.DWord);
     }
 
+    /// <summary>
+    /// Interroge l'état via /XML plutôt que /FO CSV : la sortie CSV renvoie
+    /// le statut localisé ("Désactivé" en français, "Disabled" en anglais…),
+    /// que le code comparait autrefois au seul mot anglais — la tâche
+    /// paraissait donc "toujours active" sur toute machine non anglophone,
+    /// même juste après une désactivation réussie. Le XML expose un
+    /// &lt;Enabled&gt;true/false&lt;/Enabled&gt; structurel, indépendant de la langue.
+    /// </summary>
     private static bool IsTaskEnabled(string taskPath)
     {
         try
         {
-            var output = RunCaptureOutput("schtasks.exe", $"/Query /TN \"{taskPath}\" /FO CSV /NH");
-            return ParseTaskEnabledFromCsv(output);
+            var xml = RunCaptureOutput("schtasks.exe", $"/Query /TN \"{taskPath}\" /XML");
+            return ParseTaskEnabledFromXml(xml);
         }
         catch
         {
@@ -290,14 +298,23 @@ public sealed class DebloatService
         }
     }
 
-    internal static bool ParseTaskEnabledFromCsv(string csvLine)
+    internal static bool ParseTaskEnabledFromXml(string xml)
     {
-        csvLine = csvLine.Trim();
-        if (csvLine.Length == 0)
-            return false;
+        if (string.IsNullOrWhiteSpace(xml))
+            return false; // tâche absente : considérée comme neutralisée.
 
-        var fields = csvLine.Split("\",\"").Select(f => f.Trim('"')).ToList();
-        return !fields[^1].Equals("Disabled", StringComparison.OrdinalIgnoreCase);
+        var settingsStart = xml.IndexOf("<Settings>", StringComparison.OrdinalIgnoreCase);
+        var settingsEnd = xml.IndexOf("</Settings>", StringComparison.OrdinalIgnoreCase);
+        if (settingsStart < 0 || settingsEnd < 0 || settingsEnd <= settingsStart)
+            return true; // format inattendu : ne pas prétendre à tort que c'est propre.
+
+        var settingsBlock = xml[settingsStart..settingsEnd];
+        var match = System.Text.RegularExpressions.Regex.Match(
+            settingsBlock, @"<Enabled>(true|false)</Enabled>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        // Le schéma Task Scheduler considère une tâche activée par défaut
+        // si <Enabled> est absent du bloc <Settings>.
+        return !match.Success || match.Groups[1].Value.Equals("true", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsAppInstalled(string packagePrefix) => GetInstalledPackageFullName(packagePrefix) is not null;

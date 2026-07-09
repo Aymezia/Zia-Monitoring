@@ -12,7 +12,9 @@ public sealed partial class AppStateViewModel : ObservableObject
     [ObservableProperty] private double _memoryUsedMb;
     [ObservableProperty] private double _memoryTotalMb;
     [ObservableProperty] private string _cpuTempLabel = "N/A";
+    [ObservableProperty] private double _cpuTempPercent;
     [ObservableProperty] private string _gpuTempLabel = "N/A";
+    [ObservableProperty] private double _gpuTempPercent;
     [ObservableProperty] private string _gpuUsageLabel = "N/A";
     [ObservableProperty] private double _gpuUsagePercent;
     [ObservableProperty] private string _fanLabel = "N/A";
@@ -234,9 +236,9 @@ public sealed partial class AppStateViewModel : ObservableObject
         MemoryUsedMb = frame.Snapshot.MemoryUsedMb;
         MemoryTotalMb = frame.Snapshot.MemoryTotalMb;
         CpuTempLabel = frame.Snapshot.CpuTemperatureC is null ? "N/A" : $"{frame.Snapshot.CpuTemperatureC:F1} C";
-
-        CpuTempLabel = frame.Snapshot.CpuTemperatureC is null ? "N/A" : $"{frame.Snapshot.CpuTemperatureC:F1} C";
+        CpuTempPercent = frame.Snapshot.CpuTemperatureC is { } cpuTempC ? Math.Clamp(cpuTempC, 0, 100) : 0;
         GpuTempLabel = frame.Snapshot.GpuTemperatureC is null ? "N/A" : $"{frame.Snapshot.GpuTemperatureC:F1} C";
+        GpuTempPercent = frame.Snapshot.GpuTemperatureC is { } gpuTempC ? Math.Clamp(gpuTempC, 0, 100) : 0;
         GpuUsagePercent = Math.Clamp(frame.Snapshot.GpuUsagePercent ?? 0, 0, 100);
         GpuUsageLabel = frame.Snapshot.GpuUsagePercent is null ? "N/A" : $"{frame.Snapshot.GpuUsagePercent:F0}%";
         FanLabel = frame.Snapshot.FanSpeedRpm is null ? "N/A" : $"{frame.Snapshot.FanSpeedRpm:F0} RPM";

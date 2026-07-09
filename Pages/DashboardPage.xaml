@@ -4,7 +4,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:controls="using:ZiaMonitoring_App.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
@@ -27,11 +26,10 @@
                     <TextBlock Text="Dashboard temps réel" Style="{StaticResource PageTitleTextStyle}" />
                     <TextBlock Text="Surveillance live du processeur, de la mémoire, du réseau et des processus." Style="{StaticResource PageSubtitleTextStyle}" />
                 </StackPanel>
-                <TextBlock
-                    Grid.Column="1"
-                    VerticalAlignment="Bottom"
-                    Style="{StaticResource CaptionTextStyle}"
-                    Text="{Binding LastUpdateLabel}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="7" VerticalAlignment="Bottom">
+                    <Ellipse x:Name="LiveDot" Width="7" Height="7" Fill="{StaticResource ZiaGreenBrush}" />
+                    <TextBlock Style="{StaticResource MonoCaptionTextStyle}" Text="{Binding LastUpdateLabel}" />
+                </StackPanel>
             </Grid>
 
             <!-- Tuiles KPI -->
@@ -47,21 +45,27 @@
 
                 <!-- CPU -->
                 <Border Style="{StaticResource KpiCardStyle}">
-                    <Grid RowSpacing="6">
+                    <Grid RowSpacing="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="PROCESSEUR" Style="{StaticResource KpiLabelTextStyle}" />
-                        <controls:CircularGauge Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Value="{Binding CpuPercent}" />
-                        <TextBlock Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="{Binding CpuModel}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
+                            <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding CpuPercentLabel}" />
+                            <Grid Height="5" Background="{StaticResource ZiaStrokeBrush}">
+                                <Rectangle HorizontalAlignment="Left" Fill="{StaticResource ZiaThermalBrush}"
+                                           Width="{Binding CpuPercent, Converter={StaticResource PercentToWidth}, ConverterParameter=140}" />
+                            </Grid>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextStyle}" Text="{Binding CpuModel}" TextTrimming="CharacterEllipsis" MaxLines="1" />
                     </Grid>
                 </Border>
 
                 <!-- RAM -->
                 <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}">
-                    <Grid RowSpacing="6">
+                    <Grid RowSpacing="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -69,38 +73,53 @@
                         </Grid.RowDefinitions>
                         <TextBlock Text="MÉMOIRE" Style="{StaticResource KpiLabelTextStyle}" />
                         <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
-                            <TextBlock HorizontalAlignment="Center" Style="{StaticResource MetricValueTextStyle}" Text="{Binding MemoryPercentLabel}" />
-                            <ProgressBar Style="{StaticResource ZiaProgressBarStyle}" Maximum="100" Value="{Binding MemoryPercent}" />
+                            <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding MemoryPercentLabel}" />
+                            <Grid Height="5" Background="{StaticResource ZiaStrokeBrush}">
+                                <Rectangle HorizontalAlignment="Left" Fill="{StaticResource ZiaThermalBrush}"
+                                           Width="{Binding MemoryPercent, Converter={StaticResource PercentToWidth}, ConverterParameter=140}" />
+                            </Grid>
                         </StackPanel>
-                        <TextBlock Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="{Binding MemoryDetailLabel}" />
+                        <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextStyle}" Text="{Binding MemoryDetailLabel}" />
                     </Grid>
                 </Border>
 
                 <!-- Température CPU -->
                 <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}">
-                    <Grid RowSpacing="6">
+                    <Grid RowSpacing="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="TEMPÉRATURE" Style="{StaticResource KpiLabelTextStyle}" />
-                        <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource MetricValueTextStyle}" Text="{Binding CpuTempLabel}" />
-                        <TextBlock Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="{Binding FanLabel}" />
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
+                            <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding CpuTempLabel}" />
+                            <Grid Height="5" Background="{StaticResource ZiaStrokeBrush}">
+                                <Rectangle HorizontalAlignment="Left" Fill="{StaticResource ZiaThermalBrush}"
+                                           Width="{Binding CpuTempPercent, Converter={StaticResource PercentToWidth}, ConverterParameter=140}" />
+                            </Grid>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextStyle}" Text="{Binding FanLabel}" />
                     </Grid>
                 </Border>
 
                 <!-- GPU -->
                 <Border Grid.Column="3" Style="{StaticResource KpiCardStyle}">
-                    <Grid RowSpacing="6">
+                    <Grid RowSpacing="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="GPU" Style="{StaticResource KpiLabelTextStyle}" />
-                        <controls:CircularGauge Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Value="{Binding GpuUsagePercent}" />
-                        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
+                            <TextBlock Style="{StaticResource MetricValueTextStyle}" Text="{Binding GpuUsageLabel}" />
+                            <Grid Height="5" Background="{StaticResource ZiaStrokeBrush}">
+                                <Rectangle HorizontalAlignment="Left" Fill="{StaticResource ZiaThermalBrush}"
+                                           Width="{Binding GpuUsagePercent, Converter={StaticResource PercentToWidth}, ConverterParameter=140}" />
+                            </Grid>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                             <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{Binding GpuTempLabel}" />
                             <TextBlock Style="{StaticResource CaptionTextStyle}" Text="•" />
                             <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{Binding VramLabel}" />
@@ -118,7 +137,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock Text="RÉSEAU" Style="{StaticResource KpiLabelTextStyle}" />
                         <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="4">
-                            <TextBlock HorizontalAlignment="Center" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource ZiaTextBrush}" Text="{Binding NetworkLabel}" TextWrapping="Wrap" TextAlignment="Center" />
+                            <TextBlock HorizontalAlignment="Center" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource ZiaTextBrush}" Text="{Binding NetworkLabel}" TextWrapping="Wrap" TextAlignment="Center" />
                             <TextBlock HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="{Binding PingLabel}" />
                         </StackPanel>
                         <TextBlock Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="{Binding DiskIoLabel}" />
@@ -136,8 +155,8 @@
                         <TextBlock Text="SANTÉ" Style="{StaticResource KpiLabelTextStyle}" />
                         <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
                             <TextBlock HorizontalAlignment="Center" Style="{StaticResource MetricValueTextStyle}" Text="{Binding HealthScoreLabel}" />
-                            <Border Style="{StaticResource BadgeStyle}" Background="{Binding RiskLevel, Converter={StaticResource RiskToBrush}}">
-                                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" Text="{Binding RiskLevel}" />
+                            <Border Style="{StaticResource BadgeStyle}" BorderBrush="{Binding RiskLevel, Converter={StaticResource RiskToBrush}}" BorderThickness="1" Background="Transparent">
+                                <TextBlock FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding RiskLevel, Converter={StaticResource RiskToBrush}}" Text="{Binding RiskLevel}" />
                             </Border>
                         </StackPanel>
                         <TextBlock Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="Score global du système" />
@@ -194,8 +213,8 @@
                                             <ColumnDefinition Width="100" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="1" Text="{Binding Pid}" Foreground="{StaticResource ZiaMutedBrush}" FontSize="12" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right" Text="{Binding MemoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Pid}" Foreground="{StaticResource ZiaMutedBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right" Text="{Binding MemoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -208,6 +227,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="Alertes" Style="{StaticResource CardTitleTextStyle}" />
 
@@ -218,7 +238,7 @@
                             VerticalAlignment="Center"
                             Spacing="8"
                             Visibility="{Binding NoAlerts, Converter={StaticResource BoolToVis}}">
-                            <Ellipse Width="12" Height="12" HorizontalAlignment="Center" Fill="{StaticResource ZiaGreenBrush}" />
+                            <Ellipse Width="10" Height="10" HorizontalAlignment="Center" Fill="{StaticResource ZiaGreenBrush}" />
                             <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource ZiaTextBrush}" FontWeight="SemiBold" Text="Aucune alerte active" />
                             <TextBlock HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" Text="Tout fonctionne normalement." />
                         </StackPanel>
@@ -234,13 +254,17 @@
                                         Padding="10,8"
                                         Background="{StaticResource ZiaPanelAltBrush}"
                                         BorderBrush="{StaticResource ZiaRedBrush}"
-                                        BorderThickness="1,1,1,1"
-                                        CornerRadius="8">
+                                        BorderThickness="1,1,1,1">
                                         <TextBlock FontSize="13" Foreground="{StaticResource ZiaTextBrush}" Text="{Binding}" TextWrapping="Wrap" />
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="0">
+                            <TextBlock Style="{StaticResource MonoCaptionTextStyle}" Text="zia@monitoring:~$ " />
+                            <Rectangle x:Name="CursorBlock" Width="6" Height="13" Fill="{StaticResource ZiaVioletBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>

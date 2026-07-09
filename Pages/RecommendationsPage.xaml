@@ -24,7 +24,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel VerticalAlignment="Center" Width="140">
-                        <TextBlock x:Name="ScoreValueLabel" Text="—" FontSize="40" FontWeight="Bold" Foreground="{StaticResource ZiaTextBrush}" />
+                        <TextBlock x:Name="ScoreValueLabel" Text="—" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="40" FontWeight="Bold" Foreground="{StaticResource ZiaTextBrush}" />
                         <TextBlock x:Name="ScoreQualifierLabel" Foreground="{StaticResource ZiaMutedBrush}" />
                     </StackPanel>
 
@@ -63,19 +63,22 @@
                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                             <Grid ColumnSpacing="14">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="96" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Style="{StaticResource BadgeStyle}" Background="{Binding Severity, Converter={StaticResource AuditSeverityToBrush}}" VerticalAlignment="Top">
-                                    <TextBlock Text="{Binding SeverityLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ZiaBlackBrush}" />
+                                <Border Grid.Column="0" BorderBrush="{Binding Severity, Converter={StaticResource AuditSeverityToBrush}}" BorderThickness="1"
+                                        Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding SeverityLabel}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="10.5" FontWeight="SemiBold"
+                                               Foreground="{Binding Severity, Converter={StaticResource AuditSeverityToBrush}}" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Spacing="4">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{Binding CategoryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="16" FontWeight="SemiBold" />
-                                    </StackPanel>
+                                    <TextBlock Text="{Binding CategoryLabel}" Foreground="{StaticResource ZiaMutedBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="10.5" CharacterSpacing="40" />
+                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource ZiaTextBrush}" FontSize="16" FontWeight="SemiBold" />
                                     <TextBlock Text="{Binding Detail}" Foreground="{StaticResource ZiaMutedBrush}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding Recommendation}" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" FontStyle="Italic" />
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="→ " Foreground="{StaticResource ZiaVioletBrush}" />
+                                        <Run Text="{Binding Recommendation}" Foreground="{StaticResource ZiaTextBrush}" />
+                                    </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Border>

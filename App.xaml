@@ -12,17 +12,21 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ============ Palette ============ -->
-            <Color x:Key="ZiaBlack">#0D0A11</Color>
-            <Color x:Key="ZiaPanel">#16111F</Color>
-            <Color x:Key="ZiaPanelAlt">#1E162A</Color>
-            <Color x:Key="ZiaStroke">#2A2038</Color>
-            <Color x:Key="ZiaPurple">#A64BFF</Color>
-            <Color x:Key="ZiaViolet">#D478FF</Color>
-            <Color x:Key="ZiaRed">#F23053</Color>
-            <Color x:Key="ZiaGreen">#3DDC97</Color>
-            <Color x:Key="ZiaAmber">#FFB454</Color>
-            <Color x:Key="ZiaText">#F7F4FF</Color>
-            <Color x:Key="ZiaMuted">#B8A8D8</Color>
+            <!-- Console terminal + silicium thermique : fond quasi noir chaud,
+                 accent ambre phosphore unique, dégradé thermique reservé aux
+                 données physiques reelles (charge/temperature), pas decoratif. -->
+            <Color x:Key="ZiaBlack">#0A0906</Color>
+            <Color x:Key="ZiaPanel">#100E0B</Color>
+            <Color x:Key="ZiaPanelAlt">#171310</Color>
+            <Color x:Key="ZiaStroke">#2B2318</Color>
+            <Color x:Key="ZiaPurple">#E0A030</Color>
+            <Color x:Key="ZiaViolet">#E0A030</Color>
+            <Color x:Key="ZiaRed">#C0574A</Color>
+            <Color x:Key="ZiaGreen">#8FAE72</Color>
+            <Color x:Key="ZiaAmber">#D0973F</Color>
+            <Color x:Key="ZiaText">#ECDCB8</Color>
+            <Color x:Key="ZiaMuted">#8A7A5C</Color>
+            <Color x:Key="ZiaDimmer">#5C5138</Color>
 
             <SolidColorBrush x:Key="ZiaBlackBrush" Color="{StaticResource ZiaBlack}" />
             <SolidColorBrush x:Key="ZiaPanelBrush" Color="{StaticResource ZiaPanel}" />
@@ -35,12 +39,28 @@
             <SolidColorBrush x:Key="ZiaAmberBrush" Color="{StaticResource ZiaAmber}" />
             <SolidColorBrush x:Key="ZiaTextBrush" Color="{StaticResource ZiaText}" />
             <SolidColorBrush x:Key="ZiaMutedBrush" Color="{StaticResource ZiaMuted}" />
+            <SolidColorBrush x:Key="ZiaDimmerBrush" Color="{StaticResource ZiaDimmer}" />
 
             <LinearGradientBrush x:Key="ZiaBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#09070D" Offset="0" />
-                <GradientStop Color="#150C1F" Offset="0.5" />
-                <GradientStop Color="#1B0C18" Offset="1" />
+                <GradientStop Color="#080705" Offset="0" />
+                <GradientStop Color="#100D09" Offset="0.5" />
+                <GradientStop Color="#0A0906" Offset="1" />
             </LinearGradientBrush>
+
+            <!-- Degrade thermique froid -> chaud, a utiliser uniquement pour des
+                 grandeurs physiques reelles (charge CPU/GPU, temperature). Le
+                 MappingMode Absolute permet de "reveler" une portion du degrade
+                 en changeant juste la largeur de l'element peint (voir
+                 PercentToPixelWidthConverter), plutot que de l'etirer. -->
+            <LinearGradientBrush x:Key="ZiaThermalBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="160,0">
+                <GradientStop Color="#3A6B9E" Offset="0" />
+                <GradientStop Color="#2FB8A6" Offset="0.55" />
+                <GradientStop Color="#D0973F" Offset="0.82" />
+                <GradientStop Color="#C0574A" Offset="1" />
+            </LinearGradientBrush>
+
+            <!-- ============ Polices ============ -->
+            <FontFamily x:Key="ZiaMonoFontFamily">Cascadia Mono, Consolas, monospace</FontFamily>
 
             <!-- ============ Convertisseurs ============ -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
@@ -48,6 +68,7 @@
             <conv:RiskLevelToBrushConverter x:Key="RiskToBrush" />
             <conv:BoolToStatusBrushConverter x:Key="PrivacyBrush" />
             <conv:AuditSeverityToBrushConverter x:Key="AuditSeverityToBrush" />
+            <conv:PercentToPixelWidthConverter x:Key="PercentToWidth" />
 
             <!-- ============ Typographie ============ -->
             <Style TargetType="TextBlock" x:Key="PageTitleTextStyle">
@@ -65,15 +86,17 @@
             <!-- Petit libellé de tuile KPI (majuscules fournies par le texte) -->
             <Style TargetType="TextBlock" x:Key="KpiLabelTextStyle">
                 <Setter Property="Foreground" Value="{StaticResource ZiaMutedBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource ZiaMonoFontFamily}" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="FontSize" Value="11.5" />
-                <Setter Property="CharacterSpacing" Value="120" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="CharacterSpacing" Value="60" />
             </Style>
 
             <Style TargetType="TextBlock" x:Key="MetricValueTextStyle">
                 <Setter Property="Foreground" Value="{StaticResource ZiaTextBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource ZiaMonoFontFamily}" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontSize" Value="28" />
             </Style>
 
             <Style TargetType="TextBlock" x:Key="CaptionTextStyle">
@@ -89,10 +112,17 @@
                 <Setter Property="Margin" Value="0,0,0,4" />
             </Style>
 
+            <!-- Petit libellé technique (PID, chemin, identifiant) en mono, discret -->
+            <Style TargetType="TextBlock" x:Key="MonoCaptionTextStyle">
+                <Setter Property="Foreground" Value="{StaticResource ZiaMutedBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource ZiaMonoFontFamily}" />
+                <Setter Property="FontSize" Value="12" />
+            </Style>
+
             <!-- ============ Conteneurs ============ -->
             <Style TargetType="Border" x:Key="CardStyle">
                 <Setter Property="Background" Value="{StaticResource ZiaPanelBrush}" />
-                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="CornerRadius" Value="0" />
                 <Setter Property="Padding" Value="18" />
                 <Setter Property="BorderBrush" Value="{StaticResource ZiaStrokeBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
@@ -104,8 +134,8 @@
             </Style>
 
             <Style TargetType="Border" x:Key="BadgeStyle">
-                <Setter Property="CornerRadius" Value="999" />
-                <Setter Property="Padding" Value="12,4" />
+                <Setter Property="CornerRadius" Value="3" />
+                <Setter Property="Padding" Value="10,4" />
                 <Setter Property="HorizontalAlignment" Value="Center" />
             </Style>
 
@@ -113,13 +143,14 @@
                 <Setter Property="Foreground" Value="{StaticResource ZiaPurpleBrush}" />
                 <Setter Property="Background" Value="{StaticResource ZiaStrokeBrush}" />
                 <Setter Property="MinHeight" Value="6" />
-                <Setter Property="CornerRadius" Value="3" />
+                <Setter Property="CornerRadius" Value="0" />
             </Style>
 
             <Style TargetType="Button" x:Key="AccentButtonStyle">
                 <Setter Property="Background" Value="{StaticResource ZiaPurpleBrush}" />
-                <Setter Property="Foreground" Value="White" />
-                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Foreground" Value="{StaticResource ZiaBlackBrush}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CornerRadius" Value="2" />
                 <Setter Property="Padding" Value="12,8" />
             </Style>
         </ResourceDictionary>

@@ -53,6 +53,30 @@ public sealed class RiskLevelToBrushConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>
+/// Pourcentage 0-100 → largeur en pixels, à la même échelle que le
+/// MappingMode="Absolute" de ZiaThermalBrush : révèle une portion du
+/// dégradé thermique fixe plutôt que de l'étirer (repro de l'effet
+/// "overflow:hidden" du web). ConverterParameter = largeur pleine échelle.
+/// </summary>
+public sealed class PercentToPixelWidthConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var percent = value switch
+        {
+            double d => d,
+            int i => i,
+            _ => 0d
+        };
+        var fullWidth = parameter is string s && double.TryParse(s, out var w) ? w : 160d;
+        return Math.Clamp(percent, 0, 100) / 100.0 * fullWidth;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotSupportedException();
+}
+
 /// <summary>Critical → rouge, Warning → ambre, Info → violet (constats d'audit PC).</summary>
 public sealed class AuditSeverityToBrushConverter : IValueConverter
 {

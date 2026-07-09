@@ -33,10 +33,14 @@
                 <TextBlock Text="Mises a jour" Style="{StaticResource CardTitleTextStyle}" />
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button x:Name="CheckUpdateButton" Content="Verifier les mises a jour" Click="CheckUpdate_Click" />
-                    <Button x:Name="OpenReleaseButton" Content="Ouvrir la page de telechargement"
+                    <Button x:Name="UpdateNowButton" Content="Mettre a jour maintenant" Style="{StaticResource AccentButtonStyle}"
+                            Visibility="Collapsed" Click="UpdateNow_Click" />
+                    <Button x:Name="OpenReleaseButton" Content="Voir sur GitHub"
                             Visibility="Collapsed" Click="OpenRelease_Click" />
                 </StackPanel>
                 <TextBlock x:Name="UpdateStatusLabel" Foreground="{StaticResource ZiaTextBrush}" TextWrapping="Wrap" />
+                <ToggleSwitch x:Name="AutoUpdateToggle" Header="Installer automatiquement les mises à jour trouvées au démarrage (sans confirmation)"
+                              Toggled="AutoUpdate_Toggled" />
             </StackPanel>
         </Border>
     </Grid>

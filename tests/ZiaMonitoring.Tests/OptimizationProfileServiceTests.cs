@@ -128,4 +128,75 @@ public sealed class UpdateCheckServiceTests
     {
         Assert.Null(UpdateCheckService.ParseVersion(tag));
     }
+
+    [Fact]
+    public void ParseLatestRelease_VersionPlusRecente_RetourneUpdateInfoAvecAssets()
+    {
+        const string json = """
+            {
+              "tag_name": "v1.2.0",
+              "html_url": "https://github.com/Aymezia/Zia-Monitoring/releases/tag/v1.2.0",
+              "assets": [
+                { "name": "ZiaMonitoring-Portable-v1.2.0.zip", "browser_download_url": "https://example.com/portable.zip" },
+                { "name": "ZiaMonitoring-Setup.exe", "browser_download_url": "https://example.com/setup.exe" }
+              ]
+            }
+            """;
+
+        var update = UpdateCheckService.ParseLatestRelease(json, new Version(1, 1, 0));
+
+        Assert.NotNull(update);
+        Assert.Equal("v1.2.0", update!.TagName);
+        Assert.Equal("https://example.com/portable.zip", update.PortableZipUrl);
+        Assert.Equal("https://example.com/setup.exe", update.SetupExeUrl);
+    }
+
+    [Fact]
+    public void ParseLatestRelease_MemeVersionOuAnterieure_RetourneNull()
+    {
+        const string json = """{"tag_name": "v1.1.0", "html_url": "https://example.com"}""";
+
+        Assert.Null(UpdateCheckService.ParseLatestRelease(json, new Version(1, 1, 0)));
+        Assert.Null(UpdateCheckService.ParseLatestRelease(json, new Version(1, 2, 0)));
+    }
+
+    [Fact]
+    public void ParseLatestRelease_SansAssets_UrlsNulles()
+    {
+        const string json = """{"tag_name": "v2.0.0", "html_url": "https://example.com"}""";
+
+        var update = UpdateCheckService.ParseLatestRelease(json, new Version(1, 0, 0));
+
+        Assert.NotNull(update);
+        Assert.Null(update!.PortableZipUrl);
+        Assert.Null(update.SetupExeUrl);
+    }
+
+    [Fact]
+    public void ParseLatestRelease_AssetsSansCorrespondance_UrlsNulles()
+    {
+        const string json = """
+            {
+              "tag_name": "v2.0.0",
+              "html_url": "https://example.com",
+              "assets": [
+                { "name": "source-code.tar.gz", "browser_download_url": "https://example.com/src.tar.gz" }
+              ]
+            }
+            """;
+
+        var update = UpdateCheckService.ParseLatestRelease(json, new Version(1, 0, 0));
+
+        Assert.NotNull(update);
+        Assert.Null(update!.PortableZipUrl);
+        Assert.Null(update.SetupExeUrl);
+    }
+
+    [Fact]
+    public void ParseLatestRelease_TagNonParsable_RetourneNull()
+    {
+        const string json = """{"tag_name": "nightly-build", "html_url": "https://example.com"}""";
+
+        Assert.Null(UpdateCheckService.ParseLatestRelease(json, new Version(1, 0, 0)));
+    }
 }

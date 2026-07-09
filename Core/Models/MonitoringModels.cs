@@ -148,7 +148,8 @@ public sealed record AppSettings(
     bool EnableNtfyNotifications = false,
     string NtfyTopic = "",
     bool EnablePublicIpAlert = false,
-    bool GuestModeActive = false);
+    bool GuestModeActive = false,
+    bool EnableAutoUpdateInstall = false);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

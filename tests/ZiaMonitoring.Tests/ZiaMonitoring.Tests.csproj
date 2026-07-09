@@ -68,6 +68,7 @@
     <Compile Include="..\..\Application\SmartTrendService.cs" Link="Linked\SmartTrendService.cs" />
     <Compile Include="..\..\Application\StartupManagerService.cs" Link="Linked\StartupManagerService.cs" />
     <Compile Include="..\..\Application\UpdateCheckService.cs" Link="Linked\UpdateCheckService.cs" />
+    <Compile Include="..\..\Application\SelfUpdateService.cs" Link="Linked\SelfUpdateService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\RefreshRateDetector.cs" Link="Linked\RefreshRateDetector.cs" />

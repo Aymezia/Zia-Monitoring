@@ -71,6 +71,7 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.DiscordRichPresenceService DiscordPresence => _services.GetRequiredService<Application.DiscordRichPresenceService>();
     public Application.PublicIpMonitorService PublicIpMonitor => _services.GetRequiredService<Application.PublicIpMonitorService>();
     public Application.WakeOnLanService WakeOnLan => _services.GetRequiredService<Application.WakeOnLanService>();
+    public Application.SelfUpdateService SelfUpdater => _services.GetRequiredService<Application.SelfUpdateService>();
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -152,6 +153,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.DiscordRichPresenceService>();
         services.AddSingleton<Application.PublicIpMonitorService>();
         services.AddSingleton<Application.WakeOnLanService>();
+        services.AddSingleton<Application.SelfUpdateService>();
 
         return services.BuildServiceProvider();
     }

@@ -7,11 +7,17 @@ namespace ZiaMonitoring_App.Pages;
 public sealed partial class AboutPage : Page
 {
     private string? _releaseUrl;
+    private UpdateInfo? _latestUpdate;
+    private bool _loading = true;
 
     public AboutPage()
     {
         InitializeComponent();
         VersionLabel.Text = $"Version {UpdateCheckService.CurrentVersion()}";
+
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+        AutoUpdateToggle.IsOn = app.SettingsService.Load().EnableAutoUpdateInstall;
+        _loading = false;
     }
 
     private async void CheckUpdate_Click(object sender, RoutedEventArgs e)
@@ -19,7 +25,9 @@ public sealed partial class AboutPage : Page
         CheckUpdateButton.IsEnabled = false;
         UpdateStatusLabel.Text = "Verification en cours…";
         OpenReleaseButton.Visibility = Visibility.Collapsed;
+        UpdateNowButton.Visibility = Visibility.Collapsed;
         _releaseUrl = null;
+        _latestUpdate = null;
 
         try
         {
@@ -33,8 +41,12 @@ public sealed partial class AboutPage : Page
             else
             {
                 _releaseUrl = update.ReleaseUrl;
+                _latestUpdate = update;
                 UpdateStatusLabel.Text = $"Nouvelle version disponible : {update.TagName}";
                 OpenReleaseButton.Visibility = Visibility.Visible;
+                UpdateNowButton.Visibility = update.PortableZipUrl is not null || update.SetupExeUrl is not null
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
             }
         }
         catch (Exception ex)
@@ -46,6 +58,61 @@ public sealed partial class AboutPage : Page
         {
             CheckUpdateButton.IsEnabled = true;
         }
+    }
+
+    private async void UpdateNow_Click(object sender, RoutedEventArgs e)
+    {
+        if (_latestUpdate is null)
+            return;
+
+        var dialog = new ContentDialog
+        {
+            Title = "Mettre à jour Zia Monitoring",
+            Content = $"La version {_latestUpdate.TagName} va être téléchargée et installée. L'application va se fermer puis redémarrer automatiquement. Continuer ?",
+            PrimaryButtonText = "Mettre à jour",
+            CloseButtonText = "Annuler",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+
+        await ApplyUpdateAsync(_latestUpdate);
+    }
+
+    private async Task ApplyUpdateAsync(UpdateInfo update)
+    {
+        CheckUpdateButton.IsEnabled = false;
+        UpdateNowButton.IsEnabled = false;
+
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+        var (success, message) = await app.SelfUpdater.UpdateAsync(update, text =>
+        {
+            DispatcherQueue.TryEnqueue(() => UpdateStatusLabel.Text = text);
+        });
+
+        UpdateStatusLabel.Text = message;
+        if (success)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Microsoft.UI.Xaml.Application.Current.Exit();
+        }
+        else
+        {
+            CheckUpdateButton.IsEnabled = true;
+            UpdateNowButton.IsEnabled = true;
+        }
+    }
+
+    private void AutoUpdate_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading)
+            return;
+
+        var app = (App)Microsoft.UI.Xaml.Application.Current;
+        var settings = app.SettingsService.Load();
+        app.SettingsService.Save(settings with { EnableAutoUpdateInstall = AutoUpdateToggle.IsOn });
     }
 
     private void OpenRelease_Click(object sender, RoutedEventArgs e)

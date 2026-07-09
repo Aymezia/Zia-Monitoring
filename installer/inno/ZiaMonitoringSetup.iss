@@ -53,4 +53,7 @@ Name: "{group}\Zia Monitoring"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\Zia Monitoring"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,Zia Monitoring}"; Flags: nowait postinstall skipifsilent
+; Pas de "skipifsilent" : une mise à jour silencieuse déclenchée depuis
+; l'application (SelfUpdateService, /VERYSILENT) doit aussi relancer
+; l'app automatiquement, pas seulement une install interactive.
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,Zia Monitoring}"; Flags: nowait postinstall

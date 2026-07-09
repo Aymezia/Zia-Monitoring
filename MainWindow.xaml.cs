@@ -65,12 +65,35 @@ public sealed partial class MainWindow : Window
     {
         var app = (App)Microsoft.UI.Xaml.Application.Current;
         var update = await app.UpdateChecker.CheckForUpdateAsync().ConfigureAwait(false);
-        if (update is not null)
+        if (update is null)
+            return;
+
+        var settings = app.SettingsService.Load();
+        var hasCompatibleAsset = update.PortableZipUrl is not null || update.SetupExeUrl is not null;
+
+        if (settings.EnableAutoUpdateInstall && hasCompatibleAsset)
         {
             ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
-                "Zia Monitoring - Mise a jour disponible",
-                $"La version {update.TagName} est disponible. Ouvrez A propos pour telecharger.");
+                "Zia Monitoring - Mise a jour automatique",
+                $"Version {update.TagName} trouvée : téléchargement et installation en cours…");
+
+            var (success, message) = await app.SelfUpdater.UpdateAsync(update).ConfigureAwait(false);
+            if (success)
+            {
+                app.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => Microsoft.UI.Xaml.Application.Current.Exit());
+            }
+            else
+            {
+                ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+                    "Zia Monitoring - Mise a jour automatique en echec", message);
+            }
+
+            return;
         }
+
+        ZiaMonitoring_App.Application.AlertNotificationService.SendToast(
+            "Zia Monitoring - Mise a jour disponible",
+            $"La version {update.TagName} est disponible. Ouvrez A propos pour l'installer.");
     }
 
     private async Task MonitoringLoopAsync(CancellationToken ct)

@@ -74,6 +74,10 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.SelfUpdateService SelfUpdater => _services.GetRequiredService<Application.SelfUpdateService>();
     public Application.PcAuditService PcAudit => _services.GetRequiredService<Application.PcAuditService>();
     public Application.PcHealthReportService HealthReport => _services.GetRequiredService<Application.PcHealthReportService>();
+    public Application.WindowsTweaksService WindowsTweaks => _services.GetRequiredService<Application.WindowsTweaksService>();
+    public Application.AdvancedCleanupService AdvancedCleanup => _services.GetRequiredService<Application.AdvancedCleanupService>();
+    public Application.SteamLibraryService SteamLibrary => _services.GetRequiredService<Application.SteamLibraryService>();
+    public Application.BluetoothBatteryService BluetoothBattery => _services.GetRequiredService<Application.BluetoothBatteryService>();
 
     /// <summary>
     /// Action de débloat interrompue par une relance élevée (voir
@@ -84,12 +88,22 @@ public partial class App : Microsoft.UI.Xaml.Application
     /// </summary>
     public Application.DebloatResumeAction? PendingDebloatResume { get; private set; }
 
+    // Instance unique : deux copies de l'app = double collecte (WMI, pings)
+    // et double consommation pour rien. Le mutex nommé est acquis au
+    // démarrage et gardé pour toute la vie du processus ; une seconde
+    // instance le voit déjà pris et se ferme immédiatement.
+    private const string SingleInstanceMutexName = "Global\\ZiaMonitoring.App.SingleInstance";
+    private static Mutex? _singleInstanceMutex;
+    private readonly bool _isPrimaryInstance;
+
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {
+        _isPrimaryInstance = TryAcquireSingleInstanceLock();
+
         _services = ConfigureServices();
 
         PendingDebloatResume = Application.DebloatService.TryParseResumeArgs(Environment.GetCommandLineArgs());
@@ -169,6 +183,10 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.SelfUpdateService>();
         services.AddSingleton<Application.PcAuditService>();
         services.AddSingleton<Application.PcHealthReportService>();
+        services.AddSingleton<Application.WindowsTweaksService>();
+        services.AddSingleton<Application.AdvancedCleanupService>();
+        services.AddSingleton<Application.SteamLibraryService>();
+        services.AddSingleton<Application.BluetoothBatteryService>();
 
         return services.BuildServiceProvider();
     }
@@ -195,6 +213,14 @@ public partial class App : Microsoft.UI.Xaml.Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        if (!_isPrimaryInstance)
+        {
+            // Une autre instance tourne déjà : on se retire sans rien collecter.
+            Log("Instance secondaire détectée, fermeture immédiate.");
+            Exit();
+            return;
+        }
+
         try
         {
             Log("OnLaunched started.");
@@ -206,6 +232,23 @@ public partial class App : Microsoft.UI.Xaml.Application
         {
             Log($"Launch failure: {ex}");
             throw;
+        }
+    }
+
+    private static bool TryAcquireSingleInstanceLock()
+    {
+        try
+        {
+            _singleInstanceMutex = new Mutex(initiallyOwned: true, SingleInstanceMutexName, out var createdNew);
+            return createdNew;
+        }
+        catch (Exception ex)
+        {
+            // En cas d'échec (droits, mutex abandonné), on ne bloque pas le
+            // démarrage : mieux vaut une app qui tourne qu'une app qui refuse
+            // de s'ouvrir à cause d'un verrou.
+            Infrastructure.AppLog.Warn("Verrou d'instance unique indisponible, démarrage sans garde-fou", ex);
+            return true;
         }
     }
 

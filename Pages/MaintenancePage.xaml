@@ -21,6 +21,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -290,6 +293,98 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock x:Name="WarrantyExportStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Nettoyage disque avancé -->
+            <Border Grid.Row="11" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Nettoyage disque avancé" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshAdvancedCleanupButton" Content="Analyser" Click="RefreshAdvancedCleanup_Click" />
+                    </Grid>
+                    <TextBlock Text="Mise en veille prolongée, cache Windows Update et Windows.old : plusieurs Go souvent récupérables. Actions administrateur." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AdvancedCleanupStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="AdvancedCleanupList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding SizeLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                    <Button Grid.Column="2" Content="Nettoyer" Tag="{Binding Id}" Click="RunAdvancedCleanup_Click" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Vieux installeurs du dossier Téléchargements (plus de 6 mois)" Style="{StaticResource CardTitleTextStyle}" FontSize="13" Margin="0,6,0,0" />
+                    <ItemsControl x:Name="OldInstallersList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <Button Grid.Column="1" Content="Supprimer" Tag="{Binding Path}" Click="DeleteInstaller_Click" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Composants Windows + points de restauration -->
+            <Border Grid.Row="12" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Composants Windows &amp; points de restauration" Style="{StaticResource CardTitleTextStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="ComponentCleanupButton" Content="Nettoyer WinSxS (composants obsolètes)" Click="ComponentCleanup_Click" />
+                        <Button x:Name="RefreshRestorePointsButton" Content="Points de restauration" Click="RefreshRestorePoints_Click" />
+                        <Button x:Name="PurgeRestorePointsButton" Content="Purger les anciens" Click="PurgeRestorePoints_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="ComponentCleanupLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="RestorePointsLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Hygiène système -->
+            <Border Grid.Row="13" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Hygiène système" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshContextMenuButton" Content="Lister le menu contextuel" Click="RefreshContextMenu_Click" />
+                    </Grid>
+                    <TextBlock Text="Remèdes rapides aux bugs de l'Explorateur. L'inventaire du menu contextuel montre ce que les logiciels tiers ont ajouté au clic droit (retrait via leur désinstallation)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Redémarrer l'Explorateur" Click="RestartExplorer_Click" />
+                        <Button Content="Réparer le cache d'icônes" Click="RepairIconCache_Click" />
+                        <Button Content="Options d'indexation" Click="OpenIndexingOptions_Click" />
+                    </StackPanel>
+                    <TextBlock x:Name="HygieneStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="ContextMenuList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

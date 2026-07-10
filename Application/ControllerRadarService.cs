@@ -7,6 +7,9 @@ public sealed record ControllerInfo(string Name, string Kind, int? BatteryPercen
     public string BatteryLabel => BatteryPercent is { } pct ? $"{pct}%" : "N/A";
 }
 
+/// <summary>Position instantanée des sticks, chaque axe dans [-1, 1] (0 = centre).</summary>
+public sealed record StickReading(double LeftX, double LeftY, double RightX, double RightY);
+
 /// <summary>
 /// Détecte les manettes connectées via Windows.Gaming.Input : Gamepad
 /// couvre XInput (Xbox et compatibles), RawGameController couvre en plus
@@ -51,6 +54,41 @@ public static class ControllerRadarService
         }
 
         return results;
+    }
+
+    /// <summary>Seuil de déviation au repos au-delà duquel un stick est suspecté de drift.</summary>
+    internal const double DriftThreshold = 0.08;
+
+    /// <summary>Lecture instantanée des sticks de la première manette XInput, ou null si aucune.</summary>
+    public static StickReading? ReadPrimaryStickPositions()
+    {
+        try
+        {
+            var gamepad = Gamepad.Gamepads.FirstOrDefault();
+            if (gamepad is null)
+                return null;
+
+            var reading = gamepad.GetCurrentReading();
+            return new StickReading(
+                reading.LeftThumbstickX, reading.LeftThumbstickY,
+                reading.RightThumbstickX, reading.RightThumbstickY);
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Lecture des sticks de manette impossible", ex);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Vrai si un stick dévie au-delà du seuil alors qu'il devrait être au
+    /// centre — calcul pur pour être testable. L'appelant ne doit invoquer
+    /// ceci que quand l'utilisateur ne touche pas la manette.
+    /// </summary>
+    internal static bool HasDrift(StickReading reading, double threshold = DriftThreshold)
+    {
+        return Math.Abs(reading.LeftX) > threshold || Math.Abs(reading.LeftY) > threshold
+            || Math.Abs(reading.RightX) > threshold || Math.Abs(reading.RightY) > threshold;
     }
 
     private static int? TryGetBatteryPercent(IGameControllerBatteryInfo controller)

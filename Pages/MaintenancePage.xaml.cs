@@ -318,6 +318,119 @@ public sealed partial class MaintenancePage : Page
         }
     }
 
+    private async void RefreshAdvancedCleanup_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshAdvancedCleanupButton.IsEnabled = false;
+        AdvancedCleanupStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var (targets, installers) = await Task.Run(() =>
+                (_app.AdvancedCleanup.Scan(), _app.AdvancedCleanup.ScanOldInstallers()));
+
+            AdvancedCleanupList.ItemsSource = targets;
+            OldInstallersList.ItemsSource = installers;
+            var total = targets.Where(t => t.Available).Sum(t => t.SizeMb) + installers.Sum(i => i.SizeMb);
+            AdvancedCleanupStatusLabel.Text = $"~{total / 1024:F1} Go potentiellement récupérables ({installers.Count} vieux installeur(s)).";
+        }
+        finally
+        {
+            RefreshAdvancedCleanupButton.IsEnabled = true;
+        }
+    }
+
+    private async void RunAdvancedCleanup_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string id })
+            return;
+
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Ce nettoyage disque"))
+            return;
+
+        AdvancedCleanupStatusLabel.Text = "Nettoyage en cours…";
+        var (_, message) = await Task.Run(() => _app.AdvancedCleanup.Clean(id));
+        AdvancedCleanupStatusLabel.Text = message;
+        RefreshAdvancedCleanup_Click(sender, e);
+    }
+
+    private void DeleteInstaller_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string path })
+            return;
+
+        var (_, message) = _app.AdvancedCleanup.DeleteInstaller(path);
+        AdvancedCleanupStatusLabel.Text = message;
+        OldInstallersList.ItemsSource = _app.AdvancedCleanup.ScanOldInstallers();
+    }
+
+    private async void ComponentCleanup_Click(object sender, RoutedEventArgs e)
+    {
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le nettoyage des composants Windows"))
+            return;
+
+        ComponentCleanupButton.IsEnabled = false;
+        ComponentCleanupLabel.Text = "Nettoyage WinSxS en cours (plusieurs minutes)…";
+        var dispatcher = DispatcherQueue;
+        try
+        {
+            var (_, summary) = await _app.SystemHealth.RunComponentCleanupAsync(line =>
+                dispatcher.TryEnqueue(() => ComponentCleanupLabel.Text = line), CancellationToken.None);
+            ComponentCleanupLabel.Text = summary;
+        }
+        finally
+        {
+            ComponentCleanupButton.IsEnabled = true;
+        }
+    }
+
+    private async void RefreshRestorePoints_Click(object sender, RoutedEventArgs e)
+    {
+        var usage = await Task.Run(ZiaMonitoring_App.Application.AdvancedCleanupService.GetRestorePointsUsage);
+        RestorePointsLabel.Text = usage.Label;
+    }
+
+    private async void PurgeRestorePoints_Click(object sender, RoutedEventArgs e)
+    {
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La purge des points de restauration"))
+            return;
+
+        RestorePointsLabel.Text = "Purge en cours…";
+        var (_, message) = await Task.Run(() => _app.AdvancedCleanup.PurgeOldRestorePoints());
+        RestorePointsLabel.Text = message;
+    }
+
+    private void RestartExplorer_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = ZiaMonitoring_App.Application.SystemHygieneService.RestartExplorer();
+        HygieneStatusLabel.Text = message;
+    }
+
+    private void RepairIconCache_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = ZiaMonitoring_App.Application.SystemHygieneService.RepairIconCache();
+        HygieneStatusLabel.Text = message;
+    }
+
+    private void OpenIndexingOptions_Click(object sender, RoutedEventArgs e)
+    {
+        var (_, message) = ZiaMonitoring_App.Application.SystemHygieneService.OpenIndexingOptions();
+        HygieneStatusLabel.Text = message;
+    }
+
+    private async void RefreshContextMenu_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshContextMenuButton.IsEnabled = false;
+        try
+        {
+            var handlers = await Task.Run(ZiaMonitoring_App.Application.SystemHygieneService.ScanContextMenuHandlers);
+            ContextMenuList.ItemsSource = handlers;
+            HygieneStatusLabel.Text = $"{handlers.Count} gestionnaire(s) de menu contextuel tiers.";
+        }
+        finally
+        {
+            RefreshContextMenuButton.IsEnabled = true;
+        }
+    }
+
     private async void ExportWarrantyReport_Click(object sender, RoutedEventArgs e)
     {
         try

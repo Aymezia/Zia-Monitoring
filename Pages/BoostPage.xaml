@@ -10,13 +10,15 @@
         </Storyboard>
     </Page.Resources>
 
+    <ScrollViewer>
     <Grid Padding="24" RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Text="Boost &amp; Optimisation" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -75,8 +77,45 @@
             </StackPanel>
         </Border>
 
-        <ListView Grid.Row="4" ItemsSource="{Binding BoostActions}">
-            <ListView.ItemTemplate>
+        <Border Grid.Row="4" Style="{StaticResource CardStyle}">
+            <StackPanel Spacing="8">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Réglages Windows pour le jeu et les performances" Style="{StaticResource CardTitleTextStyle}" />
+                    <Button Grid.Column="1" x:Name="RefreshTweaksButton" Content="Analyser" Click="RefreshTweaks_Click" />
+                </Grid>
+                <TextBlock Text="Chaque réglage est réversible : Optimiser applique la valeur recommandée, Défaut restaure Windows. Certains nécessitent un redémarrage." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                <TextBlock x:Name="TweaksStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                <ItemsControl x:Name="TweaksList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnSpacing="10" Margin="0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding StateLabel}" VerticalAlignment="Center" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="12"
+                                           Foreground="{Binding IsOptimized, Converter={StaticResource PrivacyBrush}}" />
+                                <Button Grid.Column="2" Content="Optimiser" Tag="{Binding Id}" Click="ApplyTweak_Click" VerticalAlignment="Center" />
+                                <Button Grid.Column="3" Content="Défaut" Tag="{Binding Id}" Click="RevertTweak_Click" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <ItemsControl Grid.Row="5" ItemsSource="{Binding BoostActions}">
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
                         <StackPanel>
@@ -87,7 +126,8 @@
                         </StackPanel>
                     </Border>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
+    </ScrollViewer>
 </Page>

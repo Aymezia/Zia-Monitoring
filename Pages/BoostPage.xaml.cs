@@ -22,6 +22,50 @@ public sealed partial class BoostPage : Page
         _pulseStoryboard = Resources["PulseStoryboard"] as Storyboard;
         _app.State.SetOptimizationState(false, 0, "Pret");
         RefreshStartupEntries();
+        RefreshTweaks();
+    }
+
+    private void RefreshTweaks_Click(object sender, RoutedEventArgs e) => RefreshTweaks();
+
+    private void RefreshTweaks()
+    {
+        try
+        {
+            TweaksList.ItemsSource = _app.WindowsTweaks.Scan();
+            TweaksStatusLabel.Text = ZiaMonitoring_App.Infrastructure.AdminElevation.IsElevated
+                ? "Mode administrateur : les réglages peuvent être appliqués directement."
+                : "Certaines applications demanderont une relance en administrateur.";
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Analyse des réglages Windows impossible", ex);
+        }
+    }
+
+    private async void ApplyTweak_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string id })
+            return;
+
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Ce réglage Windows"))
+            return;
+
+        var (_, message) = await Task.Run(() => _app.WindowsTweaks.Apply(id));
+        TweaksStatusLabel.Text = message;
+        RefreshTweaks();
+    }
+
+    private async void RevertTweak_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string id })
+            return;
+
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Ce réglage Windows"))
+            return;
+
+        var (_, message) = await Task.Run(() => _app.WindowsTweaks.Revert(id));
+        TweaksStatusLabel.Text = message;
+        RefreshTweaks();
     }
 
     private void RefreshStartup_Click(object sender, RoutedEventArgs e) => RefreshStartupEntries();

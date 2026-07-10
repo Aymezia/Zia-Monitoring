@@ -150,7 +150,8 @@ public sealed record AppSettings(
     bool EnablePublicIpAlert = false,
     bool GuestModeActive = false,
     bool EnableAutoUpdateInstall = false,
-    bool EnableWeeklyHealthReport = false);
+    bool EnableWeeklyHealthReport = false,
+    bool EnableEcoModeWhenHidden = true);
 
 public sealed record OptimizationProfile(string Name, string Description, IReadOnlyList<string> Actions);
 

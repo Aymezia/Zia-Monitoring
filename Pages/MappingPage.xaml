@@ -15,6 +15,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Mapping PC" Style="{StaticResource TitleTextBlockStyle}" Foreground="{StaticResource ZiaTextBrush}" />
@@ -217,6 +220,98 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock x:Name="HardwareDiagStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Bibliothèques Steam -->
+            <Border Grid.Row="8" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Bibliothèques Steam par disque" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshSteamLibrariesButton" Content="Analyser" Click="RefreshSteamLibraries_Click" />
+                    </Grid>
+                    <TextBlock Text="Un gros jeu sur disque dur mécanique double ses temps de chargement. Cette carte montre quel jeu est sur quel disque et son type (SSD/HDD)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="SteamLibrariesStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="SteamLibrariesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,4" Spacing="2">
+                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Advice}" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Batterie Bluetooth -->
+            <Border Grid.Row="9" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Batterie des périphériques Bluetooth" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshBluetoothButton" Content="Analyser" Click="RefreshBluetooth_Click" />
+                    </Grid>
+                    <TextBlock Text="Casque, souris, manette Bluetooth — le niveau de batterie que Windows cache dans un sous-menu. Tous les périphériques ne l'exposent pas." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="BluetoothList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding BatteryLabel}" Foreground="{StaticResource ZiaVioletBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="13" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="BluetoothStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Testeur de drift manette -->
+            <Border Grid.Row="10" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Testeur de drift de manette" Style="{StaticResource CardTitleTextStyle}" />
+                        <ToggleSwitch x:Name="DriftTestToggle" OnContent="En direct" OffContent="Arrêté" Toggled="DriftTest_Toggled" />
+                    </Grid>
+                    <TextBlock Text="Lâchez les deux sticks : les points doivent rester au centre. S'ils dérivent tout seuls, un drift naissant est probable. Manettes XInput (Xbox et compatibles)." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="24" HorizontalAlignment="Center">
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Border Width="120" Height="120" Background="{StaticResource ZiaPanelAltBrush}" BorderBrush="{StaticResource ZiaStrokeBrush}" BorderThickness="1">
+                                <Canvas x:Name="LeftStickCanvas" Width="120" Height="120">
+                                    <Ellipse Canvas.Left="56" Canvas.Top="56" Width="8" Height="8" Fill="{StaticResource ZiaMutedBrush}" />
+                                    <Ellipse x:Name="LeftStickDot" Width="14" Height="14" Fill="{StaticResource ZiaVioletBrush}" Canvas.Left="53" Canvas.Top="53" />
+                                </Canvas>
+                            </Border>
+                            <TextBlock Text="Stick gauche" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Spacing="4" HorizontalAlignment="Center">
+                            <Border Width="120" Height="120" Background="{StaticResource ZiaPanelAltBrush}" BorderBrush="{StaticResource ZiaStrokeBrush}" BorderThickness="1">
+                                <Canvas x:Name="RightStickCanvas" Width="120" Height="120">
+                                    <Ellipse Canvas.Left="56" Canvas.Top="56" Width="8" Height="8" Fill="{StaticResource ZiaMutedBrush}" />
+                                    <Ellipse x:Name="RightStickDot" Width="14" Height="14" Fill="{StaticResource ZiaVioletBrush}" Canvas.Left="53" Canvas.Top="53" />
+                                </Canvas>
+                            </Border>
+                            <TextBlock Text="Stick droit" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock x:Name="DriftStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" HorizontalAlignment="Center" />
                 </StackPanel>
             </Border>
         </Grid>

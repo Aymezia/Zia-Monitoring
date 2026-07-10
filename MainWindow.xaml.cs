@@ -31,7 +31,13 @@ public sealed partial class MainWindow : Window
     private bool _hotkeyRegistered;
     private bool _mainWindowVisible = true;
     private bool _obsGameSceneActive;
+    private bool _ecoModeActive;
     private string? _lastClipboardClearGame;
+
+    // Intervalle de collecte réduit quand la fenêtre n'est pas visible
+    // (systray ou minimisée) : l'app devient quasi gratuite quand personne
+    // ne la regarde, sans couper la surveillance de fond.
+    private static readonly TimeSpan EcoModeInterval = TimeSpan.FromSeconds(10);
 
     public MainWindow()
     {
@@ -452,7 +458,21 @@ public sealed partial class MainWindow : Window
                 AppLog.Error("Cycle de monitoring en échec", ex);
             }
 
-            var interval = TimeSpan.FromSeconds(Math.Clamp(settings.RefreshIntervalSeconds, 1, 10));
+            // Mode éco : fenêtre en systray ou minimisée → cadence réduite +
+            // restitution de la RAM au système une seule fois à la bascule.
+            var hidden = settings.EnableEcoModeWhenHidden && (!_mainWindowVisible || IsIconic(_hwnd));
+            if (hidden && !_ecoModeActive)
+            {
+                _ecoModeActive = true;
+                try { EmptyWorkingSet(GetCurrentProcess()); } catch { }
+            }
+            else if (!hidden && _ecoModeActive)
+            {
+                _ecoModeActive = false;
+            }
+
+            var baseInterval = TimeSpan.FromSeconds(Math.Clamp(settings.RefreshIntervalSeconds, 1, 10));
+            var interval = hidden && EcoModeInterval > baseInterval ? EcoModeInterval : baseInterval;
             var elapsed = TimeSpan.FromMilliseconds(Environment.TickCount64 - cycleStart);
             var delay = interval - elapsed;
 
@@ -750,6 +770,15 @@ public sealed partial class MainWindow : Window
 
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsIconic(nint hWnd);
+
+    [DllImport("psapi.dll")]
+    private static extern int EmptyWorkingSet(nint hProcess);
+
+    [DllImport("kernel32.dll")]
+    private static extern nint GetCurrentProcess();
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
     private static extern nint SetWindowLongPtr64(nint hWnd, int nIndex, nint dwNewLong);

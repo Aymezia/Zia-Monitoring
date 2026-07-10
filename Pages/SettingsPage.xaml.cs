@@ -33,6 +33,7 @@ public sealed partial class SettingsPage : Page
             DailySummaryToggle.IsOn = _settings.EnableDailyHealthSummary;
             LanguageCombo.SelectedIndex = _settings.Language == "en-US" ? 1 : 0;
             SystrayToggle.IsOn = _settings.ShowSystray;
+            EcoModeToggle.IsOn = _settings.EnableEcoModeWhenHidden;
             AutoStartToggle.IsOn = AutoStartManager.IsEnabled();
             HotkeyToggle.IsOn = _settings.EnableGlobalHotkey;
             OverlayToggle.IsOn = _settings.EnableGameOverlay;
@@ -143,6 +144,12 @@ public sealed partial class SettingsPage : Page
     private void Systray_Toggled(object sender, RoutedEventArgs e)
     {
         _settings = _settings with { ShowSystray = SystrayToggle.IsOn };
+        SaveSettings();
+    }
+
+    private void EcoMode_Toggled(object sender, RoutedEventArgs e)
+    {
+        _settings = _settings with { EnableEcoModeWhenHidden = EcoModeToggle.IsOn };
         SaveSettings();
     }
 

@@ -55,6 +55,28 @@ public sealed class SystemHealthService
         }
     }
 
+    /// <summary>Nettoie les composants Windows obsolètes (WinSxS) via DISM /StartComponentCleanup, en direct.</summary>
+    public async Task<(bool Success, string Summary)> RunComponentCleanupAsync(Action<string> onOutputLine, CancellationToken ct = default)
+    {
+        try
+        {
+            onOutputLine("=== DISM /StartComponentCleanup ===");
+            var code = await RunStreamingAsync("dism.exe", "/Online /Cleanup-Image /StartComponentCleanup", onOutputLine, ct);
+            return code == 0
+                ? (true, "Nettoyage des composants Windows terminé : espace récupéré sur WinSxS.")
+                : (false, $"Nettoyage terminé avec un avertissement (code {code}). Voir le détail ci-dessus.");
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Nettoyage annulé.");
+        }
+        catch (Exception ex)
+        {
+            Infrastructure.AppLog.Warn("Nettoyage des composants Windows (WinSxS) impossible", ex);
+            return (false, ex.Message);
+        }
+    }
+
     private static Task<int> RunStreamingAsync(string fileName, string arguments, Action<string> onOutputLine, CancellationToken ct)
     {
         var tcs = new TaskCompletionSource<int>();

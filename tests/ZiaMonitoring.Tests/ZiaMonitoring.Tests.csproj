@@ -75,6 +75,10 @@
     <Compile Include="..\..\Application\InstalledSoftwareAuditService.cs" Link="Linked\InstalledSoftwareAuditService.cs" />
     <Compile Include="..\..\Application\KnownIssueService.cs" Link="Linked\KnownIssueService.cs" />
     <Compile Include="..\..\Application\PcHealthReportService.cs" Link="Linked\PcHealthReportService.cs" />
+    <Compile Include="..\..\Application\WindowsTweaksService.cs" Link="Linked\WindowsTweaksService.cs" />
+    <Compile Include="..\..\Application\AdvancedCleanupService.cs" Link="Linked\AdvancedCleanupService.cs" />
+    <Compile Include="..\..\Application\SystemHygieneService.cs" Link="Linked\SystemHygieneService.cs" />
+    <Compile Include="..\..\Application\SteamLibraryService.cs" Link="Linked\SteamLibraryService.cs" />
     <Compile Include="..\..\Application\PrivacyScanService.cs" Link="Linked\PrivacyScanService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />

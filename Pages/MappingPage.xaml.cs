@@ -5,12 +5,106 @@ namespace ZiaMonitoring_App.Pages;
 
 public sealed partial class MappingPage : Page
 {
+    private readonly App _app;
+    private DispatcherTimer? _driftTimer;
+
     public MappingPage()
     {
         InitializeComponent();
-        DataContext = ((App)Microsoft.UI.Xaml.Application.Current).State;
+        _app = (App)Microsoft.UI.Xaml.Application.Current;
+        DataContext = _app.State;
         RefreshDisplays();
         RefreshControllers();
+        Unloaded += (_, _) => StopDriftTimer();
+    }
+
+    private async void RefreshSteamLibraries_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshSteamLibrariesButton.IsEnabled = false;
+        SteamLibrariesStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var libraries = await Task.Run(() => _app.SteamLibrary.Scan());
+            SteamLibrariesList.ItemsSource = libraries;
+            SteamLibrariesStatusLabel.Text = libraries.Count == 0
+                ? "Aucune bibliothèque Steam détectée (Steam non installé ?)."
+                : $"{libraries.Count} bibliothèque(s), {libraries.Sum(l => l.Games.Count)} jeu(x) au total.";
+        }
+        finally
+        {
+            RefreshSteamLibrariesButton.IsEnabled = true;
+        }
+    }
+
+    private async void RefreshBluetooth_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshBluetoothButton.IsEnabled = false;
+        BluetoothStatusLabel.Text = "Recherche des périphériques Bluetooth…";
+        try
+        {
+            var devices = await _app.BluetoothBattery.ScanAsync();
+            BluetoothList.ItemsSource = devices;
+            var lowCount = devices.Count(d => d.IsLow);
+            BluetoothStatusLabel.Text = devices.Count == 0
+                ? "Aucun périphérique Bluetooth connecté détecté."
+                : lowCount > 0
+                    ? $"{devices.Count} périphérique(s), {lowCount} avec batterie faible."
+                    : $"{devices.Count} périphérique(s) détecté(s).";
+        }
+        finally
+        {
+            RefreshBluetoothButton.IsEnabled = true;
+        }
+    }
+
+    private void DriftTest_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (DriftTestToggle.IsOn)
+            StartDriftTimer();
+        else
+            StopDriftTimer();
+    }
+
+    private void StartDriftTimer()
+    {
+        _driftTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+        _driftTimer.Tick += DriftTimer_Tick;
+        _driftTimer.Start();
+    }
+
+    private void StopDriftTimer()
+    {
+        if (_driftTimer is null)
+            return;
+        _driftTimer.Stop();
+        _driftTimer.Tick -= DriftTimer_Tick;
+    }
+
+    private void DriftTimer_Tick(object? sender, object e)
+    {
+        var reading = ZiaMonitoring_App.Application.ControllerRadarService.ReadPrimaryStickPositions();
+        if (reading is null)
+        {
+            DriftStatusLabel.Text = "Aucune manette XInput détectée.";
+            return;
+        }
+
+        // Canvas 120px, centre à 60 ; le point fait 14px donc offset de 7.
+        // L'axe Y est inversé (l'écran descend, le stick monte).
+        PlaceDot(LeftStickDot, reading.LeftX, reading.LeftY);
+        PlaceDot(RightStickDot, reading.RightX, reading.RightY);
+
+        DriftStatusLabel.Text = ZiaMonitoring_App.Application.ControllerRadarService.HasDrift(reading)
+            ? "⚠ Déviation détectée. Si vous ne touchez pas les sticks, c'est un signe de drift."
+            : "Sticks au centre — aucun drift détecté.";
+    }
+
+    private static void PlaceDot(Microsoft.UI.Xaml.Shapes.Ellipse dot, double x, double y)
+    {
+        const double center = 60 - 7;
+        const double radius = 46;
+        Canvas.SetLeft(dot, center + x * radius);
+        Canvas.SetTop(dot, center - y * radius);
     }
 
     private void RefreshDisplays_Click(object sender, RoutedEventArgs e) => RefreshDisplays();

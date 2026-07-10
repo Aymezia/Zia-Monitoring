@@ -78,6 +78,10 @@ public partial class App : Microsoft.UI.Xaml.Application
     public Application.AdvancedCleanupService AdvancedCleanup => _services.GetRequiredService<Application.AdvancedCleanupService>();
     public Application.SteamLibraryService SteamLibrary => _services.GetRequiredService<Application.SteamLibraryService>();
     public Application.BluetoothBatteryService BluetoothBattery => _services.GetRequiredService<Application.BluetoothBatteryService>();
+    public Application.PendingRebootService PendingReboot => _services.GetRequiredService<Application.PendingRebootService>();
+    public Application.StorageSenseService StorageSense => _services.GetRequiredService<Application.StorageSenseService>();
+    public Application.NetworkAdapterPowerService NetworkAdapterPower => _services.GetRequiredService<Application.NetworkAdapterPowerService>();
+    public Application.NetworkUsageHistoryService NetworkUsageHistory => _services.GetRequiredService<Application.NetworkUsageHistoryService>();
 
     /// <summary>
     /// Action de débloat interrompue par une relance élevée (voir
@@ -187,6 +191,10 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<Application.AdvancedCleanupService>();
         services.AddSingleton<Application.SteamLibraryService>();
         services.AddSingleton<Application.BluetoothBatteryService>();
+        services.AddSingleton<Application.PendingRebootService>();
+        services.AddSingleton<Application.StorageSenseService>();
+        services.AddSingleton<Application.NetworkAdapterPowerService>();
+        services.AddSingleton<Application.NetworkUsageHistoryService>();
 
         return services.BuildServiceProvider();
     }

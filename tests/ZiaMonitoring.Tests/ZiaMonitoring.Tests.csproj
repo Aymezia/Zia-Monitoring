@@ -79,6 +79,11 @@
     <Compile Include="..\..\Application\AdvancedCleanupService.cs" Link="Linked\AdvancedCleanupService.cs" />
     <Compile Include="..\..\Application\SystemHygieneService.cs" Link="Linked\SystemHygieneService.cs" />
     <Compile Include="..\..\Application\SteamLibraryService.cs" Link="Linked\SteamLibraryService.cs" />
+    <Compile Include="..\..\Application\PendingRebootService.cs" Link="Linked\PendingRebootService.cs" />
+    <Compile Include="..\..\Application\StorageSenseService.cs" Link="Linked\StorageSenseService.cs" />
+    <Compile Include="..\..\Application\NetworkAdapterPowerService.cs" Link="Linked\NetworkAdapterPowerService.cs" />
+    <Compile Include="..\..\Application\NetworkUsageHistoryService.cs" Link="Linked\NetworkUsageHistoryService.cs" />
+    <Compile Include="..\..\Application\DpcLatencyProbe.cs" Link="Linked\DpcLatencyProbe.cs" />
     <Compile Include="..\..\Application\PrivacyScanService.cs" Link="Linked\PrivacyScanService.cs" />
     <Compile Include="..\..\Infrastructure\AppLog.cs" Link="Linked\AppLog.cs" />
     <Compile Include="..\..\Infrastructure\Collectors\GameServerLatencyCollector.cs" Link="Linked\GameServerLatencyCollector.cs" />

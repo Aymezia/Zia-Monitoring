@@ -24,6 +24,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -385,6 +388,75 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Redémarrage en attente -->
+            <Border Grid.Row="14" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Redémarrage en attente" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshPendingRebootButton" Content="Vérifier" Click="RefreshPendingReboot_Click" />
+                    </Grid>
+                    <TextBlock Text="Windows garde un drapeau « redémarrage requis » après certaines mises à jour. Le laisser traîner empêche les changements de s'appliquer." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="PendingRebootLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Assistant de stockage (Storage Sense) -->
+            <Border Grid.Row="15" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Assistant de stockage (Storage Sense)" Style="{StaticResource CardTitleTextStyle}" />
+                    <TextBlock Text="Pilote le nettoyage automatique natif de Windows : fréquence, vidage de la corbeille et du dossier Téléchargements. Aucun droit administrateur requis." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ToggleSwitch x:Name="StorageSenseToggle" Header="Activer l'Assistant de stockage" Toggled="StorageSense_Toggled" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Fréquence :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="160" />
+                        <ComboBox x:Name="StorageSenseCadenceCombo" Width="200" SelectionChanged="StorageSenseCadence_Changed">
+                            <ComboBoxItem Content="Quand l'espace est faible" Tag="0" />
+                            <ComboBoxItem Content="Chaque jour" Tag="1" />
+                            <ComboBoxItem Content="Chaque semaine" Tag="7" />
+                            <ComboBoxItem Content="Chaque mois" Tag="30" />
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Vider la corbeille après :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="160" />
+                        <ComboBox x:Name="StorageSenseRecycleCombo" Width="200" SelectionChanged="StorageSenseRetention_Changed">
+                            <ComboBoxItem Content="Jamais" Tag="0" />
+                            <ComboBoxItem Content="14 jours" Tag="14" />
+                            <ComboBoxItem Content="30 jours" Tag="30" />
+                            <ComboBoxItem Content="60 jours" Tag="60" />
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Vider Téléchargements après :" Foreground="{StaticResource ZiaTextBrush}" VerticalAlignment="Center" Width="160" />
+                        <ComboBox x:Name="StorageSenseDownloadsCombo" Width="200" SelectionChanged="StorageSenseRetention_Changed">
+                            <ComboBoxItem Content="Jamais" Tag="0" />
+                            <ComboBoxItem Content="14 jours" Tag="14" />
+                            <ComboBoxItem Content="30 jours" Tag="30" />
+                            <ComboBoxItem Content="60 jours" Tag="60" />
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBlock x:Name="StorageSenseStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Sonde de latence / réactivité -->
+            <Border Grid.Row="16" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Latence système / réactivité temps réel" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RunLatencyProbeButton" Content="Mesurer (3 s)" Click="RunLatencyProbe_Click" />
+                    </Grid>
+                    <TextBlock Text="Une latence élevée est la cause fréquente des crépitements audio et micro-freezes en jeu. Cette sonde donne le chiffre-clé (comme LatencyMon) ; identifier le pilote fautif demande un outil ETW dédié." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="LatencyProbeLabel" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>

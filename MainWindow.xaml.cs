@@ -140,6 +140,7 @@ public sealed partial class MainWindow : Window
         var lastHistoryPush = DateTime.MinValue;
         var lastThermalDriftCheck = DateTime.MinValue;
         var lastBsodCheck = DateTime.MinValue;
+        var lastNetworkAccumulate = DateTime.UtcNow;
 
         while (!ct.IsCancellationRequested)
         {
@@ -155,6 +156,10 @@ public sealed partial class MainWindow : Window
 
                 app.MetricsHistory.Record(frame.Snapshot);
                 app.PrometheusExporter.UpdateFrame(frame);
+
+                var netElapsed = (DateTime.UtcNow - lastNetworkAccumulate).TotalSeconds;
+                lastNetworkAccumulate = DateTime.UtcNow;
+                app.NetworkUsageHistory.Accumulate(frame.Snapshot.TopNetworkProcesses, netElapsed);
 
                 if (settings.EnablePrometheusExporter && !app.PrometheusExporter.IsRunning)
                     app.PrometheusExporter.Start();

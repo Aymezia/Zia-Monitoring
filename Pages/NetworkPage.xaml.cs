@@ -258,6 +258,68 @@ public sealed partial class NetworkPage : Page
         }
     }
 
+    private async void RefreshAdapterPower_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshAdapterPowerButton.IsEnabled = false;
+        AdapterPowerStatusLabel.Text = "Analyse en cours…";
+        try
+        {
+            var adapters = await Task.Run(() => _app.NetworkAdapterPower.Scan());
+            AdapterPowerList.ItemsSource = adapters;
+            var risky = adapters.Count(a => a.PowerOffAllowed);
+            AdapterPowerStatusLabel.Text = adapters.Count == 0
+                ? "Aucune carte réseau physique détectée."
+                : risky > 0
+                    ? $"{risky} carte(s) que Windows peut éteindre — à protéger si vous subissez des coupures."
+                    : $"{adapters.Count} carte(s) : toutes protégées.";
+        }
+        finally
+        {
+            RefreshAdapterPowerButton.IsEnabled = true;
+        }
+    }
+
+    private async void ProtectAdapter_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string instanceKey })
+            return;
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "La protection de la carte réseau"))
+            return;
+
+        var (_, message) = _app.NetworkAdapterPower.Protect(instanceKey);
+        AdapterPowerStatusLabel.Text = message;
+        RefreshAdapterPower_Click(sender, e);
+    }
+
+    private async void RestoreAdapter_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string instanceKey })
+            return;
+        if (!await AdminElevationPrompt.EnsureElevatedAsync(XamlRoot, "Le réglage de la carte réseau"))
+            return;
+
+        var (_, message) = _app.NetworkAdapterPower.Restore(instanceKey);
+        AdapterPowerStatusLabel.Text = message;
+        RefreshAdapterPower_Click(sender, e);
+    }
+
+    private async void RefreshNetUsage_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshNetUsageButton.IsEnabled = false;
+        try
+        {
+            var consumers = await Task.Run(() => _app.NetworkUsageHistory.GetTopConsumers());
+            NetUsageList.ItemsSource = consumers;
+            NetUsageStatusLabel.Text = consumers.Count == 0
+                ? "Aucune donnée pour l'instant : les statistiques s'accumulent pendant que Zia tourne."
+                : $"{consumers.Count} application(s) suivie(s) sur 30 jours.";
+        }
+        finally
+        {
+            RefreshNetUsageButton.IsEnabled = true;
+        }
+    }
+
     private async void AnalyzeWifiChannel_Click(object sender, RoutedEventArgs e)
     {
         AnalyzeWifiChannelButton.IsEnabled = false;

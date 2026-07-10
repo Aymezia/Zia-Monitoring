@@ -110,6 +110,7 @@ public sealed class PcAuditService
             SsdWearService.Analyze(),
             BatteryService.GetBatteryHealth()));
         findings.AddRange(BuildUpdateFindings(_windowsUpdates.GetInstalledUpdates()));
+        findings.AddRange(BuildPendingRebootFindings(new PendingRebootService().GetStatus()));
 
         var ordered = findings
             .OrderBy(f => f.Severity)
@@ -369,6 +370,22 @@ public sealed class PcAuditService
                 "L'autonomie réelle a probablement bien baissé ; un remplacement de batterie est à envisager."));
 
         return findings;
+    }
+
+    internal static IReadOnlyList<PcAuditFinding> BuildPendingRebootFindings(PendingRebootStatus status)
+    {
+        if (!status.RebootRequired)
+            return [];
+
+        // Un reboot en attente devient une vraie recommandation surtout si la
+        // machine tourne depuis longtemps sans l'avoir appliqué.
+        var severity = status.Uptime.TotalDays >= 2 ? AuditSeverity.Warning : AuditSeverity.Info;
+        return
+        [
+            new PcAuditFinding(severity, AuditCategory.Stabilite, "Redémarrage en attente",
+                status.Label,
+                "Redémarrez le PC pour finaliser les mises à jour et changements système en attente.")
+        ];
     }
 
     internal static IReadOnlyList<PcAuditFinding> BuildUpdateFindings(IReadOnlyList<InstalledUpdateInfo> updates)

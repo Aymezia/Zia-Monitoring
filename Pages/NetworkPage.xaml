@@ -19,6 +19,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <StackPanel>
@@ -341,6 +343,65 @@
                                     <Button Grid.Column="2" Content="Réveiller" Tag="{Binding MacAddress}" Click="WakeDevice_Click" Style="{StaticResource AccentButtonStyle}" />
                                     <Button Grid.Column="3" Content="Retirer" Tag="{Binding MacAddress}" Click="RemoveWolDevice_Click" />
                                 </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Gestion d'alimentation des cartes réseau -->
+            <Border Grid.Row="11" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Alimentation des cartes réseau" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshAdapterPowerButton" Content="Analyser" Click="RefreshAdapterPower_Click" />
+                    </Grid>
+                    <TextBlock Text="Quand Windows a le droit d'« éteindre la carte pour économiser l'énergie », il peut couper le réseau en pleine partie (surtout sur portable). Protéger désactive ce comportement. Action administrateur ; réactivez la carte ou redémarrez pour appliquer." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AdapterPowerStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="AdapterPowerList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="10" Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource ZiaTextBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" VerticalAlignment="Center" FontSize="12"
+                                               Foreground="{StaticResource ZiaMutedBrush}" />
+                                    <Button Grid.Column="2" Content="Protéger" Tag="{Binding InstanceKey}" Click="ProtectAdapter_Click" VerticalAlignment="Center"
+                                            Visibility="{Binding PowerOffAllowed, Converter={StaticResource BoolToVis}}" />
+                                    <Button Grid.Column="2" Content="Rétablir défaut" Tag="{Binding InstanceKey}" Click="RestoreAdapter_Click" VerticalAlignment="Center"
+                                            Visibility="{Binding PowerOffAllowed, Converter={StaticResource BoolToVisInverse}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Consommation réseau par application -->
+            <Border Grid.Row="12" Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Consommation réseau par application" Style="{StaticResource CardTitleTextStyle}" />
+                        <Button Grid.Column="1" x:Name="RefreshNetUsageButton" Content="Actualiser" Click="RefreshNetUsage_Click" />
+                    </Grid>
+                    <TextBlock Text="Quelle application a le plus consommé sur 30 jours. Estimation cumulée pendant que Zia Monitoring tourne (Windows n'expose pas d'historique fiable) — l'ordre des gros consommateurs reste parlant." Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="NetUsageStatusLabel" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" />
+                    <ItemsControl x:Name="NetUsageList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource ZiaTextBrush}" FontFamily="{StaticResource ZiaMonoFontFamily}" FontSize="13" Margin="0,2" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

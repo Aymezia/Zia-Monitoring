@@ -24,6 +24,7 @@ public sealed class WindowsTweaksService
     private const string MultimediaProfileKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile";
     private const string PowerKey = @"SYSTEM\CurrentControlSet\Control\Session Manager\Power";
     private const string VisualEffectsKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects";
+    private const string HvciKey = @"SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity";
     private const string TcpInterfacesKey = @"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces";
     private const string UltimatePerformanceGuid = "e9a42b02-d5df-448d-aa00-03f14749eb61";
 
@@ -65,6 +66,10 @@ public sealed class WindowsTweaksService
             new WindowsTweak("visual-effects", "Effets visuels Windows",
                 "Animations et transparence. Le profil « performances » les coupe — utile sur PC modeste.",
                 VisualEffectsState(ReadHkcuDword(VisualEffectsKey, "VisualFXSetting")), VisualEffectsLabel(ReadHkcuDword(VisualEffectsKey, "VisualFXSetting"))),
+
+            new WindowsTweak("hvci", "Intégrité de la mémoire (Core Isolation / HVCI)",
+                "Sécurité par virtualisation qui coûte souvent 5 à 10 % de FPS. La désactiver améliore les performances en jeu, mais réduit la protection contre certaines attaques bas niveau — à ne faire qu'en connaissance de cause.",
+                HvciState(ReadHklmDword(HvciKey, "Enabled")), HvciLabel(ReadHklmDword(HvciKey, "Enabled"))),
         ];
     }
 
@@ -108,6 +113,12 @@ public sealed class WindowsTweaksService
                         ? "Profil « performances » appliqué — redémarrez l'Explorateur pour voir l'effet."
                         : "Effets visuels laissés au choix de Windows.");
 
+                case "hvci":
+                    WriteHklmDword(HvciKey, "Enabled", optimize ? 0 : 1);
+                    return (true, optimize
+                        ? "Intégrité de la mémoire désactivée — redémarrage requis pour libérer les performances."
+                        : "Intégrité de la mémoire réactivée — redémarrage requis.");
+
                 default:
                     return (false, "Réglage inconnu.");
             }
@@ -140,6 +151,10 @@ public sealed class WindowsTweaksService
 
     internal static TweakState VisualEffectsState(int? value) => value switch { 2 => TweakState.Optimized, null => TweakState.Unknown, _ => TweakState.Default };
     internal static string VisualEffectsLabel(int? value) => value switch { 2 => "Performances", 1 => "Apparence", 3 => "Personnalisé", null => "Automatique", _ => "Automatique" };
+
+    // Ici « optimisé » = HVCI désactivé (meilleur FPS) ; le défaut Windows récent est activé.
+    internal static TweakState HvciState(int? value) => value switch { 0 => TweakState.Optimized, 1 => TweakState.Default, _ => TweakState.Unknown };
+    internal static string HvciLabel(int? value) => value switch { 1 => "Activée", 0 => "Désactivée", _ => "Indéterminée" };
 
     // ---- Accès système ----
 

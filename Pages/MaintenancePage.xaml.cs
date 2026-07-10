@@ -29,6 +29,8 @@ public sealed partial class MaintenancePage : Page
         FilesStatusLabel.Text = "Choisissez un dossier, puis cherchez les doublons ou les plus gros éléments.";
         HealthCheckStatusLabel.Text = "Vérifie et répare les fichiers système Windows corrompus (DISM + SFC). Peut prendre 5 à 15 minutes.";
         ServiceDependencyLabel.Text = "Entrez le nom technique d'un service (visible dans services.msc).";
+
+        LoadStorageSense();
     }
 
     private void Forecast_Changed(object sender, object e) => UpdateForecast();
@@ -428,6 +430,68 @@ public sealed partial class MaintenancePage : Page
         finally
         {
             RefreshContextMenuButton.IsEnabled = true;
+        }
+    }
+
+    private void RefreshPendingReboot_Click(object sender, RoutedEventArgs e)
+    {
+        PendingRebootLabel.Text = _app.PendingReboot.GetStatus().Label;
+    }
+
+    private bool _storageSenseLoading;
+
+    private void LoadStorageSense()
+    {
+        _storageSenseLoading = true;
+        try
+        {
+            var config = _app.StorageSense.GetConfig();
+            StorageSenseToggle.IsOn = config.Enabled;
+            StorageSenseCadenceCombo.SelectedIndex = config.Cadence switch { 1 => 1, 7 => 2, 30 => 3, _ => 0 };
+            StorageSenseRecycleCombo.SelectedIndex = config.RecycleBinDays switch { 14 => 1, 30 => 2, 60 => 3, _ => 0 };
+            StorageSenseDownloadsCombo.SelectedIndex = config.DownloadsDays switch { 14 => 1, 30 => 2, 60 => 3, _ => 0 };
+        }
+        finally
+        {
+            _storageSenseLoading = false;
+        }
+    }
+
+    private void StorageSense_Toggled(object sender, RoutedEventArgs e) => SaveStorageSense();
+    private void StorageSenseCadence_Changed(object sender, SelectionChangedEventArgs e) => SaveStorageSense();
+    private void StorageSenseRetention_Changed(object sender, SelectionChangedEventArgs e) => SaveStorageSense();
+
+    private void SaveStorageSense()
+    {
+        if (_storageSenseLoading)
+            return;
+
+        var config = new ZiaMonitoring_App.Application.StorageSenseConfig(
+            Enabled: StorageSenseToggle.IsOn,
+            Cadence: TagInt(StorageSenseCadenceCombo),
+            CleanTemp: true,
+            RecycleBinDays: TagInt(StorageSenseRecycleCombo),
+            DownloadsDays: TagInt(StorageSenseDownloadsCombo));
+
+        var (_, message) = _app.StorageSense.Apply(config);
+        StorageSenseStatusLabel.Text = message;
+    }
+
+    private static int TagInt(ComboBox combo) =>
+        combo.SelectedItem is ComboBoxItem { Tag: string tag } && int.TryParse(tag, out var v) ? v : 0;
+
+    private async void RunLatencyProbe_Click(object sender, RoutedEventArgs e)
+    {
+        RunLatencyProbeButton.IsEnabled = false;
+        LatencyProbeLabel.Text = "Mesure en cours (3 s)…";
+        try
+        {
+            var result = await ZiaMonitoring_App.Application.DpcLatencyProbe.MeasureAsync();
+            LatencyProbeLabel.Text = result.Label;
+        }
+        finally
+        {
+            RunLatencyProbeButton.IsEnabled = true;
         }
     }
 

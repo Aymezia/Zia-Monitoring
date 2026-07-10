@@ -4,11 +4,12 @@
 
 # ⚡ Zia Monitoring
 
-**Logiciel de monitoring PC Windows — temps réel, jeux, sécurité et optimisation**
+**Windows PC monitoring, optimization, security and maintenance — all in one app**
 
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-blue?style=flat-square)
 ![Framework](https://img.shields.io/badge/.NET-8.0-purple?style=flat-square)
 ![UI](https://img.shields.io/badge/UI-WinUI%203-violet?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.3.0-orange?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 ![Open Source](https://img.shields.io/badge/Open%20Source-Yes-brightgreen?style=flat-square)
 
@@ -16,170 +17,146 @@
 
 ---
 
-## Aperçu
+## Overview
 
-Zia Monitoring est un logiciel de monitoring système complet pour Windows 10/11, développé en **C# / WinUI 3**. Il surveille en temps réel les performances de votre PC, détecte les jeux installés, propose des optimisations intelligentes et analyse la sécurité de votre machine — sans dépendance tierce obligatoire.
+Zia Monitoring is a comprehensive system utility for Windows 10/11, built in **C# / WinUI 3**. It monitors your PC in real time, runs a full health audit, optimizes Windows for gaming and performance, cleans up disk space, and checks your machine's security — with no mandatory third-party dependency and no account required (everything runs locally).
+
+The app **starts without administrator rights**: it only asks to relaunch elevated for the specific actions that genuinely need it (telemetry/task debloat, firewall kill switch, DNS changes, DISM/SFC, hardware sensors, registry-level tweaks).
 
 ---
 
-## Fonctionnalités
+## Features
 
-### Dashboard temps réel
-- CPU, RAM, température CPU/GPU, usage GPU, VRAM
-- Vitesse des ventilateurs (RPM)
-- Bande passante réseau (upload/download) et latence ping
-- Débit disque I/O (lecture/écriture MB/s)
-- Score de santé système et niveau de risque
+### 📊 Real-time dashboard
+CPU, RAM, CPU/GPU temperature and usage, VRAM, fan RPM, network up/down and ping, disk I/O, estimated FPS, top processes, and a global health score — with a terminal-style UI where a cold→hot thermal gradient is reserved for real physical values (load, temperature).
 
-### Cartographie PC
-- Inventaire matériel complet : CPU, GPU, carte mère, BIOS, RAM, disques, uptime
-- Inventaire des jeux installés (Steam, Epic, Riot, Battle.net, Windows)
-- Temps de jeu Steam lu depuis `localconfig.vdf`
-- Lancement direct des jeux depuis l'app
+### 🖥️ PC mapping
+- Full hardware inventory (CPU, GPU, motherboard, BIOS, RAM, disks, uptime)
+- Installed games (Steam, Epic, Riot, Battle.net) with playtime and one-click launch
+- **Steam library map**: which game sits on which disk, and whether that disk is an SSD or HDD
+- Advanced hardware diagnostics: XMP/EXPO profile, single/dual-channel RAM, GPU PCIe link width, SSD wear
+- Monitors (resolution / refresh rate / HDR), controllers, **Bluetooth device battery**, and a live **controller stick-drift tester**
 
-### Sante et historique
-- Graphiques LiveCharts2 : historique CPU 24h et tendance 7 jours
-- Historique **persisté en SQLite** (un échantillon / 15 s, rétention 8 jours) : les graphes survivent aux redémarrages
-- Alertes dynamiques en temps réel
+### 🩺 Audit & recommendations
+- **Full PC audit** that aggregates security, privacy, debloat, startup, stability and hardware signals into a single prioritized list with a **0–100 score**
+- Known BSOD stop-code / faulting-module correlation to official sources
+- **Weekly health report** (HTML + PDF) with the score trend over time
 
-### Recommandations intelligentes
-- Suggestions automatiques basées sur charge CPU, RAM, températures, espace disque
-- Détection surchauffe CPU/GPU
+### 🚀 Boost & Windows tweaks
+- Safe boost engine with preview and full rollback
+- Startup program manager (StartupApproved — compatible with Task Manager)
+- Reversible gaming tweaks: HAGS, Nagle's algorithm, network throttling, system responsiveness, "Ultimate Performance" power plan, SysMain, Fast Startup, visual effects, and **Memory Integrity (HVCI / Core Isolation)**
 
-### Boost et optimisation
-- Moteur de boost avec preview sécurisé avant exécution
-- Rollback automatique de toutes les actions
-- 4 profils prédéfinis : Gaming Max, Travail Silencieux, Streaming, Equilibre
-- Profils personnalisés avec **export/import JSON** (partage entre machines)
-- Nettoyage cache navigateurs (Chrome, Edge, Firefox) directement depuis l'app
-- Désactivation/restauration des animations Windows
+### 🔒 Security & privacy
+Firewall/UAC status, S.M.A.R.T. warnings, obsolete drivers, suspicious startup entries, known malware signatures, keylogger-hook indicators, multiple-antivirus conflict detection, one-click Windows privacy hardening, guided debloat (categorized, reversible), webcam/mic/folder access audit, browser extension audit, Have I Been Pwned password check, per-app network kill switch, and duplicate/trial software audit.
 
-### Sécurité et santé disques
-- Vérification pare-feu Windows et UAC
-- Scan S.M.A.R.T via WMI (défaillance disque prévue)
-- Détection des pilotes obsolètes (> 3 ans)
-- Scan des entrées de démarrage suspectes
+### 🌐 Network
+DNS switching (Cloudflare/Google/Quad9) + DoH, latency comparison, VPN detection, traceroute, packet loss, regional datacenter latency, connection geo-location, Wi-Fi channel analysis, Wake-on-LAN, public-IP-change alerts, **per-app network usage history**, and **network-adapter power management** (stop Windows from turning the NIC off mid-game).
 
-### Gamer & Streamer
-- Détection du jeu actif en cours (30+ titres reconnus)
-- Mode silencieux automatique à l'ouverture d'un jeu
-- Diagnostics spécifiques (Valorant, OBS, encodeurs GPU)
+### 🧹 Maintenance
+Disk space forecast, shader cache / page file analysis, duplicate & large file finder, DISM/SFC repair, service dependencies, boot-time trend, stability diagnostics (app crashes, WHEA, last BSOD, memory-leak suspects, thermal drift), Windows Update history + one-click KB uninstall, TRIM status, disk-optimization audit, warranty CSV export, advanced cleanup (hiberfil.sys, WinSxS, Windows Update cache, Windows.old, old installers, restore points), system hygiene (restart Explorer, repair icon cache, context-menu inventory), **Storage Sense** control, **pending-reboot detector**, and a **DPC/latency probe** (audio crackle / micro-stutter diagnosis).
 
-### Notifications et alertes
-- Toast Windows natif : CPU, surchauffe CPU/GPU, disque plein — **seuils configurables** dans les Paramètres
-- Résumé de santé quotidien
-- Notification au démarrage si une nouvelle version est publiée (GitHub Releases)
+### 🎮 Gamer & streamer
+Active-game detection, automatic silent mode, game booster, per-game launch profiles, per-session reports (FPS, 1% lows, max temps), game-save backup with restore testing, anti-cheat inventory, FPS-drop correlation, and OBS scene auto-switching.
 
-### Export et rapports
-- Export rapport HTML complet (machine, métriques, jeux, alertes)
-- Export diagnostic ZIP (JSON + résumé)
+### 🔔 Integrations & notifications
+Native Windows toasts (configurable thresholds), daily health summary, **remote phone notifications via ntfy.sh** (no account needed), **Discord Rich Presence**, OBS WebSocket, and a Prometheus exporter.
 
-### Paramètres
-- Intervalle de rafraîchissement configurable (1–10s)
-- Activation individuelle des alertes, résumé quotidien, mode silencieux, scheduler
-- Historique des optimisations avec score avant/après
+### ⚙️ Quality of life
+Command palette (Ctrl+K), searchable settings, full settings backup/restore (DPAPI-encrypted), in-game overlay, always-on-top mini widget with themes, achievements, guest mode, **eco mode** (collection slows down when the window is hidden), **single-instance** guard, and **automatic updates** from GitHub Releases.
 
 ---
 
 ## Installation
 
-L'application ne nécessite pas les droits administrateur pour démarrer ;
-seules certaines actions (débloat télémétrie/tâches, kill switch, DNS,
-DISM/SFC, capteurs matériel) proposent une relance élevée au moment où
-elles sont utilisées.
+The app does not require administrator rights to run — it only requests an elevated relaunch for the actions that need it.
 
-### Option 1 — Portable (aucune installation)
-Téléchargez le dossier portable depuis les [Releases](../../releases),
-extrayez-le où vous voulez et lancez `ZiaMonitoring.App.exe`.
+### Option 1 — Portable (no installation)
+Download `ZiaMonitoring-Portable-vX.Y.Z.zip` from the [Releases](../../releases), extract it anywhere, and run `ZiaMonitoring.App.exe`. It's self-contained (bundled .NET + Windows App SDK runtime), so there's nothing to install first.
 
-### Option 2 — Installateur (recommandé)
-Téléchargez `ZiaMonitoring-Setup.exe` et exécutez-le.
-Installation par utilisateur (pas d'invite UAC), avec entrée standard
-dans "Applications installées" et désinstallation automatique.
+### Option 2 — Installer
+Download `ZiaMonitoring-Setup.exe` (when provided in a release) and run it. Per-user install with no UAC prompt, a standard entry in "Installed apps", and clean uninstall.
+
+Once installed or on a portable build, Zia can update itself from GitHub Releases (About page → *Update now*, or automatic install on startup — off by default).
 
 ---
 
-## Build depuis les sources
+## Build from source
 
-**Prérequis :** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8), Windows 10/11
+**Prerequisites:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8), Windows 10/11
 
 ```powershell
 git clone https://github.com/Aymezia/Zia-Monitoring.git
 cd "Zia-Monitoring/ZiaMonitoring.App"
 
-# Build debug (solution complète : app + tests)
+# Debug build (whole solution: app + tests)
 dotnet build ZiaMonitoring.sln
 
-# Tests unitaires
+# Unit tests
 dotnet test tests/ZiaMonitoring.Tests/ZiaMonitoring.Tests.csproj
 
-# Build portable (release)
+# Portable release build (self-contained)
 powershell -ExecutionPolicy Bypass -File .\installer\Build-Portable.ps1
 
-# Build installeur (necessite Inno Setup 6 : https://jrsoftware.org/isdl.php)
+# Installer (requires Inno Setup 6: https://jrsoftware.org/isdl.php)
 powershell -ExecutionPolicy Bypass -File .\installer\Build-InnoSetup.ps1
 ```
 
-La CI GitHub Actions (`.github/workflows/ci.yml`) build l'app et exécute les
-tests sur chaque push/PR vers `main`. La migration vers .NET 10 est préparée :
-voir [docs/MIGRATION-NET10.md](docs/MIGRATION-NET10.md). Les fonctionnalités
-différées (FPS via PresentMon, localisation, benchmarks, overlay
-personnalisable) sont détaillées dans [docs/ROADMAP.md](docs/ROADMAP.md).
-
-L'exécutable portable se trouve dans `publish\portable\ZiaMonitoring.App.exe`.
+The portable executable is produced in `publish\portable\ZiaMonitoring.App.exe`. A .NET 10 migration is prepared — see [docs/MIGRATION-NET10.md](docs/MIGRATION-NET10.md); deferred ideas live in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ---
 
-## Structure du projet
+## Project structure
 
 ```
 ZiaMonitoring.App/
-├── ZiaMonitoring.sln                  # Solution (app + bootstrapper + tests)
-├── App.xaml.cs                        # Bootstrap, conteneur DI, gestion exceptions
-├── MainWindow.xaml(.cs)               # Shell navigation + boucle de monitoring en arrière-plan
+├── ZiaMonitoring.sln                  # Solution (app + tests)
+├── App.xaml.cs                        # Bootstrap, DI container, exception handling, single-instance
+├── MainWindow.xaml(.cs)               # Navigation shell + background monitoring loop
 ├── Core/
-│   └── Models/MonitoringModels.cs     # Modèles domaine (snapshot, profile, settings...)
+│   └── Models/MonitoringModels.cs     # Domain models (snapshot, profile, settings...)
 ├── Infrastructure/
-│   ├── AppLog.cs                      # Logger partagé (rotation 2 Mo, déduplication)
-│   └── Collectors/                    # Collecteurs WMI/Win32 (CPU, GPU, réseau, disques...)
-├── Application/                       # Services métier (boost, sécurité, profils, historique SQLite...)
+│   ├── AppLog.cs                      # Shared logger (2 MB rotation, dedup)
+│   ├── AdminElevation.cs              # On-demand elevation helper
+│   └── Collectors/                    # WMI/Win32 collectors (CPU, GPU, network, disks...)
+├── Application/                       # Business services (audit, boost, security, tweaks, cleanup, SQLite history...)
 ├── ViewModels/
-│   └── AppStateViewModel.cs           # State partagé MVVM (CommunityToolkit.Mvvm)
-├── Pages/                             # Pages WinUI 3 (Dashboard, Mapping, Health, Boost...)
-├── tests/ZiaMonitoring.Tests/         # Tests unitaires xUnit
-├── docs/                              # Guide migration .NET 10, roadmap
-└── installer/                         # Scripts PowerShell + WiX pour packaging
+│   └── AppStateViewModel.cs           # Shared MVVM state (CommunityToolkit.Mvvm)
+├── Pages/                             # WinUI 3 pages (Dashboard, Mapping, Boost, Security, Network, Maintenance...)
+├── tests/ZiaMonitoring.Tests/         # xUnit unit tests (478+)
+├── docs/                              # .NET 10 migration guide, roadmap, brand assets
+└── installer/                         # Portable + Inno Setup build scripts
 ```
 
 ---
 
-## Technologies
+## Tech stack
 
-| Composant | Technologie |
+| Component | Technology |
 |---|---|
-| Framework | .NET 8 / C# |
+| Framework | .NET 8 / C# 12 |
 | UI | WinUI 3 (Windows App SDK 2.2) |
-| Graphiques | LiveChartsCore 2 (SkiaSharp) |
-| Packaging | WiX Toolset v7 |
-| Collecte hardware | WMI / Win32 / PerformanceCounters |
-| Stockage paramètres | JSON (`%LOCALAPPDATA%\ZiaMonitoring`), clé API chiffrée DPAPI |
-| Historique métriques | SQLite (`metrics.db`) |
-| Tests / CI | xUnit + GitHub Actions |
+| Charts | LiveChartsCore 2 (SkiaSharp) |
+| Packaging | Portable self-contained + Inno Setup 6 |
+| Hardware collection | WMI / Win32 / LibreHardwareMonitor / PerformanceCounters |
+| Settings storage | JSON (`%LOCALAPPDATA%\ZiaMonitoring`), secrets encrypted with DPAPI |
+| Metrics history | SQLite (`metrics.db`) |
+| Tests | xUnit (478+ tests) |
 
 ---
 
-## Contribuer
+## Contributing
 
-Les contributions sont les bienvenues !
+Contributions are welcome!
 
-1. Forkez le dépôt
-2. Créez une branche : `git checkout -b feature/ma-fonctionnalite`
-3. Committez : `git commit -m "feat: description"`
-4. Poussez : `git push origin feature/ma-fonctionnalite`
-5. Ouvrez une Pull Request
+1. Fork the repository
+2. Create a branch: `git checkout -b feature/my-feature`
+3. Commit: `git commit -m "feat: description"`
+4. Push: `git push origin feature/my-feature`
+5. Open a Pull Request
 
 ---
 
-## Licence
+## License
 
-Distribué sous licence **MIT**. Voir [LICENSE](LICENSE) pour plus d'informations.
+Released under the **MIT** license. See [LICENSE](LICENSE) for details.
